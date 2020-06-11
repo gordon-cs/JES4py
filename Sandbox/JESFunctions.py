@@ -3,6 +3,10 @@ from PIL import Image, ImageDraw
 def show(picture):
     picture.show()
 
+#
+def makePicture(filePath):
+    return Image.open(path)
+
 #width and height must be ints
 def makeEmptyPicture(width, height):
     mode = "RGB"
