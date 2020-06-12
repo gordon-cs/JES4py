@@ -4,7 +4,7 @@
 """
 
 import os
-import easygui as eg
+from tkinter import filedialog
 import JESConfig
 
 def pickAFile():
@@ -14,7 +14,7 @@ def pickAFile():
 
     Returns:
         the file file name of the picked file or None"""
-    return eg.fileopenbox(title="Pick A File")
+    return filedialog.askopenfilename(initialdir = "/",title = "Pick a file",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
 
 def pickADirectory():
     """Method to let the user pick a directory and return the full
@@ -22,7 +22,7 @@ def pickADirectory():
 
     Returns:
         the full directory path"""
-    return eg.diropenbox(title="Pick A Folder")
+    return filedialog.askdirectory()
 
 def getMediaPath(fileName):
     """Method to get full path for the passed file name
@@ -54,4 +54,4 @@ def setMediaPath(directory):
 def pickMediaPath():
     """Method to pick a media path using the file chooser and set it
     """
-    JESConfig.CONFIG_MEDIAPATH = eg.diropenbox(title="Choose Media Path")
+    JESConfig.CONFIG_MEDIAPATH = filedialog.askopenfilename(initialdir = "/",title = "Pick a file")
