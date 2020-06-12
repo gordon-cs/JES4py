@@ -1,11 +1,15 @@
 from PIL import Image, ImageDraw
+from tkinter import colorchooser
+from tkinter import *
+from tkinter import filedialog
+
 
 def show(picture):
     picture.show()
 
 #
 def makePicture(filePath):
-    return Image.open(path)
+    return Image.open(filePath)
 
 #width and height must be ints
 def makeEmptyPicture(width, height):
@@ -58,10 +62,10 @@ def addFilledRect(picture, upperLeftX, upperLeftY, width, height):
     draw.rectangle(shape, fill = (0, 0, 0), outline = None)
 
 #adds a rectangle to the image(image) that is filled in with (color)
-def addFilledRect(picture, upperLeftX, upperLeftY, width, height, color):
+def addFilledRect(picture, upperLeftX, upperLeftY, width, height, acolor):
     draw = ImageDraw.Draw(picture)
     shape = [upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height]
-    draw.rectangle(shape, fill = color, outline = None)
+    draw.rectangle(shape, fill = acolor, outline = None)
 
 def addArc(picture, startX, startY, width, height, start, angle):
     draw = ImageDraw.Draw(picture)
@@ -93,3 +97,11 @@ def addOvalFilled(picture, startX, startY, width, height, color):
     shape = [startX, startY, startX+width, startY+height]
     draw.ellipse(shape, fill = color, outline = ( 0, 0, 0), width=1)
 
+#The function returns the hexadecimal code of the color selected by the user. Uses colorChooser from tkinter
+def pickAColor():
+   tup = colorchooser.askcolor()
+   return tup[0]
+
+#The function uses tkinter in order to return a filePath.
+def pickAFile():
+    return filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
