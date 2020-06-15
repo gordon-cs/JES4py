@@ -1,5 +1,6 @@
 import wx
 """
+# Simplist Hello World app
 class MyFrame(wx.Frame):    
     def __init__(self):
         super().__init__(parent=None, title='Hello World')
@@ -16,6 +17,7 @@ if __name__ == '__main__':
     app.MainLoop()
 """
 """
+# Less simple Hellow World app
 class MyFrame(wx.Frame):    
     def __init__(self):
         super().__init__(parent=None, title='Hello World')
@@ -34,13 +36,29 @@ if __name__ == '__main__':
     app.MainLoop()
 """
 
-class MyFrame(wx.Frame):
-    """ We simply derive a new class of Frame. """
+# Simple text editor
+
+class MainWindow(wx.Frame):
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, title=title, size=(300,200))
         self.control = wx.TextCtrl(self, style=wx.TE_MULTILINE)
+        self.CreateStatusBar() # A Statusbar in the bottom of the window
+
+        # Setting up the menu bar
+        filemenu = wx.Menu()
+
+        # wx.ID_ABOUT and wx.ID_EXIT are standard IDs provided by wxWidgets.
+        menuItemAbout = filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
+        self.Bind(wx.EVT_MENU, self.OnAbout, menuItemAbout)
+        filemenu.AppendSeparator()
+        filemenu.Append(wx.ID_EXIT,"E&xit"," Terminate the program")
+
+        # Creating the menubar.
+        menuBar = wx.MenuBar()
+        menuBar.Append(filemenu,"&File") # Adds the "filemenu" to the MenuBar
+        self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
         self.Show(True)
 
 app = wx.App(False)
-frame = MyFrame(None, 'Small editor')
+frame = MainWindow(None, "Sample editor")
 app.MainLoop()

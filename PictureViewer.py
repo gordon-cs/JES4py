@@ -23,8 +23,18 @@ class PictureTool(wx.App):
     def __init__(self, redirect=False, filename=None):
         wx.App.__init__(self, redirect, filename)
         self.frame = wx.Frame(None, title='Picture Tool')
+        self.CreateStatusBar() # Creates a status bar on the bottom of the window
 
         self.panel = wx.Panel(self.frame)
+
+        # Setting up the menu bar
+        filemenu = wx.Menu()
+
+        # wx.ID_ABOUT and wx.ID_EXIT are standard IDs provided by wxWidgets.
+        filemenu.Append(wx.ID_OPEN, "&Open", "Browse for an image")
+        filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
+        filemenu.AppendSeparator()
+        filemenu.Append(wx.ID_EXIT,"E&xit"," Terminate the program")
         
         # Set the maximum size of the picture
         self.PictureMaxSize = 360
@@ -33,4 +43,4 @@ class PictureTool(wx.App):
         self.frame.Show()
 
     def createWidgets(self):
-        instructions = 
+        img = wx.EmptyImage(360,360)
