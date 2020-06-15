@@ -634,7 +634,7 @@ def makePicture(filepath, defaultColor=white):
     if not os.path.isabs(filepath):
         filepath = mediaFolder + filepath
     if not os.path.isfile(filepath):
-        print("makePicture(filename): There is no file at " + filepath)
+        print("makePicture(filePath): There is no file at " + filepath)
         raise ValueError
     # picture = Picture()
     # picture.loadOrFail(filepath)
@@ -1045,7 +1045,7 @@ def duplicatePicture(picture):
     if not isinstance(picture, Picture):
         print("duplicatePicture(picture): Input is not a picture")
         raise ValueError
-    return Picture(picture)
+    return picture(picture)
 
 # Alyce Brady/ Pam Cutter: Function that crops a picture
 # def cropPicture(picture, upperLeftX, upperLeftY, width, height):
@@ -1331,8 +1331,7 @@ def getTurtleList(world):
 
 
 def printNow(text):
-    print text
-
+    print(text)
 
 class Movie(object):
     def __init__(self):  # frames are filenames
