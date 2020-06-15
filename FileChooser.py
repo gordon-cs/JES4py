@@ -4,9 +4,37 @@
 """
 
 import os
-import easygui as eg
+# import easygui as eg
 import JESConfig
 
+# First things, first. Import the wxPython package.
+import wx
+
+"""
+# Next, create an application object.
+app = wx.App()
+
+# Then a frame.
+frm = wx.Frame(None, title="Hello World")
+
+# Show it.
+frm.Show()
+
+# Start the event loop.
+app.MainLoop()
+"""
+
+class MyFrame(wx.Frame):    
+    def __init__(self):
+        super().__init__(parent=None, title='Hello World')
+        self.Show()
+
+if __name__ == '__main__':
+    app = wx.App()
+    frame = MyFrame()
+    app.MainLoop()
+
+    
 def pickAFile():
     """Method to let the user pick a file and return the full name as
        as a string.  If the user didn't pick a file then the name
