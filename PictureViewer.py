@@ -41,7 +41,25 @@ class PictureTool(wx.App):
         menuAbout = filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
         filemenu.AppendSeparator()
         menuExit = filemenu.Append(wx.ID_EXIT,"E&xit"," Terminate the program")
-        
+
+        # Create the menu bar
+        menuBar = wx.MenuBar()
+        menuBar.Append(filemenu,"&Zoom") # Adds the "filemenu" to the MenuBar
+        self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content
+
+        # Set events
+        self.Bind(wx.ID_ZOOM_25, self.OnZoom25, menuZoom25)
+        self.Bind(wx.ID_ZOOM_50, self.OnZoom50, menuZoom50)
+        self.Bind(wx.ID_ZOOM_75, self.OnZoom75, menuZoom75)
+        self.Bind(wx.ID_ZOOM_100, self.OnZoom100, menuZoom100)
+        self.Bind(wx.ID_ZOOM_150, self.OnZoom150, menuZoom150)
+        self.Bind(wx.ID_ZOOM_200, self.OnZoom200, menuZoom200)
+        self.Bind(wx.ID_ZOOM_500, self.OnZoom500, menuZoom500)
+        self.Bind(wx.ID_ABOUT, self.OnAbout, menuAbout)
+        self.Bind(wx.ID_EXIT, self.OnExit, menuExit)
+
+        self.Show(True)
+
         # Set the maximum size of the picture
         self.PictureMaxSize = 360
 
