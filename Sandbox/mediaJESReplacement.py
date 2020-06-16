@@ -82,7 +82,7 @@
 import sys
 import os
 from PIL import Image, ImageDraw
-import Sandbox.JESPicture
+import JESPicture
 # import math
 # import traceback
 # import user
@@ -95,7 +95,7 @@ import picture
 # import Samples
 # import MoviePlayer
 # import MovieWriter
-import FileChooser
+# import FileChooser
 import random
 
 # from jes.tools.framesequencer import FrameSequencerTool
@@ -202,26 +202,26 @@ def makeSound(filename, maxIndex=100):
 # added optional 2nd argument of sampling rate
 
 
-def makeEmptySound(numSamples, samplingRate=Sound.SAMPLE_RATE):
-    if numSamples <= 0 or samplingRate <= 0:
-        print("makeEmptySound(numSamples[, samplingRate]): numSamples and samplingRate must each be greater than 0")
-        raise ValueError
-    if (numSamples / samplingRate) > 600:
-        print("makeEmptySound(numSamples[, samplingRate]): Created sound must be less than 600 seconds")
-        raise ValueError
-    return Sound(numSamples, samplingRate)
+# def makeEmptySound(numSamples, samplingRate=Sound.SAMPLE_RATE):
+#     if numSamples <= 0 or samplingRate <= 0:
+#         print("makeEmptySound(numSamples[, samplingRate]): numSamples and samplingRate must each be greater than 0")
+#         raise ValueError
+#     if (numSamples / samplingRate) > 600:
+#         print("makeEmptySound(numSamples[, samplingRate]): Created sound must be less than 600 seconds")
+#         raise ValueError
+#     return Sound(numSamples, samplingRate)
 
 # Brian O (5 May 2008): Added method for creating sound by duration
 
 
-def makeEmptySoundBySeconds(seconds, samplingRate=Sound.SAMPLE_RATE):
-    if seconds <= 0 or samplingRate <= 0:
-        print("makeEmptySoundBySeconds(numSamples[, samplingRate]): numSamples and samplingRate must each be greater than 0")
-        raise ValueError
-    if seconds > 600:
-        print("makeEmptySoundBySeconds(numSamples[, samplingRate]): Created sound must be less than 600 seconds")
-        raise ValueError
-    return Sound(seconds * samplingRate, samplingRate)
+# def makeEmptySoundBySeconds(seconds, samplingRate=Sound.SAMPLE_RATE):
+#     if seconds <= 0 or samplingRate <= 0:
+#         print("makeEmptySoundBySeconds(numSamples[, samplingRate]): numSamples and samplingRate must each be greater than 0")
+#         raise ValueError
+#     if seconds > 600:
+#         print("makeEmptySoundBySeconds(numSamples[, samplingRate]): Created sound must be less than 600 seconds")
+#         raise ValueError
+#     return Sound(seconds * samplingRate, samplingRate)
 
 # PamC: Added this function to duplicate a sound
 
@@ -458,12 +458,12 @@ def getIndex(sample):
 def makeStyle(fontName, emph, size):
     return awt.Font(fontName, emph, size)
 
-sansSerif = "SansSerif"
-serif = "Serif"
-mono = "Monospaced"
-italic = awt.Font.ITALIC
-bold = awt.Font.BOLD
-plain = awt.Font.PLAIN
+# sansSerif = "SansSerif"
+# serif = "Serif"
+# mono = "Monospaced"
+# italic = awt.Font.ITALIC
+# bold = awt.Font.BOLD
+# plain = awt.Font.PLAIN
 
 ##
 # Global color functions
@@ -493,76 +493,76 @@ def getColorWrapAround():
 # and the gray Color constructor to allow only 1 color parameter (will
 # take 2, but ignores the second)
 
-class Color:
+# class Color:
 
-    def __init__(self, r, g=None, b=None):
-        if b == None:
-            if isinstance(r, awt.Color) or isinstance(r, Color):
-                self.color = r
-            else:
-                val = Pixel.correctLevel(r)
-                self.color = awt.Color(val, val, val)
-        else:
-            self.color = awt.Color(
-                Pixel.correctLevel(r), Pixel.correctLevel(g), Pixel.correctLevel(b))
+#     def __init__(self, r, g=None, b=None):
+#         if b == None:
+#             if isinstance(r, awt.Color) or isinstance(r, Color):
+#                 self.color = r
+#             else:
+#                 val = Pixel.correctLevel(r)
+#                 self.color = awt.Color(val, val, val)
+#         else:
+#             self.color = awt.Color(
+#                 Pixel.correctLevel(r), Pixel.correctLevel(g), Pixel.correctLevel(b))
 
-    def __str__(self):
-        return "color r=" + str(self.getRed()) + " g=" + str(self.getGreen()) + " b=" + str(self.getBlue())
+#     def __str__(self):
+#         return "color r=" + str(self.getRed()) + " g=" + str(self.getGreen()) + " b=" + str(self.getBlue())
 
-    def __repr__(self):
-        return "Color(" + str(self.getRed()) + ", " + str(self.getGreen()) + ", " + str(self.getBlue()) + ")"
+#     def __repr__(self):
+#         return "Color(" + str(self.getRed()) + ", " + str(self.getGreen()) + ", " + str(self.getBlue()) + ")"
 
-    def __eq__(self, newcolor):
-        return ((self.getRed() == newcolor.getRed()) and (self.getGreen() == newcolor.getGreen()) and (self.getBlue() == newcolor.getBlue()))
+#     def __eq__(self, newcolor):
+#         return ((self.getRed() == newcolor.getRed()) and (self.getGreen() == newcolor.getGreen()) and (self.getBlue() == newcolor.getBlue()))
 
-    def __ne__(self, newcolor):
-        return (not self.__eq__(newcolor))
+#     def __ne__(self, newcolor):
+#         return (not self.__eq__(newcolor))
 
-    def __tojava__(self, javaclass):
-        if javaclass == awt.Color:
-            return self.color
-        else:
-            return self
+#     def __tojava__(self, javaclass):
+#         if javaclass == awt.Color:
+#             return self.color
+#         else:
+#             return self
 
-    # Added by BrianO
-    def __add__(self, other):
-        r = self.getRed() + other.getRed()
-        g = self.getGreen() + other.getGreen()
-        b = self.getBlue() + other.getBlue()
+#     # Added by BrianO
+#     def __add__(self, other):
+#         r = self.getRed() + other.getRed()
+#         g = self.getGreen() + other.getGreen()
+#         b = self.getBlue() + other.getBlue()
 
-        return Color(Pixel.correctLevel(r), Pixel.correctLevel(g), Pixel.correctLevel(b))
+#         return Color(Pixel.correctLevel(r), Pixel.correctLevel(g), Pixel.correctLevel(b))
 
-    # Added by BrianO
-    def __sub__(self, other):
-        r = self.getRed() - other.getRed()
-        g = self.getGreen() - other.getGreen()
-        b = self.getBlue() - other.getBlue()
+#     # Added by BrianO
+#     def __sub__(self, other):
+#         r = self.getRed() - other.getRed()
+#         g = self.getGreen() - other.getGreen()
+#         b = self.getBlue() - other.getBlue()
 
-        return Color(Pixel.correctLevel(r), Pixel.correctLevel(g), Pixel.correctLevel(b))
+#         return Color(Pixel.correctLevel(r), Pixel.correctLevel(g), Pixel.correctLevel(b))
 
-    def setRGB(self, r, g, b):
-        self.color = awt.Color(Pixel.correctLevel(r), Pixel.correctLevel(g), Pixel.correctLevel(b))
+#     def setRGB(self, r, g, b):
+#         self.color = awt.Color(Pixel.correctLevel(r), Pixel.correctLevel(g), Pixel.correctLevel(b))
 
-    def getRed(self):
-        return self.color.getRed()
+#     def getRed(self):
+#         return self.color.getRed()
 
-    def getGreen(self):
-        return self.color.getGreen()
+#     def getGreen(self):
+#         return self.color.getGreen()
 
-    def getBlue(self):
-        return self.color.getBlue()
+#     def getBlue(self):
+#         return self.color.getBlue()
 
-    def distance(self, othercolor):
-        r = pow((self.getRed() - othercolor.getRed()), 2)
-        g = pow((self.getGreen() - othercolor.getGreen()), 2)
-        b = pow((self.getBlue() - othercolor.getBlue()), 2)
-        return math.sqrt(r + g + b)
+#     def distance(self, othercolor):
+#         r = pow((self.getRed() - othercolor.getRed()), 2)
+#         g = pow((self.getGreen() - othercolor.getGreen()), 2)
+#         b = pow((self.getBlue() - othercolor.getBlue()), 2)
+#         return math.sqrt(r + g + b)
 
-    def makeDarker(self):
-        return self.color.darker()
+#     def makeDarker(self):
+#         return self.color.darker()
 
-    def makeLighter(self):
-        return self.color.brighter()
+#     def makeLighter(self):
+#         return self.color.brighter()
 
 
 def pickAColor():
@@ -588,19 +588,19 @@ def pickAColor():
 
 
 # Constants
-black = Color(0, 0, 0)
-white = Color(255, 255, 255)
-blue = Color(0, 0, 255)
-red = Color(255, 0, 0)
-green = Color(0, 255, 0)
-gray = Color(128, 128, 128)
-darkGray = Color(64, 64, 64)
-lightGray = Color(192, 192, 192)
-yellow = Color(255, 255, 0)
-orange = Color(255, 200, 0)
-pink = Color(255, 175, 175)
-magenta = Color(255, 0, 255)
-cyan = Color(0, 255, 255)
+# black = Color(0, 0, 0)
+# white = Color(255, 255, 255)
+# blue = Color(0, 0, 255)
+# red = Color(255, 0, 0)
+# green = Color(0, 255, 0)
+# gray = Color(128, 128, 128)
+# darkGray = Color(64, 64, 64)
+# lightGray = Color(192, 192, 192)
+# yellow = Color(255, 255, 0)
+# orange = Color(255, 200, 0)
+# pink = Color(255, 175, 175)
+# magenta = Color(255, 0, 255)
+# cyan = Color(0, 255, 255)
 
 ##
 # Global picture functions
@@ -615,7 +615,7 @@ def randomPixels(somePic, number):
     explore(pixelsToPicture(pixellist))
 
 
-def pixelsToPicture(pixels, defaultColor=white, maxX=100, maxY=100):
+def pixelsToPicture(pixels, defaultColor=(255, 255, 255), maxX=100, maxY=100):
     # Find maxX
     maxX = max([getX(p) for p in pixels])
     # find maxY
@@ -628,7 +628,7 @@ def pixelsToPicture(pixels, defaultColor=white, maxX=100, maxY=100):
     return newpic
 
 
-def makePicture(filepath, defaultColor=white):
+def makePicture(filepath, defaultColor=(255, 255, 255)):
     global mediaFolder
     if not isinstance(filepath, str):
         return pixelsToPicture(filepath, defaultColor=defaultColor)
@@ -641,7 +641,7 @@ def makePicture(filepath, defaultColor=white):
     # picture.loadOrFail(filepath)
     # return picture
     im = Image.open(filepath)
-    pic = Sandbox.JESPicture(im, filepath)
+    pic = JESPicture(im, filepath)
     return pic
 
 # MMO (1 Dec 2005): Capped width/height to max 10000 and min 1
@@ -650,7 +650,7 @@ def makePicture(filepath, defaultColor=white):
 # with different background colors.
 
 
-def makeEmptyPicture(width, height, acolor=white):
+def makeEmptyPicture(width, height, acolor=(255, 255, 255)):
     if width > 10000 or height > 10000:
         print("makeEmptyPicture(width, height[, acolor]): height and width must be less than 10000 each")
         raise ValueError
@@ -664,7 +664,7 @@ def makeEmptyPicture(width, height, acolor=white):
     size = (width, height)
     im = Image.new(mode, size, acolor)
     filename = ""
-    pic = Sandbox.JESPicture(im, filename)
+    pic = JESPicture(im, filename)
     return pic
 
 
@@ -680,14 +680,14 @@ def getAllPixels(pic):
 
 
 def getWidth(pic):
-    if not isinstance(picture, Sandbox.JESPicture):
+    if not isinstance(picture, JESPicture):
         print("getWidth(picture): Input is not a picture")
         raise ValueError
     return pic.getImage().width
 
 
 def getHeight(pic):
-    if not isinstance(picture, Sandbox.JESPicture):
+    if not isinstance(picture, JESPicture):
         print("getHeight(picture): Input is not a picture")
         raise ValueError
     return pic.getImage.height
@@ -697,14 +697,14 @@ def show(pic, title=None):
     # picture.setTitle(getShortPath(picture.filename))
     # if title <> None:
             # picture.setTitle(title)
-    if not isinstance(pic, Sandbox.JESPicture):
+    if not isinstance(pic, JESPicture):
         print("show(picture): Input is not a picture")
         raise ValueError
     pic.getImage.show(pic)
 
 
 def repaint(pic):
-    if not (isinstance(pic, World) or isinstance(pic, Sandbox.JESPicture)):
+    if not (isinstance(pic, World) or isinstance(pic, JESPicture)):
         print("repaint(picture): Input is not a picture or a world")
         raise ValueError
     pic.repaint()
@@ -712,8 +712,8 @@ def repaint(pic):
 ## adding graphics to your pictures! ##
 
 
-def addLine(pic, x1, y1, x2, y2, acolor=black):
-    if not isinstance(pic, Sandbox.JESPicture):
+def addLine(pic, x1, y1, x2, y2, acolor=(0,0,0)):
+    if not isinstance(pic, JESPicture):
         print("addLine(picture, x1, y1, x2, y2[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -725,8 +725,8 @@ def addLine(pic, x1, y1, x2, y2, acolor=black):
     pic.addLine(acolor, x1, y1, x2, y2)
 
 
-def addText(pic, x, y, string, acolor=black):
-    if not isinstance(picture, Sandbox.JESPicture):
+def addText(pic, x, y, string, acolor=(0,0,0)):
+    if not isinstance(picture, JESPicture):
         print ("addText(picture, x, y, string[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -740,8 +740,8 @@ def addText(pic, x, y, string, acolor=black):
 # PamC: Added this function to allow different font styles
 
 
-def addTextWithStyle(pic, x, y, string, style, acolor=black):
-    if not isinstance(pic, Sandbox.JESPicture):
+def addTextWithStyle(pic, x, y, string, style, acolor=(0,0,0)):
+    if not isinstance(pic, JESPicture):
         print("addTextWithStyle(picture, x, y, string, style[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(style, awt.Font):
@@ -753,8 +753,8 @@ def addTextWithStyle(pic, x, y, string, style, acolor=black):
     pic.addTextWithStyle(acolor, x, y, string, style)
 
 
-def addRect(pic, x, y, w, h, acolor=black):
-    if not isinstance(pic, Sandbox.JESPicture):
+def addRect(pic, x, y, w, h, acolor=(0,0,0)):
+    if not isinstance(pic, JESPicture):
         print("addRect(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -766,8 +766,8 @@ def addRect(pic, x, y, w, h, acolor=black):
     pic.getImage().addRect(pic, acolor, x, y, w, h)
 
 
-def addRectFilled(pic, x, y, w, h, acolor=black):
-    if not isinstance(picture, Sandbox.JESPicture):
+def addRectFilled(pic, x, y, w, h, acolor=(0,0,0)):
+    if not isinstance(picture, JESPicture):
         print("addRectFilled(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -782,8 +782,8 @@ def addRectFilled(pic, x, y, w, h, acolor=black):
 # functions to add more graphics to pictures.
 
 
-def addOval(pic, x, y, w, h, acolor=black):
-    if not isinstance(pic, Sandbox.JESPicture):
+def addOval(pic, x, y, w, h, acolor=(0,0,0)):
+    if not isinstance(pic, JESPicture):
         print("addOval(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -795,8 +795,8 @@ def addOval(pic, x, y, w, h, acolor=black):
     pic.getImage().addOval(pic, acolor, x, y, w, h)
 
 
-def addOvalFilled(pic, x, y, w, h, acolor=black):
-    if not isinstance(pic, Sandbox.JESPicture):
+def addOvalFilled(pic, x, y, w, h, acolor=(0,0,0)):
+    if not isinstance(pic, JESPicture):
         print("addOvalFilled(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -805,8 +805,8 @@ def addOvalFilled(pic, x, y, w, h, acolor=black):
     pic.getImage().addOvalFilled(pic, acolor, x, y, w, h)
 
 
-def addArc(pic, x, y, w, h, start, angle, acolor=black):
-    if not isinstance(pic, Sandbox.JESPicture):
+def addArc(pic, x, y, w, h, start, angle, acolor=(0,0,0)):
+    if not isinstance(pic, JESPicture):
         print("addArc(picture, x, y, w, h, start, angle[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -815,8 +815,8 @@ def addArc(pic, x, y, w, h, start, angle, acolor=black):
     pic.getImage().addArc(pic, acolor, x, y, w, h, start, angle)
 
 
-def addArcFilled(pic, x, y, w, h, start, angle, acolor=black):
-    if not isinstance(pic, Sandbox.JESPicture):
+def addArcFilled(pic, x, y, w, h, start, angle, acolor=(0,0,0)):
+    if not isinstance(pic, JESPicture):
         print("addArcFilled(picture, x, y, w, h[, color]): First First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -1190,8 +1190,8 @@ def explore(someMedia):
         raise ValueError
 
 # let's try the turtles...
-import Turtle
-import World
+# import Turtle
+# import World
 
 
 def turn(turtle, degrees=90):
