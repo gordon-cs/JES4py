@@ -51,13 +51,23 @@ class MainWindow(wx.Frame):
         menuItemAbout = filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
         self.Bind(wx.EVT_MENU, self.OnAbout, menuItemAbout)
         filemenu.AppendSeparator()
-        filemenu.Append(wx.ID_EXIT,"E&xit"," Terminate the program")
+        menuItemExit = filemenu.Append(wx.ID_EXIT,"E&xit"," Terminate the program")
+        self.Bind(wx.EVT_MENU, self.OnExit, menuItemExit)
 
         # Creating the menubar.
         menuBar = wx.MenuBar()
         menuBar.Append(filemenu,"&File") # Adds the "filemenu" to the MenuBar
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
         self.Show(True)
+
+    def OnAbout(self,e):
+        # A message dialog box with an OK button. wx.OK is a standard ID in wxWidgets.
+        dlg = wx.MessageDialog( self, "A small text editor", "About Sample Editor", wx.OK)
+        dlg.ShowModal() # Show it
+        dlg.Destroy() # finally destroy it when finished.
+
+    def OnExit(self,e):
+        self.Close(True)  # Close the frame.
 
 app = wx.App(False)
 frame = MainWindow(None, "Sample editor")
