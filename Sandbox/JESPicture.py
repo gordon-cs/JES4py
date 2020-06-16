@@ -14,7 +14,7 @@ class JESPicture:
     #  * height and width.
     #  */
     def __str__(self):
-        output = "Picture, filename " + getFileName() + " height " + self.picture.height + " width " + self.picture.width
+        output = "Picture, filename {} height {} width {}".format(getFileName(), self.picture.height, self.picture.width)
         return output
 
     def getFileName(self):
