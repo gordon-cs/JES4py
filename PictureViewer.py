@@ -2,6 +2,76 @@ import os
 
 import wx
 
+class PictureTool(wx.App):
+    def __init__(self, redirect=False, filename=None):
+        wx.App.__init__(self, redirect, filename)
+        self.frame = wx.Frame(None, title='Photo Control')
+                          
+        self.panel = wx.Panel(self.frame)
+        self.PhotoMaxSize = 240
+        
+        self.createWidgets()
+        self.frame.Show()
+    
+    def createWidgets(self):
+        instructions = 'Browse for an image'
+        img = wx.EmptyImage(240,240)
+        self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, 
+                                         wx.BitmapFromImage(img))
+        
+        instructLbl = wx.StaticText(self.panel, label=instructions)
+        self.photoTxt = wx.TextCtrl(self.panel, size=(200,-1))
+        browseBtn = wx.Button(self.panel, label='Browse')
+        browseBtn.Bind(wx.EVT_BUTTON, self.onBrowse)
+        
+        self.mainSizer = wx.BoxSizer(wx.VERTICAL)
+        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
+        
+        self.mainSizer.Add(wx.StaticLine(self.panel, wx.ID_ANY),
+                           0, wx.ALL|wx.EXPAND, 5)
+        self.mainSizer.Add(instructLbl, 0, wx.ALL, 5)
+        self.mainSizer.Add(self.imageCtrl, 0, wx.ALL, 5)
+        self.sizer.Add(self.photoTxt, 0, wx.ALL, 5)
+        self.sizer.Add(browseBtn, 0, wx.ALL, 5)        
+        self.mainSizer.Add(self.sizer, 0, wx.ALL, 5)
+        
+        self.panel.SetSizer(self.mainSizer)
+        self.mainSizer.Fit(self.frame)
+        self.panel.Layout()
+        
+    def onBrowse(self, event):
+        """ 
+        Browse for file
+        """
+        wildcard = "JPEG files (*.jpg)|*.jpg"
+        dialog = wx.FileDialog(None, "Choose a file",
+                               wildcard=wildcard,
+                               style=wx.ID_OPEN)
+        if dialog.ShowModal() == wx.ID_OK:
+            self.photoTxt.SetValue(dialog.GetPath())
+        dialog.Destroy() 
+        self.onView()
+    
+    def onView(self):
+        filepath = self.photoTxt.GetValue()
+        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
+        # scale the image, preserving the aspect ratio
+        W = img.GetWidth()
+        H = img.GetHeight()
+        if W > H:
+            NewW = self.PhotoMaxSize
+            NewH = self.PhotoMaxSize * H / W
+        else:
+            NewH = self.PhotoMaxSize
+            NewW = self.PhotoMaxSize * W / H
+        img = img.Scale(NewW,NewH)
+        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.panel.Refresh()
+        
+if __name__ == '__main__':
+    app = PictureTool()
+    app.MainLoop()
+
 """
 # Image viewer using the existing library of wxPython
 import wx.lib.mixins.inspection as wit
@@ -18,14 +88,17 @@ with ib.ImageDialog(None) as dlg:
 
 app.MainLoop()
 """
-
+"""
 class PictureTool(wx.App):
     def __init__(self, redirect=False, filename=None):
-        wx.Frame.__init__(self, redirect, filename)
+        wx.App.__init__(self, redirect, filename)
         self.frame = wx.Frame(None, title='Picture Tool')
-        self.CreateStatusBar() # A StatusBar in the bottom of the window
+        #self.CreateStatusBar() # A StatusBar in the bottom of the window
 
         self.panel = wx.Panel(self.frame)
+
+        # Set the maximum size of the picture
+        self.PictureMaxSize = 360
 
         # Setting up the menu bar
         filemenu = wx.Menu()
@@ -33,13 +106,12 @@ class PictureTool(wx.App):
         # wx.ID_ABOUT and wx.ID_EXIT are standard IDs provided by wxWidgets.
         menuZoom25 = filemenu.Append(wx.ID_ZOOM_OUT, "&25%", "Zoom by 25%")
         menuZoom50 = filemenu.Append(wx.ID_ZOOM_OUT, "&50%", "Zoom by 50%")
-        """
         menuZoom75 = filemenu.Append(wx.ID_ZOOM_OUT, "&75%", "Zoom by 75%")
         menuZoom100 = filemenu.Append(wx.ID_ZOOM_100, "&100%", "Zoom by 100%")
         menuZoom150 = filemenu.Append(wx.ID_ZOOM_IN, "&150%", "Zoom by 150%")
         menuZoom200 = filemenu.Append(wx.ID_ZOOM_IN, "&200%", "Zoom by 200%")
         menuZoom500 = filemenu.Append(wx.ID_ZOOM_IN, "&500%", "Zoom by 500%")
-        """
+
         menuAbout = filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
         filemenu.AppendSeparator()
         menuExit = filemenu.Append(wx.ID_EXIT,"E&xit"," Terminate the program")
@@ -48,25 +120,21 @@ class PictureTool(wx.App):
         menuBar = wx.MenuBar()
         menuBar.Append(filemenu,"&Zoom") # Adds the "filemenu" to the MenuBar
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content
+        self.Show(True)
 
         
         # Set events
         self.Bind(wx.ID_ZOOM_OUT, self.OnZoom25, menuZoom25)
         self.Bind(wx.ID_ZOOM_OUT, self.OnZoom50, menuZoom50)
-        """
         self.Bind(wx.ID_ZOOM_OUT, self.OnZoom75, menuZoom75)
         self.Bind(wx.ID_ZOOM_100, self.OnZoom100, menuZoom100)
         self.Bind(wx.ID_ZOOM_IN, self.OnZoom150, menuZoom150)
         self.Bind(wx.ID_ZOOM_IN, self.OnZoom200, menuZoom200)
         self.Bind(wx.ID_ZOOM_IN, self.OnZoom500, menuZoom500)
-        """
         self.Bind(wx.ID_ABOUT, self.OnAbout, menuAbout)
         self.Bind(wx.ID_EXIT, self.OnExit, menuExit)
 
         self.Show(True)
-
-        # Set the maximum size of the picture
-        self.PictureMaxSize = 360
 
         # self.createWidgets()
         #self.frame.Show()
@@ -80,6 +148,7 @@ class PictureTool(wx.App):
     def OnExit(self,e):
         self.Close(True)  # Close the frame.
 
-app = wx.App(False)
-frame = PictureTool(None, "Picture Tool")
-app.MainLoop()
+if __name__ == '__main__':
+    app = PictureTool()
+    app.MainLoop()
+"""
