@@ -11,8 +11,7 @@ The **JES-Emulator** implements a subset of JES features that can be used in Pyt
 Several dependencies need to be installed before you can use the JES-emulator.
 
 ### Windows
-
-TBD
+from mediaJESReplacement import *
 
 ### Mac OS-X
 
