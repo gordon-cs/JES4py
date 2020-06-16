@@ -82,11 +82,11 @@
 import sys
 import os
 from PIL import Image, ImageDraw
-import JESPicture
+from JESPicture import JESPicture
 # import math
 # import traceback
 # import user
-import picture
+from picture import *
 # import Pixel
 # import Sound
 # import StoppableInput
@@ -700,7 +700,8 @@ def show(pic, title=None):
     if not isinstance(pic, JESPicture):
         print("show(picture): Input is not a picture")
         raise ValueError
-    pic.getImage.show(pic)
+    im = pic.getImage()
+    im.show()
 
 
 def repaint(pic):
@@ -757,13 +758,14 @@ def addRect(pic, x, y, w, h, acolor=(0,0,0)):
     if not isinstance(pic, JESPicture):
         print("addRect(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
-    if not isinstance(acolor, Color):
-        print("addRect(picture, x, y, w, h[, color]): Last input is not a color")
-        raise ValueError
+    # if not isinstance(acolor, Color):
+    #     print("addRect(picture, x, y, w, h[, color]): Last input is not a color")
+    #     raise ValueError
     #g = picture.getBufferedImage().getGraphics()
     # g.setColor(acolor.color)
     #g.drawRect(x - 1,y - 1,w,h)
-    pic.getImage().addRect(pic, acolor, x, y, w, h)
+    im = pic.getImage()
+    im.addRect(pic, acolor, x, y, w, h)
 
 
 def addRectFilled(pic, x, y, w, h, acolor=(0,0,0)):

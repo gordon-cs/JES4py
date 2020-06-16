@@ -1,6 +1,6 @@
 
 from PIL import Image, ImageDraw
-import Sandbox.JESPicture
+from JESPicture import JESPicture
 
     #////////////////////// methods ///////////////////////////////////////
 
