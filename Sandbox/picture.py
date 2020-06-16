@@ -1,13 +1,6 @@
 
 from PIL import Image, ImageDraw
 
-    # def __init__(self, width, height):
-    #     self.title = "None"
-    #     self.fileName = "None"
-    #     self.extension = "jpg"
-    #     size = (width, height)
-    #     return Image.new(mode, size, color)
-
     #////////////////////// methods ///////////////////////////////////////
 
     #  Method to return a string with information about this picture.
