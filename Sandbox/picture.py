@@ -1,5 +1,6 @@
 
 from PIL import Image, ImageDraw
+import Sandbox.JESPicture
 
     #////////////////////// methods ///////////////////////////////////////
 
@@ -130,30 +131,30 @@ def addArc(pic, acolor, x, y, w, h, start, angle):
     #  @param dest the picture which to copy into
     #  @param upperLeftX the x-coord for the upper-left corner
     #  @param upperLeftY the y-coord for the upper-left corner
-    public void copyInto(Picture dest, int upperLeftX, int upperLeftY) {
-        #  Determine the actual dimensions to copy; might be less than
-        #  dimensions of this picture if there is not enough space in the
-        #  destination picture.
-        int width = this.getWidth();
-        int widthAvailable = dest.getWidth() - upperLeftX;
-        if (widthAvailable < width) {
-            width = widthAvailable;
-        }
-        int height = this.getHeight();
-        int heightAvailable = dest.getHeight() - upperLeftY;
-        if (heightAvailable < height) {
-            height = heightAvailable;
-        }
+    # public void copyInto(Picture dest, int upperLeftX, int upperLeftY) {
+    #     #  Determine the actual dimensions to copy; might be less than
+    #     #  dimensions of this picture if there is not enough space in the
+    #     #  destination picture.
+    #     int width = this.getWidth();
+    #     int widthAvailable = dest.getWidth() - upperLeftX;
+    #     if (widthAvailable < width) {
+    #         width = widthAvailable;
+    #     }
+    #     int height = this.getHeight();
+    #     int heightAvailable = dest.getHeight() - upperLeftY;
+    #     if (heightAvailable < height) {
+    #         height = heightAvailable;
+    #     }
 
-        #  Copy pixel values from this picture to the destination
-        #   (Should have been implemented with the 7-parameter
-        #    getRGB/setRGB methods from BufferedImage?)
-        for (int x = 0; x < width; x++)
-            for (int y = 0; y < height; y++) {
-                dest.setBasicPixel(upperLeftX + x, upperLeftY + y, this.getBasicPixel(x, y));
-            }
+    #     #  Copy pixel values from this picture to the destination
+    #     #   (Should have been implemented with the 7-parameter
+    #     #    getRGB/setRGB methods from BufferedImage?)
+    #     for (int x = 0; x < width; x++)
+    #         for (int y = 0; y < height; y++) {
+    #             dest.setBasicPixel(upperLeftX + x, upperLeftY + y, this.getBasicPixel(x, y));
+    #         }
 
-    }
+    # }
 
     #  Returns a cropped version of this picture: copies the pixels in
     #  it starting at the specified upper-left corner and taking as
@@ -168,22 +169,7 @@ def addArc(pic, acolor, x, y, w, h, start, angle):
     #  @param width the desired width of the cropped area
     #  @param height the desired height of the cropped area
     #  @return the new cropped picture
-    public Picture crop(int upperLeftX, int upperLeftY, int width, int height) {
-        int widthAvailable = getWidth() - upperLeftX;
-        if (widthAvailable < width) {
-            width = widthAvailable;
-        }
-        int heightAvailable = getHeight() - upperLeftY;
-        if (heightAvailable < height) {
-            height = heightAvailable;
-        }
+    def crop(pic, upperLeftX, upperLeftY, width, height):    
+        return pic.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height));
 
-        Picture newPic = new Picture(width, height);
-        for (int sourceX = upperLeftX, destX = 0; destX < width; sourceX++, destX++)
-            for (int sourceY = upperLeftY, destY = 0; destY < height; sourceY++, destY++) {
-                newPic.setBasicPixel(destX, destY, this.getBasicPixel(sourceX, sourceY));
-            }
-        return newPic;
-
-    }
-} # end of class Picture, put all new methods before this
+ # end of class Picture, put all new methods before this

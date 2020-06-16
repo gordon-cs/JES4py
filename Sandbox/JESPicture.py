@@ -1,9 +1,9 @@
 from PIL import Image
-class myPicture:
+class JESPicture:
 
-    def __init__(self, picture):
+    def __init__(self, picture, filename):
         self.title = "None"
-        self.fileName = "None"
+        self.fileName = filename
         self.extension = "jpg"
         self.width = picture.width
         self.height = picture.height
@@ -13,7 +13,7 @@ class myPicture:
     #  * @return a string with information about the picture such as fileName,
     #  * height and width.
     #  */
-    def toString(self):
+    def __str__(self):
         output = "Picture, filename " + getFileName() + " height " + self.picture.height + " width " + self.picture.width
         return output
 
@@ -31,3 +31,6 @@ class myPicture:
 
     def getImage(self):
         return self.picture
+
+    def setImage(self, pic):
+        self.picture = pic

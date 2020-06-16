@@ -82,6 +82,7 @@
 import sys
 import os
 from PIL import Image, ImageDraw
+import Sandbox.JESPicture
 # import math
 # import traceback
 # import user
@@ -639,7 +640,9 @@ def makePicture(filepath, defaultColor=white):
     # picture = Picture()
     # picture.loadOrFail(filepath)
     # return picture
-    return Image.open(filepath)
+    im = Image.open(filepath)
+    pic = Sandbox.JESPicture(im, filepath)
+    return pic
 
 # MMO (1 Dec 2005): Capped width/height to max 10000 and min 1
 # alexr (6 Sep 2006): fixed to work without the Python classes.
@@ -659,7 +662,10 @@ def makeEmptyPicture(width, height, acolor=white):
     # careful here; do we want empty strings or "None"?
     mode = "RGB"
     size = (width, height)
-    return Image.new(mode, size, acolor)
+    im = Image.new(mode, size, acolor)
+    filename = ""
+    pic = Sandbox.JESPicture(im, filename)
+    return pic
 
 
 def getPixels(pic):
@@ -674,40 +680,40 @@ def getAllPixels(pic):
 
 
 def getWidth(pic):
-    if not isinstance(picture, Image):
+    if not isinstance(picture, Sandbox.JESPicture):
         print("getWidth(picture): Input is not a picture")
         raise ValueError
-    return pic.width
+    return pic.getImage().width
 
 
 def getHeight(pic):
-    if not isinstance(picture, Image):
+    if not isinstance(picture, Sandbox.JESPicture):
         print("getHeight(picture): Input is not a picture")
         raise ValueError
-    return pic.height
+    return pic.getImage.height
 
 
 def show(pic, title=None):
     # picture.setTitle(getShortPath(picture.filename))
     # if title <> None:
             # picture.setTitle(title)
-    if not isinstance(pic, Image):
+    if not isinstance(pic, Sandbox.JESPicture):
         print("show(picture): Input is not a picture")
         raise ValueError
-    picture.show(pic)
+    pic.getImage.show(pic)
 
 
 def repaint(pic):
-    if not (isinstance(pic, World) or isinstance(pic, Image)):
+    if not (isinstance(pic, World) or isinstance(pic, Sandbox.JESPicture)):
         print("repaint(picture): Input is not a picture or a world")
         raise ValueError
-    picture.repaint()
+    pic.repaint()
 
 ## adding graphics to your pictures! ##
 
 
-def addLine(picture, x1, y1, x2, y2, acolor=black):
-    if not isinstance(picture, Image):
+def addLine(pic, x1, y1, x2, y2, acolor=black):
+    if not isinstance(pic, Sandbox.JESPicture):
         print("addLine(picture, x1, y1, x2, y2[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -716,11 +722,11 @@ def addLine(picture, x1, y1, x2, y2, acolor=black):
     #g = picture.getBufferedImage().createGraphics()
     # g.setColor(acolor.color)
     #g.drawLine(x1 - 1,y1 - 1,x2 - 1,y2 - 1)
-    picture.addLine(acolor, x1, y1, x2, y2)
+    pic.addLine(acolor, x1, y1, x2, y2)
 
 
-def addText(picture, x, y, string, acolor=black):
-    if not isinstance(picture, Image):
+def addText(pic, x, y, string, acolor=black):
+    if not isinstance(picture, Sandbox.JESPicture):
         print ("addText(picture, x, y, string[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -729,13 +735,13 @@ def addText(picture, x, y, string, acolor=black):
     #g = picture.getBufferedImage().getGraphics()
     # g.setColor(acolor.color)
     #g.drawString(string, x - 1, y - 1)
-    picture.addText(acolor, x, y, string)
+    pic.addText(acolor, x, y, string)
 
 # PamC: Added this function to allow different font styles
 
 
-def addTextWithStyle(picture, x, y, string, style, acolor=black):
-    if not isinstance(picture, Image):
+def addTextWithStyle(pic, x, y, string, style, acolor=black):
+    if not isinstance(pic, Sandbox.JESPicture):
         print("addTextWithStyle(picture, x, y, string, style[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(style, awt.Font):
@@ -744,11 +750,11 @@ def addTextWithStyle(picture, x, y, string, style, acolor=black):
     if not isinstance(acolor, Color):
         print("addTextWithStyle(picture, x, y, string, style[, color]): Last input is not a color")
         raise ValueError
-    picture.addTextWithStyle(acolor, x, y, string, style)
+    pic.addTextWithStyle(acolor, x, y, string, style)
 
 
 def addRect(pic, x, y, w, h, acolor=black):
-    if not isinstance(picture, Image):
+    if not isinstance(pic, Sandbox.JESPicture):
         print("addRect(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -757,11 +763,11 @@ def addRect(pic, x, y, w, h, acolor=black):
     #g = picture.getBufferedImage().getGraphics()
     # g.setColor(acolor.color)
     #g.drawRect(x - 1,y - 1,w,h)
-    picture.addRect(pic, acolor, x, y, w, h)
+    pic.getImage().addRect(pic, acolor, x, y, w, h)
 
 
 def addRectFilled(pic, x, y, w, h, acolor=black):
-    if not isinstance(picture, Image):
+    if not isinstance(picture, Sandbox.JESPicture):
         print("addRectFilled(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -770,14 +776,14 @@ def addRectFilled(pic, x, y, w, h, acolor=black):
     #g = picture.getBufferedImage().getGraphics()
     # g.setColor(acolor.color)
     #g.fillRect(x - 1,y - 1,w,h)
-    picture.addRectFilled(pic, acolor, x, y, w, h)
+    pic.getImage().addRectFilled(pic, acolor, x, y, w, h)
 
 # PamC: Added the following addOval, addOvalFilled, addArc, and addArcFilled
 # functions to add more graphics to pictures.
 
 
 def addOval(pic, x, y, w, h, acolor=black):
-    if not isinstance(pic, Image):
+    if not isinstance(pic, Sandbox.JESPicture):
         print("addOval(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -786,37 +792,37 @@ def addOval(pic, x, y, w, h, acolor=black):
     #g = picture.getBufferedImage().getGraphics()
     # g.setColor(acolor.color)
     #g.drawRect(x - 1,y - 1,w,h)
-    picture.addOval(pic, acolor, x, y, w, h)
+    pic.getImage().addOval(pic, acolor, x, y, w, h)
 
 
 def addOvalFilled(pic, x, y, w, h, acolor=black):
-    if not isinstance(pic, Image):
+    if not isinstance(pic, Sandbox.JESPicture):
         print("addOvalFilled(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
         print("addOvalFilled(picture, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
-    picture.addOvalFilled(pic, acolor, x, y, w, h)
+    pic.getImage().addOvalFilled(pic, acolor, x, y, w, h)
 
 
 def addArc(pic, x, y, w, h, start, angle, acolor=black):
-    if not isinstance(pic, Image):
+    if not isinstance(pic, Sandbox.JESPicture):
         print("addArc(picture, x, y, w, h, start, angle[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
         print("addArc(picture, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
-    picture.addArc(pic, acolor, x, y, w, h, start, angle)
+    pic.getImage().addArc(pic, acolor, x, y, w, h, start, angle)
 
 
 def addArcFilled(pic, x, y, w, h, start, angle, acolor=black):
-    if not isinstance(pic, Image):
+    if not isinstance(pic, Sandbox.JESPicture):
         print("addArcFilled(picture, x, y, w, h[, color]): First First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
         print("addArcFill(picture, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
-    picture.addArcFilled(pic, acolor, x, y, w, h, start, angle)
+    pic.addArcFilled(pic, acolor, x, y, w, h, start, angle)
 
 # note the -1; in JES we think of pictures as starting at (1,1) but not
 # in the Java.
@@ -1047,18 +1053,17 @@ def duplicatePicture(picture):
         raise ValueError
     return picture(picture)
 
-# Alyce Brady/ Pam Cutter: Function that crops a picture
-# def cropPicture(picture, upperLeftX, upperLeftY, width, height):
-#  if not isinstance(picture, Picture):
-#    print "crop(picture, upperLeftX, upperLeftY, width, height): First parameter is not a picture"
-#    raise ValueError
-#  if upperLeftX < 1 or upperLeftX > getWidth(picture):
-#    print "crop(picture, upperLeftX, upperLeftY, width, height): upperLeftX must be within the picture"
-#    raise ValueError
-#  if upperLeftY < 1 or upperLeftY > getHeight(picture):
-#    print "crop(picture, upperLeftX, upperLeftY, width, height): upperLeftY must be within the picture"
-#    raise ValueError
-#  return picture.crop(upperLeftX-1, upperLeftY-1, width, height)
+def cropPicture(pic, upperLeftX, upperLeftY, width, height):
+ if not isinstance(pic, picture):
+   print("crop(picture, upperLeftX, upperLeftY, width, height): First parameter is not a picture")
+   raise ValueError
+ if upperLeftX < 1 or upperLeftX > getWidth(picture):
+   print("crop(picture, upperLeftX, upperLeftY, width, height): upperLeftX must be within the picture")
+   raise ValueError
+ if upperLeftY < 1 or upperLeftY > getHeight(picture):
+   print("crop(picture, upperLeftX, upperLeftY, width, height): upperLeftY must be within the picture")
+   raise ValueError
+ return picture.crop(pic, upperLeftX-1, upperLeftY-1, width, height)
 
 ##
 # Input and Output interfaces
@@ -1199,7 +1204,7 @@ def turn(turtle, degrees=90):
 
 def turnRight(turtle):
     if not isinstance(turtle, Turtle):
-        print "turnRight(turtle): Input is not a turtle"
+        print("turnRight(turtle): Input is not a turtle")
         raise ValueError
     else:
         turtle.turnRight()
@@ -1208,13 +1213,13 @@ def turnRight(turtle):
 def turnToFace(turtle, x, y=None):
     if y == None:
         if not (isinstance(turtle, Turtle) and isinstance(x, Turtle)):
-            print "turnToFace(turtle, turtle): First input is not a turtle"
+            print("turnToFace(turtle, turtle): First input is not a turtle")
             raise ValueError
         else:
             turtle.turnToFace(x)
     else:
         if not isinstance(turtle, Turtle):
-            print "turnToFace(turtle, x, y): Input is not a turtle"
+            print("turnToFace(turtle, x, y): Input is not a turtle")
             raise ValueError
         else:
             turtle.turnToFace(x, y)
@@ -1222,7 +1227,7 @@ def turnToFace(turtle, x, y=None):
 
 def turnLeft(turtle):
     if not isinstance(turtle, Turtle):
-        print "turnLeft(turtle): Input is not a turtle"
+        print("turnLeft(turtle): Input is not a turtle")
         raise ValueError
     else:
         turtle.turnLeft()
@@ -1230,7 +1235,7 @@ def turnLeft(turtle):
 
 def forward(turtle, pixels=100):
     if not isinstance(turtle, Turtle):
-        print "forward(turtle[, pixels]): Input is not a turtle"
+        print("forward(turtle[, pixels]): Input is not a turtle")
         raise ValueError
     else:
         turtle.forward(pixels)
@@ -1238,7 +1243,7 @@ def forward(turtle, pixels=100):
 
 def backward(turtle, pixels=100):
     if not isinstance(turtle, Turtle):
-        print "backward(turtle[, pixels]): Input is not a turtle"
+        print("backward(turtle[, pixels]): Input is not a turtle")
         raise ValueError
     if (None == pixels):
         turtle.backward()
@@ -1248,14 +1253,14 @@ def backward(turtle, pixels=100):
 
 def moveTo(turtle, x, y):
     if not isinstance(turtle, Turtle):
-        print "moveTo(turtle, x, y): Input is not a turtle"
+        print("moveTo(turtle, x, y): Input is not a turtle")
         raise ValueError
     turtle.moveTo(x, y)
 
 
 def makeTurtle(world):
     if not (isinstance(world, World) or isinstance(world, Picture)):
-        print "makeTurtle(world): Input is not a world or picture"
+        print("makeTurtle(world): Input is not a world or picture")
         raise ValueError
     turtle = Turtle(world)
     return turtle
@@ -1263,45 +1268,45 @@ def makeTurtle(world):
 
 def penUp(turtle):
     if not isinstance(turtle, Turtle):
-        print "penUp(turtle): Input is not a turtle"
+        print("penUp(turtle): Input is not a turtle")
         raise ValueError
     turtle.penUp()
 
 
 def penDown(turtle):
     if not isinstance(turtle, Turtle):
-        print "penDown(turtle): Input is not a turtle"
+        print("penDown(turtle): Input is not a turtle")
         raise ValueError
     turtle.penDown()
 
 
 def drop(turtle, picture):
     if not isinstance(turtle, Turtle):
-        print "drop(turtle, picture): First input is not a turtle"
+        print("drop(turtle, picture): First input is not a turtle")
         raise ValueError
     if not isinstance(picture, Picture):
-        print "drop(turtle, picture): Second input is not a picture"
+        print("drop(turtle, picture): Second input is not a picture")
         raise ValueError
     turtle.drop(picture)
 
 
 def getXPos(turtle):
     if not isinstance(turtle, Turtle):
-        print "getXPos(turtle): Input is not a turtle"
+        print("getXPos(turtle): Input is not a turtle")
         raise ValueError
     return turtle.getXPos()
 
 
 def getYPos(turtle):
     if not isinstance(turtle, Turtle):
-        print "getYPos(turtle): Input is not a turtle"
+        print("getYPos(turtle): Input is not a turtle")
         raise ValueError
     return turtle.getYPos()
 
 
 def getHeading(turtle):
     if not isinstance(turtle, Turtle):
-        print "getHeading(turtle): Input is not a turtle"
+        print("getHeading(turtle): Input is not a turtle")
         raise ValueError
     return turtle.getHeading()
 
@@ -1321,7 +1326,7 @@ def makeWorld(width=None, height=None):
 
 def getTurtleList(world):
     if not isinstance(world, World):
-        print "getTurtleList(world): Input is not a world"
+        print("getTurtleList(world): Input is not a world")
         raise ValueError
     return world.getTurtleList()
 
@@ -1371,110 +1376,110 @@ class Movie(object):
             list.add(makePicture(f))
         MoviePlayer(list).playMovie()
 
-    def writeQuicktime(self, destPath, framesPerSec=16):
-        global mediaFolder
-        if not os.path.isabs(destPath):
-            destPath = mediaFolder + destPath
-        destPath = "file://" + destPath
-        if framesPerSec <= 0:
-            print "writeQuicktime(path[, framesPerSec]): Frame Rate must be a positive number"
-            raise ValueError
-        if self.frames == []:  # Is movie empty?
-            print "writeQuicktime(path[, framesPerSec]): Movie has no frames. Cannot write empty Movie"
-            raise ValueError
-        # Is movie only 1 frame but never written out
-        elif self.dir == None and len(self.frames) == 1:
-            frame = self.frames[0]
-            self.dir = frame[:(frame.rfind(os.sep))]
-        # Are movie frames all in the same directory?
-        elif self.dir == None and len(self.frames) > 1:
-            sameDir = 1
-            frame = self.frames[0]
-            frame = frame.replace('/', os.sep)
-            # Parse directory of first frame
-            framesDir = frame[:(frame.rfind(os.sep))]
-            thisDir = framesDir
-            frameNum = 1
-            while(sameDir and frameNum < len(self.frames)):
-                frame = self.frames[frameNum]
-                # Eliminate possibility of / vs. \ causing problems
-                frame = frame.replace('/', os.sep)
-                thisDir = frame[:(frame.rfind(os.sep))]
-                frameNum = frameNum + 1
-                if(framesDir <> thisDir):
-                    sameDir = 0
-            if(sameDir):  # Loop ended because we ran out of frames
-                self.dir = framesDir
-            else:  # Loop ended because sameDir became false
-                print "writeQuicktime(path[, framesPerSec]): Your frames are in different directories. Call writeFramesToDirectory() first, then try again."
-                raise ValueError
-        writer = MovieWriter(self.dir, framesPerSec, destPath)
-        writer.writeQuicktime()
+    # def writeQuicktime(self, destPath, framesPerSec=16):
+    #     global mediaFolder
+    #     if not os.path.isabs(destPath):
+    #         destPath = mediaFolder + destPath
+    #     destPath = "file://" + destPath
+    #     if framesPerSec <= 0:
+    #         print("writeQuicktime(path[, framesPerSec]): Frame Rate must be a positive number")
+    #         raise ValueError
+    #     if self.frames == []:  # Is movie empty?
+    #         print("writeQuicktime(path[, framesPerSec]): Movie has no frames. Cannot write empty Movie")
+    #         raise ValueError
+    #     # Is movie only 1 frame but never written out
+    #     elif self.dir == None and len(self.frames) == 1:
+    #         frame = self.frames[0]
+    #         self.dir = frame[:(frame.rfind(os.sep))]
+    #     # Are movie frames all in the same directory?
+    #     elif self.dir == None and len(self.frames) > 1:
+    #         sameDir = 1
+    #         frame = self.frames[0]
+    #         frame = frame.replace('/', os.sep)
+    #         # Parse directory of first frame
+    #         framesDir = frame[:(frame.rfind(os.sep))]
+    #         thisDir = framesDir
+    #         frameNum = 1
+    #         while(sameDir and frameNum < len(self.frames)):
+    #             frame = self.frames[frameNum]
+    #             # Eliminate possibility of / vs. \ causing problems
+    #             frame = frame.replace('/', os.sep)
+    #             thisDir = frame[:(frame.rfind(os.sep))]
+    #             frameNum = frameNum + 1
+    #             if(framesDir <> thisDir):
+    #                 sameDir = 0
+    #         if(sameDir):  # Loop ended because we ran out of frames
+    #             self.dir = framesDir
+    #         else:  # Loop ended because sameDir became false
+    #             print("writeQuicktime(path[, framesPerSec]): Your frames are in different directories. Call writeFramesToDirectory() first, then try again.")
+    #             raise ValueError
+    #     writer = MovieWriter(self.dir, framesPerSec, destPath)
+    #     writer.writeQuicktime()
 
-    def writeAVI(self, destPath, framesPerSec=16):
-        global mediaFolder
-        if not os.path.isabs(destPath):
-            destPath = mediaFolder + destPath
-        destPath = "file://" + destPath
-        if framesPerSec <= 0:
-            print "writeAVI(path[, framesPerSec]): Frame Rate must be a positive number"
-            raise ValueError
-        if self.frames == []:  # Is movie empty?
-            print "writeAVI(path[, framesPerSec]): Movie has no frames. Cannot write empty Movie"
-            raise ValueError
-        # Is movie only 1 frame but never written out
-        elif self.dir == None and len(self.frames) == 1:
-            frame = self.frames[0]
-            self.dir = frame[:(frame.rfind(os.sep))]
-        # Are movie frames all in the same directory?
-        elif self.dir == None and len(self.frames) > 1:
-            sameDir = 1
-            frame = self.frames[0]
-            frame = frame.replace('/', os.sep)
-            # Parse directory of first frame
-            framesDir = frame[:(frame.rfind(os.sep))]
-            thisDir = framesDir
-            frameNum = 1
-            while(sameDir and frameNum < len(self.frames)):
-                frame = self.frames[frameNum]
-                frame = frame.replace('/', os.sep)
-                thisDir = frame[:(frame.rfind(os.sep))]
-                frameNum = frameNum + 1
-                if(framesDir <> thisDir):
-                    sameDir = 0
-            if(sameDir):  # Loop ended because we ran out of frames
-                self.dir = framesDir
-            else:  # Loop ended because sameDir became false
-                print "writeAVI(path[, framesPerSec]): Your frames are in different directories. Call writeFramesToDirectory() first, then try again."
-                raise ValueError
-        writer = MovieWriter(self.dir, framesPerSec, destPath)
-        writer.writeAVI()
+    # def writeAVI(self, destPath, framesPerSec=16):
+    #     global mediaFolder
+    #     if not os.path.isabs(destPath):
+    #         destPath = mediaFolder + destPath
+    #     destPath = "file://" + destPath
+    #     if framesPerSec <= 0:
+    #         print("writeAVI(path[, framesPerSec]): Frame Rate must be a positive number")
+    #         raise ValueError
+    #     if self.frames == []:  # Is movie empty?
+    #         print("writeAVI(path[, framesPerSec]): Movie has no frames. Cannot write empty Movie")
+    #         raise ValueError
+    #     # Is movie only 1 frame but never written out
+    #     elif self.dir == None and len(self.frames) == 1:
+    #         frame = self.frames[0]
+    #         self.dir = frame[:(frame.rfind(os.sep))]
+    #     # Are movie frames all in the same directory?
+    #     elif self.dir == None and len(self.frames) > 1:
+    #         sameDir = 1
+    #         frame = self.frames[0]
+    #         frame = frame.replace('/', os.sep)
+    #         # Parse directory of first frame
+    #         framesDir = frame[:(frame.rfind(os.sep))]
+    #         thisDir = framesDir
+    #         frameNum = 1
+    #         while(sameDir and frameNum < len(self.frames)):
+    #             frame = self.frames[frameNum]
+    #             frame = frame.replace('/', os.sep)
+    #             thisDir = frame[:(frame.rfind(os.sep))]
+    #             frameNum = frameNum + 1
+    #             if(framesDir <> thisDir):
+    #                 sameDir = 0
+    #         if(sameDir):  # Loop ended because we ran out of frames
+    #             self.dir = framesDir
+    #         else:  # Loop ended because sameDir became false
+    #             print("writeAVI(path[, framesPerSec]): Your frames are in different directories. Call writeFramesToDirectory() first, then try again.")
+    #             raise ValueError
+    #     writer = MovieWriter(self.dir, framesPerSec, destPath)
+    #     writer.writeAVI()
 
 
 def playMovie(movie):
     if isinstance(movie, Movie):
         movie.play()
     else:
-        print "playMovie( movie ): Input is not a Movie"
+        print("playMovie( movie ): Input is not a Movie")
         raise ValueError
 
 
 def writeQuicktime(movie, destPath, framesPerSec=16):
     if not (isinstance(movie, Movie)):
-        print "writeQuicktime(movie, path[, framesPerSec]): First input is not a Movie"
+        print("writeQuicktime(movie, path[, framesPerSec]): First input is not a Movie")
         raise ValueError
     if framesPerSec <= 0:
-        print "writeQuicktime(movie, path[, framesPerSec]): Frame rate must be a positive number"
+        print("writeQuicktime(movie, path[, framesPerSec]): Frame rate must be a positive number")
         raise ValueError
     movie.writeQuicktime(destPath, framesPerSec)
 
 
 def writeAVI(movie, destPath, framesPerSec=16):
     if not (isinstance(movie, Movie)):
-        print "writeAVI(movie, path[, framesPerSec]): First input is not a Movie"
+        print("writeAVI(movie, path[, framesPerSec]): First input is not a Movie")
         raise ValueError
     if framesPerSec <= 0:
-        print "writeAVI(movie, path[, framesPerSec]): Frame rate must be a positive number"
+        print("writeAVI(movie, path[, framesPerSec]): Frame rate must be a positive number")
         raise ValueError
     movie.writeAVI(destPath, framesPerSec)
 
@@ -1518,7 +1523,7 @@ def addFrameToMovie(a, b):
 
     if not (isinstance(movie, Movie) and isinstance(frame, String)):
        # if movie.__class__ != Movie or frame.__class__ != String:
-        print "addFrameToMovie(frame, movie): frame is not a string or movie is not a Movie object"
+        print("addFrameToMovie(frame, movie): frame is not a string or movie is not a Movie object")
         raise ValueError
 
     movie.addFrame(frame)
@@ -1526,7 +1531,7 @@ def addFrameToMovie(a, b):
 
 def writeFramesToDirectory(movie, directory=None):
     if not isinstance(movie, Movie):
-        print "writeFramesToDirectory(movie[, directory]): movie is not a Movie object"
+        print("writeFramesToDirectory(movie[, directory]): movie is not a Movie object")
         raise ValueError
 
     if directory == None:
