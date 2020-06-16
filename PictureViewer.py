@@ -31,10 +31,16 @@ class PictureTool(wx.App):
         filemenu = wx.Menu()
 
         # wx.ID_ABOUT and wx.ID_EXIT are standard IDs provided by wxWidgets.
-        filemenu.Append(wx.ID_OPEN, "&Open", "Browse for an image")
-        filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
+        menuZoom25 = filemenu.Append(wx.ID_ZOOM_25, "&25%", "Zoom by 25%")
+        menuZoom50 = filemenu.Append(wx.ID_ZOOM_50, "&50%", "Zoom by 50%")
+        menuZoom75 = filemenu.Append(wx.ID_ZOOM_75, "&75%", "Zoom by 75%")
+        menuZoom100 = filemenu.Append(wx.ID_ZOOM_100, "&100%", "Zoom by 100%")
+        menuZoom150 = filemenu.Append(wx.ID_ZOOM_150, "&150%", "Zoom by 150%")
+        menuZoom200 = filemenu.Append(wx.ID_ZOOM_200, "&200%", "Zoom by 200%")
+        menuZoom500 = filemenu.Append(wx.ID_ZOOM_500, "&500%", "Zoom by 500%")
+        menuAbout = filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
         filemenu.AppendSeparator()
-        filemenu.Append(wx.ID_EXIT,"E&xit"," Terminate the program")
+        menuExit = filemenu.Append(wx.ID_EXIT,"E&xit"," Terminate the program")
         
         # Set the maximum size of the picture
         self.PictureMaxSize = 360
@@ -42,5 +48,4 @@ class PictureTool(wx.App):
         self.createWidgets()
         self.frame.Show()
 
-    def createWidgets(self):
-        img = wx.EmptyImage(360,360)
+    
