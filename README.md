@@ -8,19 +8,27 @@ The **JES-Emulator** implements a subset of JES features that can be used in Pyt
 
 ## Installation of Dependencies
 
-Several dependencies need to be installed before you can use the JES-emulator.
+Several dependencies need to be installed before you can use the JES-emulator.  Currently these include PIL (the Python Image Library) or Pillow (an updated fork of PIL).  Instructions to do this are OS-dependent:
 
 ### Windows
-from mediaJESReplacement import *
+
+TBD
 
 ### Mac OS-X
 
 TBD
 
 ### Linux
-1. Install the Python Imaging Library (Pillow fork):
 ```
 python3 -m pip install --upgrade pip
 python3 -m pip install --upgrade Pillow
 ```
-2. Install ....
+
+## Using the JES-emulator
+
+Users should include the following line at a Python 3.x command prompt
+or in a Python 3.x script to make use of JES functions
+```
+from mediaJESReplacement import *
+```
+(NOTE: we need to decide on the name of this function - I suggest `JESmedia.py`.  We can then similarly name any other updated versions of the JES Python files that we decide to include.)
