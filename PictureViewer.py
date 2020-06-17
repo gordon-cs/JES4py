@@ -1,7 +1,7 @@
 import os
 
 import wx
-
+"""
 class ImagePanel(wx.Panel):
 
     def __init__(self):
@@ -13,7 +13,7 @@ class MainFrame(wx.Frame):
         super().__init__(None, title='Picture Tool')
         panel = ImagePanel(self, image=(360,360))
         self.Show()
-        
+
         wx.App.__init__(self, redirect, filename)
         self.frame = wx.Frame(None, title='Picture Tool')
         #self.CreateStatusBar() # A StatusBar in the bottom of the window
@@ -61,8 +61,8 @@ if __name__ == '__main__':
     app = PictureTool()
     app.MainLoop()
 
-
 """
+
 class PictureTool(wx.App):
     def __init__(self, redirect=False, filename=None):
         wx.App.__init__(self, redirect, filename)
@@ -132,7 +132,7 @@ class PictureTool(wx.App):
 if __name__ == '__main__':
     app = PictureTool()
     app.MainLoop()
-"""
+
 
 """
 # Image viewer using the existing library of wxPython

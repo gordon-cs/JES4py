@@ -56,7 +56,7 @@ class MainWindow(wx.Frame):
 
         # Creating the menubar.
         menuBar = wx.MenuBar()
-        menuBar.Append(filemenu,"&File") # Adds the "filemenu" to the MenuBar
+        menuBar.Append(filemenu,"&Zoom") # Adds the "filemenu" to the MenuBar
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
         self.Show(True)
 
