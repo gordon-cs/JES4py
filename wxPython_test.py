@@ -1,3 +1,4 @@
+import os
 import wx
 """
 # Simplist Hello World app
@@ -39,6 +40,8 @@ class MainWindow(wx.Frame):
         wx.Frame.__init__(self, parent, title=title, size=(300,200))
         self.frame = wx.Frame(None, title='ImageViewer')
         self.panel = wx.Panel(self.frame)
+        self.viewingWindow()
+        self.frame.Show()
         self.CreateStatusBar() # A Statusbar in the bottom of the window
 
         # Setting up the menu bar
@@ -80,6 +83,25 @@ class MainWindow(wx.Frame):
         menuBar.Append(filemenu,"&Zoom") # Adds the "filemenu" to the MenuBar
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
         self.Show(True)
+
+    def viewingWindow(self):
+        img = wx.EmptyImage(360,360)
+        self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(img))
+
+        self.mainSizer = wx.BoxSizer(wx.VERTICAL)
+        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.mainSizer.Add(wx.StaticLine(self.panel, wx.ID_ANY),
+                           0, wx.ALL|wx.EXPAND, 5)
+        
+        self.mainSizer.Add(self.imageCtrl, 0, wx.ALL, 5)
+
+        self.mainSizer.Add(self.sizer, 0, wx.ALL, 5)
+
+        self.panel.SetSizer(self.mainSizer)
+        self.mainSizer.Fit(self.frame)
+        self.panel.Layout()
+
 
     # Browse images
     def onOpen(self,e):
