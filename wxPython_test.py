@@ -10,11 +10,6 @@ class MyFrame(wx.Frame):
         my_btn = wx.Button(panel, label='Press Me', pos=(5, 55))
 
         self.Show()
-
-if __name__ == '__main__':
-    app = wx.App()
-    frame = MyFrame()
-    app.MainLoop()
 """
 """
 # Less simple Hellow World app
@@ -37,11 +32,13 @@ if __name__ == '__main__':
 """
 
 # Simple text editor
+# Will be implemented into a picture tool
 
 class MainWindow(wx.Frame):
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, title=title, size=(300,200))
-        self.control = wx.TextCtrl(self, style=wx.TE_MULTILINE)
+        self.frame = wx.Frame(None, title='ImageViewer')
+        self.panel = wx.Panel(self.frame)
         self.CreateStatusBar() # A Statusbar in the bottom of the window
 
         # Setting up the menu bar
@@ -49,6 +46,8 @@ class MainWindow(wx.Frame):
 
         # Setting up the menu items
         # wx.ID_ABOUT and wx.ID_EXIT are standard IDs provided by wxWidgets.
+        menuOpen = filemenu.Append(wx.ID_OPEN, "&Open", "Browse images to open")
+        filemenu.AppendSeparator()
         menuZoom25 = filemenu.Append(wx.ID_ZOOM_OUT, "&25%","Zoom by 25%")
         menuZoom50 = filemenu.Append(wx.ID_ZOOM_OUT, "&50%","Zoom by 50%")
         menuZoom75 = filemenu.Append(wx.ID_ZOOM_OUT, "&75%","Zoom by 75%")
@@ -63,6 +62,7 @@ class MainWindow(wx.Frame):
         
 
         # Set events
+        self.Bind(wx.EVT_MENU, self.onOpen, menuOpen)
         self.Bind(wx.EVT_MENU, self.onZoom25, menuZoom25)
         self.Bind(wx.EVT_MENU, self.onZoom50, menuZoom50)
         self.Bind(wx.EVT_MENU, self.onZoom75, menuZoom75)
@@ -80,6 +80,13 @@ class MainWindow(wx.Frame):
         menuBar.Append(filemenu,"&Zoom") # Adds the "filemenu" to the MenuBar
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
         self.Show(True)
+
+    # Browse images
+    def onOpen(self,e):
+        # Dummie method - returns a dialog box
+        dlg = wx.MessageDialog(self, "Open an image", "Browse images", wx.OK)
+        dlg.ShowModal() # Show it
+        dlg.Destroy() # finally destroy it when finished.
 
     # Zoom the image by 25%
     def onZoom25(self,e):
@@ -139,6 +146,7 @@ class MainWindow(wx.Frame):
     def onExit(self,e):
         self.Close(True)  # Close the frame.
 
-app = wx.App(False)
-frame = MainWindow(None, "Sample editor")
-app.MainLoop()
+if __name__ == '__main__':
+    app = wx.App(False)
+    frame = MainWindow(None, "Sample editor")
+    app.MainLoop()
