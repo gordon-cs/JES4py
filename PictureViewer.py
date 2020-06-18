@@ -66,10 +66,9 @@ if __name__ == '__main__':
 class PictureTool(wx.App):
     def __init__(self, redirect=False, filename=None):
         wx.App.__init__(self, redirect, filename)
-        self.frame = wx.Frame(None, title='Photo Control')
-                          
+        self.frame = wx.Frame(None, title='Simple Picture Tool')                
         self.panel = wx.Panel(self.frame)
-        self.PhotoMaxSize = 240
+        self.PhotoMaxSize = 540
         
         self.createWidgets()
         self.frame.Show()

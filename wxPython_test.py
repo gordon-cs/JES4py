@@ -38,8 +38,8 @@ if __name__ == '__main__':
 class MainWindow(wx.Frame):
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, title=title, size=(300,200))
-        self.control = wx.TextCtrl(self, style=wx.TE_MULTILINE)
-        #self.frame = wx.Frame(None, title='ImageViewer')
+        #self.control = wx.TextCtrl(self, style=wx.TE_MULTILINE)
+        #self.frame = wx.Frame(parent, title='ImageViewer')
         #self.panel = wx.Panel(self.frame)
         #self.viewingWindow()
         #self.frame.Show()
@@ -104,16 +104,32 @@ class MainWindow(wx.Frame):
         self.panel.Layout()
 
     def onOpen(self,e):
-        """ Open a file"""
-        self.dirname = ''
-        dlg = wx.FileDialog(self, "Choose a file", self.dirname, "", "*.*", wx.FD_OPEN)
-        if dlg.ShowModal() == wx.ID_OK:
-            self.filename = dlg.GetFilename()
-            self.dirname = dlg.GetDirectory()
-            f = open(os.path.join(self.dirname, self.filename), 'r')
-            self.control.SetValue(f.read())
-            f.close()
-        dlg.Destroy()
+        # Browse for file
+        
+        wildcard = "JPEG files (*.jpg)|*.jpg"
+        dialog = wx.FileDialog(None, "Choose a file",
+                               wildcard=wildcard,
+                               style=wx.ID_OPEN)
+        if dialog.ShowModal() == wx.ID_OK:
+            self.photoTxt.SetValue(dialog.GetPath())
+        dialog.Destroy() 
+        self.onView()
+    
+    def onView(self):
+        filepath = self.photoTxt.GetValue()
+        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
+        # scale the image, preserving the aspect ratio
+        W = img.GetWidth()
+        H = img.GetHeight()
+        if W > H:
+            NewW = self.PhotoMaxSize
+            NewH = self.PhotoMaxSize * H / W
+        else:
+            NewH = self.PhotoMaxSize
+            NewW = self.PhotoMaxSize * W / H
+        img = img.Scale(NewW,NewH)
+        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.panel.Refresh()
 
     # Zoom the image by 25%
     def onZoom25(self,e):
