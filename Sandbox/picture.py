@@ -61,7 +61,8 @@ from JESPicture import JESPicture
 def addRect(pic, acolor, x, y, w, h):
     draw = ImageDraw.Draw(pic)
     shape = [x, y, x+w, y+h]
-    return draw.rectangle(shape, fill = None, outline = acolor) 
+    draw.rectangle(shape, fill = None, outline = acolor) 
+    return pic
 
 #     Method to draw a solid rectangle on a picture.
 #     @param acolor the color of the rectangle
@@ -72,7 +73,8 @@ def addRect(pic, acolor, x, y, w, h):
 def addRectFilled(pic, acolor, x, y, w, h):
     draw = ImageDraw.Draw(pic)
     shape = [x, y, x+w, y+h]
-    return draw.rectangle(shape, fill=acolor, outline = None) 
+    draw.rectangle(shape, fill=acolor, outline = None) 
+    return pic
 
 #     Method to draw a solid oval on a picture.
 #     @param acolor the color of the oval
@@ -83,7 +85,8 @@ def addRectFilled(pic, acolor, x, y, w, h):
 def addOvalFilled(pic, acolor, x, y, w, h):
     draw = ImageDraw.Draw(pic)
     shape = [x, y, x+w, y+h]
-    return draw.ellipse(shape, fill = acolor, outline = None, width=1)
+    draw.ellipse(shape, fill = acolor, outline = None, width=1)
+    return pic
 
 #  Method to draw the outline of an oval on a picture.
 #     @param acolor the color of the oval
@@ -94,7 +97,8 @@ def addOvalFilled(pic, acolor, x, y, w, h):
 def addOval(pic, acolor, x, y, w, h):
     draw = ImageDraw.Draw(pic)
     shape = [x, y, x+w, y+h]
-    return draw.ellipse(shape, fill = None, outline = acolor, width=1)
+    draw.ellipse(shape, fill = None, outline = acolor, width=1)
+    return pic
 
 #  Method to draw a solid arc on a picture
 #     @param acolor the color of the arc
@@ -108,6 +112,7 @@ def addArcFilled(pic, acolor, x, y, w, h, start, angle):
     draw = ImageDraw.Draw(pic)
     shape = [x, y, x+w, y+h]
     draw.arc(shape, start, angle, fill = acolor, outline = None, width=1)
+    return pic
 
 #  Method to draw the outline of an arc on a picture
 #     @param acolor the color of the arc
@@ -121,6 +126,7 @@ def addArc(pic, acolor, x, y, w, h, start, angle):
     draw = ImageDraw.Draw(pic)
     shape = [x, y, x+w, y+h]
     draw.arc(shape, start, angle, fill = None, outline = acolor, width=1)
+    return pic
 
     #  Copies all the pixels from this picture to the destination picture,
     #  starting with the specified upper-left corner.  If this picture
@@ -170,6 +176,7 @@ def addArc(pic, acolor, x, y, w, h, start, angle):
     #  @param height the desired height of the cropped area
     #  @return the new cropped picture
     def crop(pic, upperLeftX, upperLeftY, width, height):    
-        return pic.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height));
+        pic.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height))
+        return pic
 
  # end of class Picture, put all new methods before this
