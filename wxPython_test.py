@@ -38,10 +38,11 @@ if __name__ == '__main__':
 class MainWindow(wx.Frame):
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, title=title, size=(300,200))
-        self.frame = wx.Frame(None, title='ImageViewer')
-        self.panel = wx.Panel(self.frame)
-        self.viewingWindow()
-        self.frame.Show()
+        self.control = wx.TextCtrl(self, style=wx.TE_MULTILINE)
+        #self.frame = wx.Frame(None, title='ImageViewer')
+        #self.panel = wx.Panel(self.frame)
+        #self.viewingWindow()
+        #self.frame.Show()
         self.CreateStatusBar() # A Statusbar in the bottom of the window
 
         # Setting up the menu bar
@@ -102,13 +103,17 @@ class MainWindow(wx.Frame):
         self.mainSizer.Fit(self.frame)
         self.panel.Layout()
 
-
-    # Browse images
     def onOpen(self,e):
-        # Dummie method - returns a dialog box
-        dlg = wx.MessageDialog(self, "Open an image", "Browse images", wx.OK)
-        dlg.ShowModal() # Show it
-        dlg.Destroy() # finally destroy it when finished.
+        """ Open a file"""
+        self.dirname = ''
+        dlg = wx.FileDialog(self, "Choose a file", self.dirname, "", "*.*", wx.FD_OPEN)
+        if dlg.ShowModal() == wx.ID_OK:
+            self.filename = dlg.GetFilename()
+            self.dirname = dlg.GetDirectory()
+            f = open(os.path.join(self.dirname, self.filename), 'r')
+            self.control.SetValue(f.read())
+            f.close()
+        dlg.Destroy()
 
     # Zoom the image by 25%
     def onZoom25(self,e):
@@ -170,5 +175,5 @@ class MainWindow(wx.Frame):
 
 if __name__ == '__main__':
     app = wx.App(False)
-    frame = MainWindow(None, "Sample editor")
+    frame = MainWindow(None, "Sample Image Tool")
     app.MainLoop()
