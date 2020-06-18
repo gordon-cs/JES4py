@@ -81,12 +81,13 @@
 
 import sys
 import os
-from PIL import Image, ImageDraw
-from JESPicture import JESPicture
+from PIL import ImageDraw
+import PIL.Image
+from picture import Picture
 # import math
 # import traceback
 # import user
-from picture import *
+import pictureMod
 # import Pixel
 # import Sound
 # import StoppableInput
@@ -95,7 +96,9 @@ from picture import *
 # import Samples
 # import MoviePlayer
 # import MovieWriter
-# import FileChooser
+from tkinter import colorchooser
+from tkinter import *
+from tkinter import filedialog
 import random
 
 # from jes.tools.framesequencer import FrameSequencerTool
@@ -569,22 +572,8 @@ def pickAColor():
     # Dorn 5/8/2009:  Edited to be thread safe since this code is executed from an
     # interpreter JESThread and will result in an update to the main JES GUI due to
     # it being a modal dialog.
-    from java.lang import Runnable
-
-    class pickAColorRunner(Runnable):
-        color = Color(0, 0, 0)
-
-        def run(self):
-            retValue = swing.JColorChooser().showDialog(
-                swing.JFrame(), "Choose a color", awt.Color(0, 0, 0))
-            if retValue != None:
-                self.color = Color(
-                    retValue.getRed(), retValue.getGreen(), retValue.getBlue())
-
-    runner = pickAColorRunner()
-    swing.SwingUtilities.invokeAndWait(runner)
-
-    return runner.color
+    tup = colorchooser.askcolor()
+    return tup[0]
 
 
 # Constants
@@ -640,8 +629,8 @@ def makePicture(filepath, defaultColor=(255, 255, 255)):
     # picture = Picture()
     # picture.loadOrFail(filepath)
     # return picture
-    im = Image.open(filepath)
-    pic = JESPicture(im, filepath)
+    im =  PIL.Image.open(filepath)
+    pic = Picture(im, filepath)
     return pic
 
 # MMO (1 Dec 2005): Capped width/height to max 10000 and min 1
@@ -662,9 +651,9 @@ def makeEmptyPicture(width, height, acolor=(255, 255, 255)):
     # careful here; do we want empty strings or "None"?
     mode = "RGB"
     size = (width, height)
-    im = Image.new(mode, size, acolor)
+    im = PIL.Image.new(mode, size, acolor)
     filename = ""
-    pic = JESPicture(im, filename)
+    pic = Picture(im, filename)
     return pic
 
 
@@ -680,24 +669,24 @@ def getAllPixels(pic):
 
 
 def getWidth(pic):
-    if not isinstance(picture, JESPicture):
-        print("getWidth(picture): Input is not a picture")
+    if not isinstance(pic, Picture):
+        print("getWidth(pic): Input is not a picture")
         raise ValueError
     return pic.getImage().width
 
 
 def getHeight(pic):
-    if not isinstance(picture, JESPicture):
-        print("getHeight(picture): Input is not a picture")
+    if not isinstance(pic, Picture):
+        print("getHeight(pic): Input is not a picture")
         raise ValueError
-    return pic.getImage.height
+    return pic.getImage().height
 
 
 def show(pic, title=None):
     # picture.setTitle(getShortPath(picture.filename))
     # if title <> None:
             # picture.setTitle(title)
-    if not isinstance(pic, JESPicture):
+    if not isinstance(pic, Picture):
         print("show(picture): Input is not a picture")
         raise ValueError
     im = pic.getImage()
@@ -705,7 +694,7 @@ def show(pic, title=None):
 
 
 def repaint(pic):
-    if not (isinstance(pic, World) or isinstance(pic, JESPicture)):
+    if not (isinstance(pic, World) or isinstance(pic, Picture)):
         print("repaint(picture): Input is not a picture or a world")
         raise ValueError
     pic.repaint()
@@ -714,7 +703,7 @@ def repaint(pic):
 
 
 def addLine(pic, x1, y1, x2, y2, acolor=(0,0,0)):
-    if not isinstance(pic, JESPicture):
+    if not isinstance(pic, Picture):
         print("addLine(picture, x1, y1, x2, y2[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -727,7 +716,7 @@ def addLine(pic, x1, y1, x2, y2, acolor=(0,0,0)):
 
 
 def addText(pic, x, y, string, acolor=(0,0,0)):
-    if not isinstance(picture, JESPicture):
+    if not isinstance(pic, Picture):
         print ("addText(picture, x, y, string[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -742,7 +731,7 @@ def addText(pic, x, y, string, acolor=(0,0,0)):
 
 
 def addTextWithStyle(pic, x, y, string, style, acolor=(0,0,0)):
-    if not isinstance(pic, JESPicture):
+    if not isinstance(pic, Picture):
         print("addTextWithStyle(picture, x, y, string, style[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(style, awt.Font):
@@ -755,76 +744,75 @@ def addTextWithStyle(pic, x, y, string, style, acolor=(0,0,0)):
 
 
 def addRect(pic, x, y, w, h, acolor=(0,0,0)):
-    if not isinstance(pic, JESPicture):
+    if not isinstance(pic, Picture):
         print("addRect(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
-    # if not isinstance(acolor, Color):
-    #     print("addRect(picture, x, y, w, h[, color]): Last input is not a color")
-    #     raise ValueError
-    #g = picture.getBufferedImage().getGraphics()
-    # g.setColor(acolor.color)
-    #g.drawRect(x - 1,y - 1,w,h)
     im = pic.getImage()
-    im.addRect(pic, acolor, x, y, w, h)
+    im = pictureMod.addRect(im, acolor, x, y, w, h)
+    pic.setImage(im)
+    return pic
 
 
 def addRectFilled(pic, x, y, w, h, acolor=(0,0,0)):
-    if not isinstance(picture, JESPicture):
+    if not isinstance(picture, Picture):
         print("addRectFilled(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
-    if not isinstance(acolor, Color):
-        print("addRectFilled(picture, x, y, w, h[, color]): Last input is not a color")
-        raise ValueError
-    #g = picture.getBufferedImage().getGraphics()
-    # g.setColor(acolor.color)
-    #g.fillRect(x - 1,y - 1,w,h)
-    pic.getImage().addRectFilled(pic, acolor, x, y, w, h)
+    im = pic.getImage()
+    im = pictureMod.addRectFilled(im, acolor, x, y, w, h)
+    pic.setImage(im)
+    return pic
 
 # PamC: Added the following addOval, addOvalFilled, addArc, and addArcFilled
 # functions to add more graphics to pictures.
 
 
 def addOval(pic, x, y, w, h, acolor=(0,0,0)):
-    if not isinstance(pic, JESPicture):
+    if not isinstance(pic, Picture):
         print("addOval(picture, x, y, w, h[, color]): First input is not a picture")
-        raise ValueError
-    if not isinstance(acolor, Color):
-        print("addOval(picture, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
     #g = picture.getBufferedImage().getGraphics()
     # g.setColor(acolor.color)
     #g.drawRect(x - 1,y - 1,w,h)
-    pic.getImage().addOval(pic, acolor, x, y, w, h)
+    im = pic.getImage()
+    im = pictureMod.addRectFilled(im, acolor, x, y, w, h)
+    pic.setImage(im)
+    return pic
 
 
 def addOvalFilled(pic, x, y, w, h, acolor=(0,0,0)):
-    if not isinstance(pic, JESPicture):
+    if not isinstance(pic, Picture):
         print("addOvalFilled(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
-    if not isinstance(acolor, Color):
-        print("addOvalFilled(picture, x, y, w, h[, color]): Last input is not a color")
-        raise ValueError
-    pic.getImage().addOvalFilled(pic, acolor, x, y, w, h)
+    im = pic.getImage()
+    im = pictureMod.addOvalFilled(im, acolor, x, y, w, h)
+    pic.setImage(im)
+    return pic
 
 
 def addArc(pic, x, y, w, h, start, angle, acolor=(0,0,0)):
-    if not isinstance(pic, JESPicture):
+    if not isinstance(pic, Picture):
         print("addArc(picture, x, y, w, h, start, angle[, color]): First input is not a picture")
         raise ValueError
-    if not isinstance(acolor, Color):
-        print("addArc(picture, x, y, w, h[, color]): Last input is not a color")
-        raise ValueError
-    pic.getImage().addArc(pic, acolor, x, y, w, h, start, angle)
+    # if not isinstance(acolor, Color):
+    #     print("addArc(picture, x, y, w, h[, color]): Last input is not a color")
+    #     raise ValueError
+    im = pic.getImage()
+    im = pictureMod.addArc(pic.getImage(), acolor, x, y, w, h, start, angle)
+    pic.setImage(im)
+    return pic
 
 
 def addArcFilled(pic, x, y, w, h, start, angle, acolor=(0,0,0)):
-    if not isinstance(pic, JESPicture):
+    if not isinstance(pic, Picture):
         print("addArcFilled(picture, x, y, w, h[, color]): First First input is not a picture")
         raise ValueError
-    if not isinstance(acolor, Color):
-        print("addArcFill(picture, x, y, w, h[, color]): Last input is not a color")
-        raise ValueError
-    pic.addArcFilled(pic, acolor, x, y, w, h, start, angle)
+    # if not isinstance(acolor, Color):
+    #     print("addArcFill(picture, x, y, w, h[, color]): Last input is not a color")
+    #     raise ValueError
+    im = pic.getImage()
+    im = pictureMod.addArcFilled(pic.getImage(), acolor, x, y, w, h, start, angle)
+    pic.setImage(im)
+    return pic
 
 # note the -1; in JES we think of pictures as starting at (1,1) but not
 # in the Java.
@@ -986,8 +974,8 @@ def makeBrighter(color):  # This is the same as makeLighter(color)
     return Color(color.makeLighter())
 
 
-def makeColor(red, green=None, blue=None):
-    return Color(red, green, blue)
+def makeColor(red, green=0, blue=0):
+    return (red, green, blue)
 
 
 def setAllPixelsToAColor(picture, color):
@@ -1136,7 +1124,7 @@ def playNote(note, duration, intensity=64):
 def pickAFile():
     # Note: this needs to be done in a threadsafe manner, see FileChooser
     # for details how this is accomplished.
-    return str(FileChooser.pickAFile())
+    return filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
 
 
 def pickAFolder():

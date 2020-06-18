@@ -1,6 +1,6 @@
 
 from PIL import Image, ImageDraw
-from JESPicture import JESPicture
+from picture import Picture
 
     #////////////////////// methods ///////////////////////////////////////
 
@@ -111,7 +111,7 @@ def addOval(pic, acolor, x, y, w, h):
 def addArcFilled(pic, acolor, x, y, w, h, start, angle):
     draw = ImageDraw.Draw(pic)
     shape = [x, y, x+w, y+h]
-    draw.arc(shape, start, angle, fill = acolor, outline = None, width=1)
+    draw.pieslice(shape, start, angle,fill = acolor, outline=None, width=1)
     return pic
 
 #  Method to draw the outline of an arc on a picture
@@ -125,7 +125,7 @@ def addArcFilled(pic, acolor, x, y, w, h, start, angle):
 def addArc(pic, acolor, x, y, w, h, start, angle):
     draw = ImageDraw.Draw(pic)
     shape = [x, y, x+w, y+h]
-    draw.arc(shape, start, angle, fill = None, outline = acolor, width=1)
+    draw.arc(shape, start, angle, fill = acolor, width=1)
     return pic
 
     #  Copies all the pixels from this picture to the destination picture,

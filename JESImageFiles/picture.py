@@ -1,5 +1,5 @@
 from PIL import Image
-class JESPicture:
+class Picture:
 
     def __init__(self, picture, filename):
         self.title = "None"
