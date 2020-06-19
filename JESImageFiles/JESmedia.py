@@ -658,10 +658,10 @@ def makeEmptyPicture(width, height, acolor=(255, 255, 255)):
 
 
 def getPixels(pic):
-    if not isinstance(pic, Image):
+    if not isinstance(pic, Picture):
         print("getPixels(picture): Input is not a picture")
         raise ValueError
-    return picture.getPixels()
+    return pic.getPixels()
 
 
 def getAllPixels(pic):
@@ -821,23 +821,21 @@ def addArcFilled(pic, x, y, w, h, start, angle, acolor=(0,0,0)):
 
 
 def getPixel(pic, x, y):
-    if not isinstance(pic, Image):
+    if not isinstance(pic, Picture):
         print("getPixel(picture,x,y): First input is not a picture")
         raise ValueError
-    if (x < Picture._PictureIndexOffset) or (x > getWidth(picture) - 1 + Picture._PictureIndexOffset):
-        print("getPixel(picture,x,y): x (= %s) is less than %s or bigger than the width (= %s)" % (x, Picture._PictureIndexOffset, getWidth(picture) - 1 + Picture._PictureIndexOffset))
+    if (x < 0 or x > pic.getWidth() or y < 0 or y > pic.getHeight()):
+        print("The pixel location you chose was out of bounds")
         raise ValueError
-    if (y < Picture._PictureIndexOffset) or (y > getHeight(picture) - 1 + Picture._PictureIndexOffset):
-        print("getPixel(picture,x,y): y (= %s) is less than %s or bigger than the height (= %s)" % (y, Picture._PictureIndexOffset, getHeight(picture) - 1 + Picture._PictureIndexOffset))
-        raise ValueError
-
-    return picture.getPixel(x - Picture._PictureIndexOffset, y - Picture._PictureIndexOffset)
+    loc = (x,y)
+    print(pic)
+    im = pic.getImage()
+    print(im)
+    return im.getPixel(loc)
 
 # Added as a better name for getPixel
-
-
-def getPixelAt(picture, x, y):
-    return getPixel(picture, x, y)
+def getPixelAt(pic, x, y):
+    return getPixel(pic, x, y)
 
 
 def setRed(pixel, value):
@@ -1124,7 +1122,7 @@ def playNote(note, duration, intensity=64):
 def pickAFile():
     # Note: this needs to be done in a threadsafe manner, see FileChooser
     # for details how this is accomplished.
-    return filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
+    return filedialog.askopenfilename(initialdir = "/",title = "Select file")
 
 
 def pickAFolder():
