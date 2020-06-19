@@ -37,12 +37,22 @@ if __name__ == '__main__':
 
 class MainWindow(wx.Frame):
     def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent, title=title, size=(300,200))
-        #self.control = wx.TextCtrl(self, style=wx.TE_MULTILINE)
-        #self.frame = wx.Frame(parent, title='ImageViewer')
-        #self.panel = wx.Panel(self.frame)
-        #self.viewingWindow()
-        #self.frame.Show()
+        wx.Frame.__init__(self, parent, title=title)
+        self.panel = wx.Panel(self)
+
+        """
+        self.button = wx.Button(panel, label="Test")
+        self.sizer = wx.BoxSizer()
+        self.sizer.Add(self.button)
+
+        self.panel.SetSizerAndFit(self.sizer)  
+
+        img = wx.EmptyImage(360,360)
+        self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(img))
+        """
+
+        self.viewingWindow()
+
         self.CreateStatusBar() # A Statusbar in the bottom of the window
 
         # Setting up the menu bar
@@ -100,7 +110,7 @@ class MainWindow(wx.Frame):
         self.mainSizer.Add(self.sizer, 0, wx.ALL, 5)
 
         self.panel.SetSizer(self.mainSizer)
-        self.mainSizer.Fit(self.frame)
+        self.mainSizer.Fit(self.panel)
         self.panel.Layout()
 
     def onOpen(self,e):
