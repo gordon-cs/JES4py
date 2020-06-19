@@ -73,6 +73,25 @@ class PictureTool(wx.App):
         self.createWidgets()
         self.frame.Show()
     
+        # Setting up the menu bar
+        filemenu = wx.Menu()
+
+        # Setting up the menu items
+        # wx.ID_ABOUT and wx.ID_EXIT are standard IDs provided by wxWidgets.
+        menuOpen = filemenu.Append(wx.ID_OPEN, "&Open", "Browse images to open")
+        filemenu.AppendSeparator()
+        menuZoom25 = filemenu.Append(wx.ID_ZOOM_OUT, "&25%","Zoom by 25%")
+        menuZoom50 = filemenu.Append(wx.ID_ZOOM_OUT, "&50%","Zoom by 50%")
+        menuZoom75 = filemenu.Append(wx.ID_ZOOM_OUT, "&75%","Zoom by 75%")
+        menuZoom100 = filemenu.Append(wx.ID_ZOOM_100, "&100%","Zoom by 100% (original size)")
+        menuZoom150 = filemenu.Append(wx.ID_ZOOM_IN, "&150%","Zoom by 150%")
+        menuZoom200 = filemenu.Append(wx.ID_ZOOM_IN, "&200%","Zoom by 200%")
+        menuZoom500 = filemenu.Append(wx.ID_ZOOM_IN, "&500%","Zoom by 500%")
+        filemenu.AppendSeparator()
+        menuAbout = filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
+        filemenu.AppendSeparator()
+        menuExit = filemenu.Append(wx.ID_EXIT,"E&xit"," Terminate the program")
+
     def createWidgets(self):
         instructions = 'Browse for an image'
         img = wx.EmptyImage(240,240)
