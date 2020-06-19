@@ -37,19 +37,15 @@ if __name__ == '__main__':
 
 class MainWindow(wx.Frame):
     def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent, title=title)
+        wx.Frame.__init__(self, parent, title=title, size=(700,500))
         self.panel = wx.Panel(self)
 
-        """
-        self.button = wx.Button(panel, label="Test")
-        self.sizer = wx.BoxSizer()
-        self.sizer.Add(self.button)
+        # Maximum horizontal dimension
+        self.PhotoMaxSize = 600
 
-        self.panel.SetSizerAndFit(self.sizer)  
-
-        img = wx.EmptyImage(360,360)
-        self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(img))
-        """
+        # create some sizers
+        mainSizer = wx.BoxSizer(wx.VERTICAL)
+        hSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         self.viewingWindow()
 
@@ -62,13 +58,13 @@ class MainWindow(wx.Frame):
         # wx.ID_ABOUT and wx.ID_EXIT are standard IDs provided by wxWidgets.
         menuOpen = filemenu.Append(wx.ID_OPEN, "&Open", "Browse images to open")
         filemenu.AppendSeparator()
-        menuZoom25 = filemenu.Append(wx.ID_ZOOM_OUT, "&25%","Zoom by 25%")
-        menuZoom50 = filemenu.Append(wx.ID_ZOOM_OUT, "&50%","Zoom by 50%")
-        menuZoom75 = filemenu.Append(wx.ID_ZOOM_OUT, "&75%","Zoom by 75%")
+        menuZoom25 = filemenu.Append(wx.ID_ANY, "&25%","Zoom by 25%")
+        menuZoom50 = filemenu.Append(wx.ID_ANY, "&50%","Zoom by 50%")
+        menuZoom75 = filemenu.Append(wx.ID_ANY, "&75%","Zoom by 75%")
         menuZoom100 = filemenu.Append(wx.ID_ZOOM_100, "&100%","Zoom by 100% (original size)")
-        menuZoom150 = filemenu.Append(wx.ID_ZOOM_IN, "&150%","Zoom by 150%")
-        menuZoom200 = filemenu.Append(wx.ID_ZOOM_IN, "&200%","Zoom by 200%")
-        menuZoom500 = filemenu.Append(wx.ID_ZOOM_IN, "&500%","Zoom by 500%")
+        menuZoom150 = filemenu.Append(wx.ID_ANY, "&150%","Zoom by 150%")
+        menuZoom200 = filemenu.Append(wx.ID_ANY, "&200%","Zoom by 200%")
+        menuZoom500 = filemenu.Append(wx.ID_ANY, "&500%","Zoom by 500%")
         filemenu.AppendSeparator()
         menuAbout = filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
         filemenu.AppendSeparator()
@@ -99,6 +95,9 @@ class MainWindow(wx.Frame):
         img = wx.EmptyImage(360,360)
         self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(img))
 
+        self.photoTxt = wx.TextCtrl(self.panel, size=(200,-1))
+        self.photoTxt.Show(False)
+        
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -106,7 +105,7 @@ class MainWindow(wx.Frame):
                            0, wx.ALL|wx.EXPAND, 5)
         
         self.mainSizer.Add(self.imageCtrl, 0, wx.ALL, 5)
-
+        self.sizer.Add(self.photoTxt, 0, wx.ALL, 5)
         self.mainSizer.Add(self.sizer, 0, wx.ALL, 5)
 
         self.panel.SetSizer(self.mainSizer)
@@ -143,52 +142,140 @@ class MainWindow(wx.Frame):
 
     # Zoom the image by 25%
     def onZoom25(self,e):
-        # Dummie method - returns a dialog box
-        dlg = wx.MessageDialog(self, "Image zoomed by 25%", "Zoom feature - 25%", wx.OK)
-        dlg.ShowModal() # Show it
-        dlg.Destroy() # finally destroy it when finished.
+        filepath = self.photoTxt.GetValue()
+        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
+         # scale the image, preserving the aspect ratio
+        W = img.GetWidth()
+        H = img.GetHeight()
+        if W > H:
+            NewW = self.PhotoMaxSize
+            NewH = self.PhotoMaxSize * H / W
+        else:
+            NewH = self.PhotoMaxSize
+            NewW = self.PhotoMaxSize * W / H
+        ScaledW = NewW * 0.25
+        ScaledH = NewH * 0.25
+
+        img = img.Scale(ScaledW,ScaledH)
+        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.panel.Refresh()
 
     # Zoom the image by 50%
     def onZoom50(self,e):
-        # Dummie method - returns a dialog box
-        dlg = wx.MessageDialog(self, "Image zoomed by 50%", "Zoom feature - 50%", wx.OK)
-        dlg.ShowModal() # Show it
-        dlg.Destroy() # finally destroy it when finished.
+        filepath = self.photoTxt.GetValue()
+        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
+         # scale the image, preserving the aspect ratio
+        W = img.GetWidth()
+        H = img.GetHeight()
+        if W > H:
+            NewW = self.PhotoMaxSize
+            NewH = self.PhotoMaxSize * H / W
+        else:
+            NewH = self.PhotoMaxSize
+            NewW = self.PhotoMaxSize * W / H
+        ScaledW = NewW * 0.50
+        ScaledH = NewH * 0.50
+
+        img = img.Scale(ScaledW,ScaledH)
+        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.panel.Refresh()
 
     # Zoom the image by 75%
     def onZoom75(self,e):
-        # Dummie method - returns a dialog box
-        dlg = wx.MessageDialog(self, "Image zoomed by 75%", "Zoom feature - 75%", wx.OK)
-        dlg.ShowModal() # Show it
-        dlg.Destroy() # finally destroy it when finished.
+        filepath = self.photoTxt.GetValue()
+        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
+         # scale the image, preserving the aspect ratio
+        W = img.GetWidth()
+        H = img.GetHeight()
+        if W > H:
+            NewW = self.PhotoMaxSize
+            NewH = self.PhotoMaxSize * H / W
+        else:
+            NewH = self.PhotoMaxSize
+            NewW = self.PhotoMaxSize * W / H
+        ScaledW = NewW * 0.75
+        ScaledH = NewH * 0.75
+
+        img = img.Scale(ScaledW,ScaledH)
+        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.panel.Refresh()
 
     # Zoom the image by 100%
     def onZoom100(self,e):
-        # Dummie method - returns a dialog box
-        dlg = wx.MessageDialog(self, "Image zoomed by 100%", "Zoom feature - 100%", wx.OK)
-        dlg.ShowModal() # Show it
-        dlg.Destroy() # finally destroy it when finished.
+        filepath = self.photoTxt.GetValue()
+        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
+         # scale the image, preserving the aspect ratio
+        W = img.GetWidth()
+        H = img.GetHeight()
+        if W > H:
+            NewW = self.PhotoMaxSize
+            NewH = self.PhotoMaxSize * H / W
+        else:
+            NewH = self.PhotoMaxSize
+            NewW = self.PhotoMaxSize * W / H
+        img = img.Scale(NewW,NewH)
+        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.panel.Refresh()
 
     # Zoom the image by 150%
     def onZoom150(self,e):
-        # Dummie method - returns a dialog box
-        dlg = wx.MessageDialog(self, "Image zoomed by 150%", "Zoom feature - 150%", wx.OK)
-        dlg.ShowModal() # Show it
-        dlg.Destroy() # finally destroy it when finished.
+        filepath = self.photoTxt.GetValue()
+        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
+         # scale the image, preserving the aspect ratio
+        W = img.GetWidth()
+        H = img.GetHeight()
+        if W > H:
+            NewW = self.PhotoMaxSize
+            NewH = self.PhotoMaxSize * H / W
+        else:
+            NewH = self.PhotoMaxSize
+            NewW = self.PhotoMaxSize * W / H
+        ScaledW = NewW * 1.50
+        ScaledH = NewH * 1.50
+
+        img = img.Scale(ScaledW,ScaledH)
+        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.panel.Refresh()
 
     # Zoom the image by 200%
     def onZoom200(self,e):
-        # Dummie method - returns a dialog box
-        dlg = wx.MessageDialog(self, "Image zoomed by 200%", "Zoom feature - 200%", wx.OK)
-        dlg.ShowModal() # Show it
-        dlg.Destroy() # finally destroy it when finished.
+        filepath = self.photoTxt.GetValue()
+        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
+         # scale the image, preserving the aspect ratio
+        W = img.GetWidth()
+        H = img.GetHeight()
+        if W > H:
+            NewW = self.PhotoMaxSize
+            NewH = self.PhotoMaxSize * H / W
+        else:
+            NewH = self.PhotoMaxSize
+            NewW = self.PhotoMaxSize * W / H
+        ScaledW = NewW * 2.0
+        ScaledH = NewH * 2.0
+
+        img = img.Scale(ScaledW,ScaledH)
+        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.panel.Refresh()
     
     # Zoom the image by 500%
     def onZoom500(self,e):
-        # Dummie method - returns a dialog box
-        dlg = wx.MessageDialog(self, "Image zoomed by 500%", "Zoom feature - 500%", wx.OK)
-        dlg.ShowModal() # Show it
-        dlg.Destroy() # finally destroy it when finished.
+        filepath = self.photoTxt.GetValue()
+        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
+         # scale the image, preserving the aspect ratio
+        W = img.GetWidth()
+        H = img.GetHeight()
+        if W > H:
+            NewW = self.PhotoMaxSize
+            NewH = self.PhotoMaxSize * H / W
+        else:
+            NewH = self.PhotoMaxSize
+            NewW = self.PhotoMaxSize * W / H
+        ScaledW = NewW * 5.0
+        ScaledH = NewH * 5.0
+
+        img = img.Scale(ScaledW,ScaledH)
+        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.panel.Refresh()
 
     def onAbout(self,e):
         # A message dialog box with an OK button. wx.OK is a standard ID in wxWidgets.
