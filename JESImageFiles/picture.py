@@ -1,7 +1,9 @@
 from PIL import Image
+import numpy as np
 class Picture:
 
     def __init__(self, picture, filename):
+        print(picture)
         self.title = "None"
         self.fileName = filename
         self.extension = "jpg"
@@ -13,9 +15,9 @@ class Picture:
     #  * @return a string with information about the picture such as fileName,
     #  * height and width.
     #  */
-    # def __str__(self):
-    #     output = "Picture, filename {} height {} width {}".format(self.fileName, self.picture.height, self.picture.width)
-    #     return output
+    def __str__(self):
+        output = "Picture, filename {} height {} width {}".format(self.fileName, self.picture.height, self.picture.width)
+        return output
 
     def getFileName(self):
         return self.fileName
@@ -29,6 +31,11 @@ class Picture:
     def getTitle(self):
         return self.title
 
+    def getPixels(self):
+        pixels = np.asarray(self.picture)
+        #pixels = np.reshape(self.height, self.width)
+        return pixels
+
     def getImage(self):
         return self.picture
 
@@ -36,3 +43,9 @@ class Picture:
         self.picture = pic
         self.width = pic.width
         self.height = pic.height
+
+    def getWidth(self):
+        return self.picture.width
+
+    def getHeight(self):
+        return self.picture.height

@@ -1,7 +1,7 @@
 
 from PIL import Image, ImageDraw
 from picture import Picture
-
+import numpy as np
     #////////////////////// methods ///////////////////////////////////////
 
     #  Method to return a string with information about this picture.
@@ -175,8 +175,8 @@ def addArc(pic, acolor, x, y, w, h, start, angle):
     #  @param width the desired width of the cropped area
     #  @param height the desired height of the cropped area
     #  @return the new cropped picture
-    def crop(pic, upperLeftX, upperLeftY, width, height):    
-        pic.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height))
-        return pic
+def crop(pic, upperLeftX, upperLeftY, width, height):    
+    pic.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height))
+    return pic
 
  # end of class Picture, put all new methods before this
