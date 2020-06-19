@@ -629,8 +629,9 @@ def makePicture(filepath, defaultColor=(255, 255, 255)):
     # picture = Picture()
     # picture.loadOrFail(filepath)
     # return picture
-    im =  PIL.Image.open(filepath)
+    im =  PIL.Image.open(filepath) 
     pic = Picture(im, filepath)
+    print(im)
     return pic
 
 # MMO (1 Dec 2005): Capped width/height to max 10000 and min 1
@@ -774,7 +775,7 @@ def addOval(pic, x, y, w, h, acolor=(0,0,0)):
     # g.setColor(acolor.color)
     #g.drawRect(x - 1,y - 1,w,h)
     im = pic.getImage()
-    im = pictureMod.addRectFilled(im, acolor, x, y, w, h)
+    im = pictureMod.addOval(im, acolor, x, y, w, h)
     pic.setImage(im)
     return pic
 
@@ -1122,6 +1123,7 @@ def playNote(note, duration, intensity=64):
 def pickAFile():
     # Note: this needs to be done in a threadsafe manner, see FileChooser
     # for details how this is accomplished.
+    Tk().withdraw()
     return filedialog.askopenfilename(initialdir = "/",title = "Select file")
 
 

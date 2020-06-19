@@ -3,7 +3,6 @@ import numpy as np
 class Picture:
 
     def __init__(self, picture, filename):
-        print(picture)
         self.title = "None"
         self.fileName = filename
         self.extension = "jpg"
@@ -33,7 +32,7 @@ class Picture:
 
     def getPixels(self):
         pixels = np.asarray(self.picture)
-        #pixels = np.reshape(self.height, self.width)
+        # pixels = np.reshape(pixels, self.height, self.width)
         return pixels
 
     def getImage(self):
