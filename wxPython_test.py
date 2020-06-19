@@ -112,6 +112,22 @@ class MainWindow(wx.Frame):
         self.mainSizer.Fit(self.panel)
         self.panel.Layout()
 
+    def pil_image_to_wx_image(pil_img, copy_alpha=True):
+        """
+        Image conversion from a Pillow Image to a wx.Image.
+        """
+        orig_width, orig_height = pil_img.size
+        wx_img = wx.Image(orig_width, orig_height)
+        wx_img.SetData(pil_img.convert('RGB').tobytes())
+        if copy_alpha and (pil_img.mode[-1] == 'A'):
+            alpha = pil_img.getchannel("A").tobytes()
+            wx_img.InitAlpha()
+            for i in range(orig_width):
+                for j in range(orig_height):
+                    wx_img.SetAlpha(i, j, alpha[i + j * orig_width])
+        return wx_img
+
+
     def onOpen(self,e):
         # Browse for file
         
@@ -279,7 +295,7 @@ class MainWindow(wx.Frame):
 
     def onAbout(self,e):
         # A message dialog box with an OK button. wx.OK is a standard ID in wxWidgets.
-        dlg = wx.MessageDialog( self, "A small text editor", "About Sample Editor", wx.OK)
+        dlg = wx.MessageDialog( self, "A simple picture tool", "About the Image Tool", wx.OK)
         dlg.ShowModal() # Show it
         dlg.Destroy() # finally destroy it when finished.
 
