@@ -1,10 +1,23 @@
 from PIL import Image
 class Pixel:
 
+    class Color:
+        def __init__(red, green=None, blue=None, alpha=None):
+            self.red = red
+            if green == None:
+                self.green = red
+                self.blue = red
+            else:
+                self.green = green
+                self.blue = blue
+            self.alpha = alpha
+        
     def __init__(self, picture, x, y):
         self.picture = picture
         self.x = x
         self.y = y
+        self.color = pxColor()
+
 
     #  * Method to return a string with information about this picture.
     #  * @return a string with information about the picture such as fileName,

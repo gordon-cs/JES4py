@@ -1,89 +1,13 @@
+# Media interface for JES-emulator, a Python3 implementation of JES,
+# the Jython Environment for Students, that does not require Jython.
 #
-# Media Wrappers for "Introduction to Media Computation"
-# Started: Mark Guzdial, 2 July 2002
-# Revisions:
-# 18 June 2003: (ellie)
-#    Added (blocking)play(AtRate)InRange methods to Sound class
-#      and global sound functions
-#    Changed getSampleValue, setSampleValue to give the appearance
-#      of 1-based indexing
-#    Added getLeftSampleValue and getRightSampleValue to Sound class
-# 14 May 2003: Fixed discrepancy between getMediaPath and setMediaFolder (AdamW)
-# 8 Nov: Fixed getSamplingRate (MarkG)
-# 1 Nov: Fixed printing pixel
-# 31 Oct: Fixed pickAColor (MarkG)
-# 30 Oct: Added raises, fixed error messages. Added repaint (MarkG)
-# 10 Oct: Coerced value to integer in Sound.setSampleValue   (MarkR)
-# 2 Oct:  Corrected calls in setSampleValueAt  (MarkG):
-# 30 Aug: Made commands more consistent and add type-checking (MarkG)
-# 2 Aug: Changed to getSampleValueAt and setSampleValueAt (MarkG)
-# 1 Dec 2005: made max makeEmptySound size 600
-#             made max makeEmptyPicture dimensions 10000x10000
-#             fixed the off-by-one error in makeEmptyPicture
-# 14 June 2007: (Pam Cutter, Kalamazoo College)
-#              Fixed off-by-one error in copyInto.  Now allows copying
-#               of same-sized picture, starting at top-left corner
-#
-# 6 July 2007: (Pam Cutter/Alyce Brady, Kalamazoo College)
-#              Added flexibility to make an empty picture of a specified color.  Added
-#                  additional, 3-parameter constructor to Picture and SimplePicture classes to support this.
-#              Modified copyInto so that it will copy as much of the source picture as will fit
-#              Added crop and copyInto methods to Picture class to support these.
-#
-# 8 July 2007: (Pam Cutter/ Alyce Brady, Kalamazoo College)
-#              Changed all  _class_ comparisons to use isinstance instead so that
-#                   they will work with subclasses as well (e.g., subclasses of Picture
-#                   are still pictures)
-#              Added getSampleValue, setSampleValue functions with same functionality, but
-#                   more intuitive names, as the getSample, setSample function, respectively.
-#              Added global getDuration function to return the number of seconds in a sound
-#
-# 10 July 2007: (Pam Cutter, Kalamazoo College)
-#              Added a global duplicateSound function
-# 11 July 2007: (Pam Cutter, Kalamazoo College)
-#              Added global addTextWithStyle function to allow users to add text to images
-#                  with different font styles.
-#
-# 17 July 2007: (Pam Cutter, Kalamazoo College)
-#              Added global addOval, addOvalFilled, addArc and addArcFilled functions.
-#              Added global getNumSamples function as more meaningful name for getLength of a sound.
-#
-# 19 July 2007: (Pam Cutter, Kalamazoo College)
-#              Modified the SoundExplorer class to be consistent with sounds in JES
-#                  starting at sample index 1.
-#              Modified the PictueExplorer class to initially show color values from
-#                        pixel 1,1, instead of 0,0.
-#
-# 1 Nov 2007: Added __add__ and __sub__ to Color class (BrianO)
-# 29 Apr 2008: Changed makeEmptySound to take an integer number of samples
-#              Added optional second argument to makeEmptySound for sampleRate
-# 6 June 2008: Added a check for forward slash in a directory path in makeMovieFromInitialFile
-#               This check should work with os.altsep, but it does not work with Jython 2.2.
-#               This should be fixed again at a later date.
-# 27 June 2008: Added optional input to setMediaFolder and setMediaPath.
-#               Added showMediaFolder and showMediaPath methods.
-# 11 July 2007: Removed showMediaFolder and showMediaPath for no-arg version of getMediaPath/getMediaFolder.
-#               Added generic explore method.
-# 15 July 2007: Added no-arg option for setLibPath
-
-# TODO:
-# Fix HSV/RGB conversions -- getting a divide by zero error when max=min
-
-# Get the Java Pieces
-# import JavaSound
-# import JavaPicture
-# import JavaPixel
-# import JavaMusic
-
-###################################
-# integrating in new java classes #
-###################################
+# This file is a heavily modified version of jes/python/media.py from the
+# JES distribution:
+#     # Media Wrappers for "Introduction to Media Computation"
+#     # Started: Mark Guzdial, 2 July 2002
 
 import sys
 import os
-# from PIL import ImageDraw, Image
-from PIL import Image as img
-from picture import Picture
 # import math
 # import traceback
 # import user
@@ -96,10 +20,15 @@ import pictureMod
 # import Samples
 # import MoviePlayer
 # import MovieWriter
+import FileChooser
+import random
+
+import JESConfig
+from PIL import Image as img
+from picture import Picture
 from tkinter import colorchooser
 from tkinter import *
 from tkinter import filedialog
-import random
 
 # from jes.tools.framesequencer import FrameSequencerTool
 
