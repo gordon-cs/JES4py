@@ -29,6 +29,7 @@ class MainWindow(wx.Frame):
         # Maximum horizontal dimension
         self.PhotoMaxSize = 600
 
+        # Color Eyedropper
         self.ColorPicker()
 
         # Image viewer
@@ -80,7 +81,8 @@ class MainWindow(wx.Frame):
         # Load the bitmap image and convert it into wxImage
         #filepath = self.photoTxt.GetValue()
         #img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
-        self.box = wx.BoxSizer(wx.VERTICAL)
+        self.mainSizer = wx.BoxSizer(wx.VERTICAL)
+        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
         
         lbl = wx.StaticText(self.panel,-1,style = wx.ALIGN_CENTER)
 
@@ -91,12 +93,18 @@ class MainWindow(wx.Frame):
 
         lbl.SetLabel(txt)
 
-        self.box.Add(lbl,0,wx.ALIGN_CENTER|wx.BOTTOM, 15)
+        #self.box.Add(lbl,0,wx.ALIGN_CENTER|wx.BOTTOM, 15)
+        #self.sizer.Add(self, -1, wx.ALL|wx.EXPAND, 5)
         
+        
+
+        self.mainSizer.Add(lbl, 0, wx.ALL|wx.EXPAND, 5)
+        self.mainSizer.Add(self.sizer, 0, wx.ALL, 5)
+
         lblwrap = wx.StaticText(self.panel,-1,style = wx.ALIGN_RIGHT) 
         
 
-        self.panel.SetSizer(self.box)
+        self.panel.SetSizer(self.mainSizer)
         
         self.Centre() 
         self.Show() 
