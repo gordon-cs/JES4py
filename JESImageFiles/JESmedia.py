@@ -81,8 +81,8 @@
 
 import sys
 import os
-from PIL import ImageDraw
-import PIL.Image
+# from PIL import ImageDraw, Image
+from PIL import Image as img
 from picture import Picture
 # import math
 # import traceback
@@ -629,7 +629,9 @@ def makePicture(filepath, defaultColor=(255, 255, 255)):
     # picture = Picture()
     # picture.loadOrFail(filepath)
     # return picture
-    im =  PIL.Image.open(filepath) 
+    im =  img.open(filepath)
+    #im = img.Image.putData(im)
+    im = im.crop((0,0,im.width,im.height))
     pic = Picture(im, filepath)
     print(im)
     return pic
@@ -652,7 +654,7 @@ def makeEmptyPicture(width, height, acolor=(255, 255, 255)):
     # careful here; do we want empty strings or "None"?
     mode = "RGB"
     size = (width, height)
-    im = PIL.Image.new(mode, size, acolor)
+    #im = PIL.Image.new(mode, size, acolor)
     filename = ""
     pic = Picture(im, filename)
     return pic
@@ -829,9 +831,7 @@ def getPixel(pic, x, y):
         print("The pixel location you chose was out of bounds")
         raise ValueError
     loc = (x,y)
-    print(pic)
     im = pic.getImage()
-    print(im)
     return im.getPixel(loc)
 
 # Added as a better name for getPixel
