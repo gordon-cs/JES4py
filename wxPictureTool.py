@@ -25,7 +25,7 @@ class PictureTool(pil_img):
 
 class MainWindow(wx.Frame):
     def __init__(self, parent, title):
-        wx.Frame.__init__(self, parent, title=title, size=(700,500))
+        MainFrame = wx.Frame.__init__(self, parent, title=title, size=(700,500))
         self.panel = wx.Panel(self)        
         wx.lib.inspection.InspectionTool().Show()
         # Maximum horizontal dimension
@@ -86,7 +86,7 @@ class MainWindow(wx.Frame):
         #img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
         self.box = wx.BoxSizer(wx.VERTICAL)
 
-        lbl = wx.StaticText(self.panel,-1,style = wx.ALIGN_CENTER)
+        lbl = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
 
         txt1 = "R: 000" 
         txt2 = "G: 000" 
@@ -95,7 +95,7 @@ class MainWindow(wx.Frame):
 
         lbl.SetLabel(txt)
 
-        self.box.Add(lbl,1,wx.ALIGN_CENTER|wx.BOTTOM, 15)
+        self.box.Add(lbl,0,wx.ALIGN_CENTER, 0, 0)
 
         self.panel.SetSizer(self.box)
 
@@ -110,14 +110,16 @@ class MainWindow(wx.Frame):
         self.photoTxt.Show(False)
         
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
-        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.hSizer1 = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.mainSizer.Add((-1, 20))
 
         self.mainSizer.Add(wx.StaticLine(self.panel, wx.ID_ANY),
                            0, wx.ALL|wx.EXPAND, 5)
         
         self.mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 5)
-        self.sizer.Add(self.photoTxt, 0, wx.ALL, 5)
-        self.mainSizer.Add(self.sizer, 0, wx.ALL, 5)
+        self.hSizer1.Add(self.photoTxt, 0, wx.ALL, 5)
+        self.mainSizer.Add(self.hSizer1, 0, wx.ALL, 5)
 
         self.panel.SetSizer(self.mainSizer)
         self.mainSizer.Fit(self.panel)
