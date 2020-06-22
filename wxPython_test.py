@@ -29,6 +29,8 @@ class MainWindow(wx.Frame):
         # Maximum horizontal dimension
         self.PhotoMaxSize = 600
 
+        self.ColorPicker()
+
         # Image viewer
         self.viewingWindow()
 
@@ -74,6 +76,31 @@ class MainWindow(wx.Frame):
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
         self.Show(True)
 
+    def ColorPicker(self):
+        # Load the bitmap image and convert it into wxImage
+        #filepath = self.photoTxt.GetValue()
+        #img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
+        self.box = wx.BoxSizer(wx.VERTICAL)
+        
+        lbl = wx.StaticText(self.panel,-1,style = wx.ALIGN_CENTER)
+
+        txt1 = "R: 000" 
+        txt2 = "G: 000" 
+        txt3 = "B: 000" 
+        txt = txt1+" "+txt2+" "+txt3
+
+        lbl.SetLabel(txt)
+
+        self.box.Add(lbl,0,wx.ALIGN_CENTER|wx.BOTTOM, 15)
+        
+        lblwrap = wx.StaticText(self.panel,-1,style = wx.ALIGN_RIGHT) 
+        
+
+        self.panel.SetSizer(self.box)
+        
+        self.Centre() 
+        self.Show() 
+
     def viewingWindow(self):
         img = wx.EmptyImage(660,360)
         self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(img))
@@ -87,20 +114,13 @@ class MainWindow(wx.Frame):
         self.mainSizer.Add(wx.StaticLine(self.panel, wx.ID_ANY),
                            0, wx.ALL|wx.EXPAND, 5)
         
-        self.mainSizer.Add(self.imageCtrl, 0, wx.ALL, 5)
+        self.mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 5)
         self.sizer.Add(self.photoTxt, 0, wx.ALL, 5)
         self.mainSizer.Add(self.sizer, 0, wx.ALL, 5)
 
         self.panel.SetSizer(self.mainSizer)
         self.mainSizer.Fit(self.panel)
         self.panel.Layout()
-
-    def ColorPicker(self):
-        # Load the bitmap image and convert it into wxImage
-        filepath = self.photoTxt.GetValue()
-        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
-
-
 
     def onOpen(self,e):
         # Browse for file
