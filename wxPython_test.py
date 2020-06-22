@@ -5,6 +5,8 @@
 
 import os
 import wx
+import wx.lib.inspection
+
 """
 class PictureTool(pil_img):
     def pil_image_to_wx_image(self, pil_img, copy_alpha=True):
@@ -24,8 +26,8 @@ class PictureTool(pil_img):
 class MainWindow(wx.Frame):
     def __init__(self, parent, title):
         wx.Frame.__init__(self, parent, title=title, size=(700,500))
-        self.panel = wx.Panel(self)
-
+        self.panel = wx.Panel(self)        
+        wx.lib.inspection.InspectionTool().Show()
         # Maximum horizontal dimension
         self.PhotoMaxSize = 600
 
@@ -35,7 +37,8 @@ class MainWindow(wx.Frame):
         # Image viewer
         self.viewingWindow()
 
-        self.CreateStatusBar() # A Statusbar in the bottom of the window
+        # A Statusbar in the bottom of the window
+        self.CreateStatusBar()
 
         # Setting up the menu bar
         filemenu = wx.Menu()
@@ -81,9 +84,8 @@ class MainWindow(wx.Frame):
         # Load the bitmap image and convert it into wxImage
         #filepath = self.photoTxt.GetValue()
         #img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
-        self.mainSizer = wx.BoxSizer(wx.VERTICAL)
-        self.sizer = wx.BoxSizer(wx.HORIZONTAL)
-        
+        self.box = wx.BoxSizer(wx.VERTICAL)
+
         lbl = wx.StaticText(self.panel,-1,style = wx.ALIGN_CENTER)
 
         txt1 = "R: 000" 
@@ -93,19 +95,10 @@ class MainWindow(wx.Frame):
 
         lbl.SetLabel(txt)
 
-        #self.box.Add(lbl,0,wx.ALIGN_CENTER|wx.BOTTOM, 15)
-        #self.sizer.Add(self, -1, wx.ALL|wx.EXPAND, 5)
-        
-        
+        self.box.Add(lbl,1,wx.ALIGN_CENTER|wx.BOTTOM, 15)
 
-        self.mainSizer.Add(lbl, 0, wx.ALL|wx.EXPAND, 5)
-        self.mainSizer.Add(self.sizer, 0, wx.ALL, 5)
+        self.panel.SetSizer(self.box)
 
-        lblwrap = wx.StaticText(self.panel,-1,style = wx.ALIGN_RIGHT) 
-        
-
-        self.panel.SetSizer(self.mainSizer)
-        
         self.Centre() 
         self.Show() 
 
