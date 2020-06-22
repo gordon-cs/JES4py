@@ -5,6 +5,21 @@
 
 import os
 import wx
+"""
+class PictureTool(pil_img):
+    def pil_image_to_wx_image(self, pil_img, copy_alpha=True):
+        # Image conversion from a Pillow Image to a wx.Image.
+        orig_width, orig_height = pil_img.size
+        wx_img = wx.Image(orig_width, orig_height)
+        wx_img.SetData(pil_img.convert('RGB').tobytes())
+        if copy_alpha and (pil_img.mode[-1] == 'A'):
+            alpha = pil_img.getchannel("A").tobytes()
+            wx_img.InitAlpha()
+            for i in range(orig_width):
+                for j in range(orig_height):
+                    wx_img.SetAlpha(i, j, alpha[i + j * orig_width])
+        return wx_img
+"""
 
 class MainWindow(wx.Frame):
     def __init__(self, parent, title):
@@ -14,10 +29,7 @@ class MainWindow(wx.Frame):
         # Maximum horizontal dimension
         self.PhotoMaxSize = 600
 
-        # create some sizers
-        mainSizer = wx.BoxSizer(wx.VERTICAL)
-        hSizer = wx.BoxSizer(wx.HORIZONTAL)
-
+        # Image viewer
         self.viewingWindow()
 
         self.CreateStatusBar() # A Statusbar in the bottom of the window
@@ -63,7 +75,7 @@ class MainWindow(wx.Frame):
         self.Show(True)
 
     def viewingWindow(self):
-        img = wx.EmptyImage(360,360)
+        img = wx.EmptyImage(660,360)
         self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(img))
 
         self.photoTxt = wx.TextCtrl(self.panel, size=(200,-1))
@@ -83,20 +95,11 @@ class MainWindow(wx.Frame):
         self.mainSizer.Fit(self.panel)
         self.panel.Layout()
 
-    def pil_image_to_wx_image(pil_img, copy_alpha=True):
-        """
-        Image conversion from a Pillow Image to a wx.Image.
-        """
-        orig_width, orig_height = pil_img.size
-        wx_img = wx.Image(orig_width, orig_height)
-        wx_img.SetData(pil_img.convert('RGB').tobytes())
-        if copy_alpha and (pil_img.mode[-1] == 'A'):
-            alpha = pil_img.getchannel("A").tobytes()
-            wx_img.InitAlpha()
-            for i in range(orig_width):
-                for j in range(orig_height):
-                    wx_img.SetAlpha(i, j, alpha[i + j * orig_width])
-        return wx_img
+    def ColorPicker(self):
+        # Load the bitmap image and convert it into wxImage
+        filepath = self.photoTxt.GetValue()
+        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
+
 
 
     def onOpen(self,e):
