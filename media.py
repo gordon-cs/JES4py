@@ -8,10 +8,11 @@
 
 import sys
 import os
-# import math
+import math
 # import traceback
 # import user
-import pictureMod
+#import pictureMod
+#import Picture
 # import Pixel
 # import Sound
 # import StoppableInput
@@ -24,8 +25,9 @@ import FileChooser
 import random
 
 import JESConfig
-from PIL import Image as img
-from picture import Picture
+import PIL.Image
+#from PIL import Image as img
+from Picture import Picture
 from tkinter import colorchooser
 from tkinter import *
 from tkinter import filedialog
@@ -425,76 +427,78 @@ def getColorWrapAround():
 # and the gray Color constructor to allow only 1 color parameter (will
 # take 2, but ignores the second)
 
-# class Color:
+# JRS -- 2020-06-23 -- TEMPORARY FUNCTION UNTIL PIXEL CLASS IS AVAILABLE
+def PixelcorrectLevel(c):
+    """Return pixel value in range [0..255]
+    """
+    return c % 256
 
-#     def __init__(self, r, g=None, b=None):
-#         if b == None:
-#             if isinstance(r, awt.Color) or isinstance(r, Color):
-#                 self.color = r
-#             else:
-#                 val = Pixel.correctLevel(r)
-#                 self.color = awt.Color(val, val, val)
-#         else:
-#             self.color = awt.Color(
-#                 Pixel.correctLevel(r), Pixel.correctLevel(g), Pixel.correctLevel(b))
+class Color:
 
-#     def __str__(self):
-#         return "color r=" + str(self.getRed()) + " g=" + str(self.getGreen()) + " b=" + str(self.getBlue())
+    def __init__(self, r, g=None, b=None):
+        if b == None:
+            if isinstance(r, Color):
+                self.color = r
+            else:
+                val = PixelcorrectLevel(r)
+                self.color = (val, val, val)
+        else:
+            self.color = (PixelcorrectLevel(r), PixelcorrectLevel(g), PixelcorrectLevel(b))
 
-#     def __repr__(self):
-#         return "Color(" + str(self.getRed()) + ", " + str(self.getGreen()) + ", " + str(self.getBlue()) + ")"
+    def __str__(self):
+        return "color r=" + str(self.getRed()) + " g=" + str(self.getGreen()) + " b=" + str(self.getBlue())
 
-#     def __eq__(self, newcolor):
-#         return ((self.getRed() == newcolor.getRed()) and (self.getGreen() == newcolor.getGreen()) and (self.getBlue() == newcolor.getBlue()))
+    def __repr__(self):
+        return "Color(" + str(self.getRed()) + ", " + str(self.getGreen()) + ", " + str(self.getBlue()) + ")"
 
-#     def __ne__(self, newcolor):
-#         return (not self.__eq__(newcolor))
+    def __eq__(self, newcolor):
+        return ((self.getRed() == newcolor.getRed()) and (self.getGreen() == newcolor.getGreen()) and (self.getBlue() == newcolor.getBlue()))
 
-#     def __tojava__(self, javaclass):
-#         if javaclass == awt.Color:
-#             return self.color
-#         else:
-#             return self
+    def __ne__(self, newcolor):
+        return (not self.__eq__(newcolor))
 
-#     # Added by BrianO
-#     def __add__(self, other):
-#         r = self.getRed() + other.getRed()
-#         g = self.getGreen() + other.getGreen()
-#         b = self.getBlue() + other.getBlue()
+    # Added by BrianO
+    def __add__(self, other):
+        r = self.getRed() + other.getRed()
+        g = self.getGreen() + other.getGreen()
+        b = self.getBlue() + other.getBlue()
 
-#         return Color(Pixel.correctLevel(r), Pixel.correctLevel(g), Pixel.correctLevel(b))
+        return Color(PixelcorrectLevel(r), PixelcorrectLevel(g), PixelcorrectLevel(b))
 
-#     # Added by BrianO
-#     def __sub__(self, other):
-#         r = self.getRed() - other.getRed()
-#         g = self.getGreen() - other.getGreen()
-#         b = self.getBlue() - other.getBlue()
+    # Added by BrianO
+    def __sub__(self, other):
+        r = self.getRed() - other.getRed()
+        g = self.getGreen() - other.getGreen()
+        b = self.getBlue() - other.getBlue()
 
-#         return Color(Pixel.correctLevel(r), Pixel.correctLevel(g), Pixel.correctLevel(b))
+        return Color(PixelcorrectLevel(r), PixelcorrectLevel(g), PixelcorrectLevel(b))
 
-#     def setRGB(self, r, g, b):
-#         self.color = awt.Color(Pixel.correctLevel(r), Pixel.correctLevel(g), Pixel.correctLevel(b))
+    def setRGB(self, r, g, b):
+        self.color = (PixelcorrectLevel(r), PixelcorrectLevel(g), PixelcorrectLevel(b))
 
-#     def getRed(self):
-#         return self.color.getRed()
+    def getRGB(self):
+        return self.color
 
-#     def getGreen(self):
-#         return self.color.getGreen()
+    def getRed(self):
+        return self.color[0]
 
-#     def getBlue(self):
-#         return self.color.getBlue()
+    def getGreen(self):
+        return self.color[1]
 
-#     def distance(self, othercolor):
-#         r = pow((self.getRed() - othercolor.getRed()), 2)
-#         g = pow((self.getGreen() - othercolor.getGreen()), 2)
-#         b = pow((self.getBlue() - othercolor.getBlue()), 2)
-#         return math.sqrt(r + g + b)
+    def getBlue(self):
+        return self.color[2]
 
-#     def makeDarker(self):
-#         return self.color.darker()
+    def distance(self, othercolor):
+        r = pow((self.getRed() - othercolor.getRed()), 2)
+        g = pow((self.getGreen() - othercolor.getGreen()), 2)
+        b = pow((self.getBlue() - othercolor.getBlue()), 2)
+        return math.sqrt(r + g + b)
 
-#     def makeLighter(self):
-#         return self.color.brighter()
+    def makeDarker(self):
+        return self.color.darker()
+
+    def makeLighter(self):
+        return self.color.brighter()
 
 
 def pickAColor():
@@ -506,19 +510,19 @@ def pickAColor():
 
 
 # Constants
-# black = Color(0, 0, 0)
-# white = Color(255, 255, 255)
-# blue = Color(0, 0, 255)
-# red = Color(255, 0, 0)
-# green = Color(0, 255, 0)
-# gray = Color(128, 128, 128)
-# darkGray = Color(64, 64, 64)
-# lightGray = Color(192, 192, 192)
-# yellow = Color(255, 255, 0)
-# orange = Color(255, 200, 0)
-# pink = Color(255, 175, 175)
-# magenta = Color(255, 0, 255)
-# cyan = Color(0, 255, 255)
+black = Color(0, 0, 0)
+white = Color(255, 255, 255)
+blue = Color(0, 0, 255)
+red = Color(255, 0, 0)
+green = Color(0, 255, 0)
+gray = Color(128, 128, 128)
+darkGray = Color(64, 64, 64)
+lightGray = Color(192, 192, 192)
+yellow = Color(255, 255, 0)
+orange = Color(255, 200, 0)
+pink = Color(255, 175, 175)
+magenta = Color(255, 0, 255)
+cyan = Color(0, 255, 255)
 
 ##
 # Global picture functions
@@ -558,11 +562,10 @@ def makePicture(filepath, defaultColor=(255, 255, 255)):
     # picture = Picture()
     # picture.loadOrFail(filepath)
     # return picture
-    im =  img.open(filepath)
+    im =  PIL.Image.open(filepath)
     #im = img.Image.putData(im)
-    im = im.crop((0,0,im.width,im.height))
-    pic = Picture(im, filepath)
-    print(im)
+    #im = im.crop((0,0,im.width,im.height))
+    pic = Picture(im)
     return pic
 
 # MMO (1 Dec 2005): Capped width/height to max 10000 and min 1
@@ -583,9 +586,9 @@ def makeEmptyPicture(width, height, acolor=(255, 255, 255)):
     # careful here; do we want empty strings or "None"?
     mode = "RGB"
     size = (width, height)
-    #im = PIL.Image.new(mode, size, acolor)
-    filename = ""
-    pic = Picture(im, filename)
+    im = PIL.Image.new(mode, size, acolor)
+    im.filename = ""
+    pic = Picture(im)
     return pic
 
 
@@ -634,7 +637,7 @@ def repaint(pic):
 ## adding graphics to your pictures! ##
 
 
-def addLine(pic, x1, y1, x2, y2, acolor=(0,0,0)):
+def addLine(pic, x1, y1, x2, y2, acolor=black):
     if not isinstance(pic, Picture):
         print("addLine(picture, x1, y1, x2, y2[, color]): First input is not a picture")
         raise ValueError
@@ -647,7 +650,7 @@ def addLine(pic, x1, y1, x2, y2, acolor=(0,0,0)):
     pic.addLine(acolor, x1, y1, x2, y2)
 
 
-def addText(pic, x, y, string, acolor=(0,0,0)):
+def addText(pic, x, y, string, acolor=black):
     if not isinstance(pic, Picture):
         print ("addText(picture, x, y, string[, color]): First input is not a picture")
         raise ValueError
@@ -659,10 +662,7 @@ def addText(pic, x, y, string, acolor=(0,0,0)):
     #g.drawString(string, x - 1, y - 1)
     pic.addText(acolor, x, y, string)
 
-# PamC: Added this function to allow different font styles
-
-
-def addTextWithStyle(pic, x, y, string, style, acolor=(0,0,0)):
+def addTextWithStyle(pic, x, y, string, style, acolor=black):
     if not isinstance(pic, Picture):
         print("addTextWithStyle(picture, x, y, string, style[, color]): First input is not a picture")
         raise ValueError
@@ -674,83 +674,46 @@ def addTextWithStyle(pic, x, y, string, style, acolor=(0,0,0)):
         raise ValueError
     pic.addTextWithStyle(acolor, x, y, string, style)
 
+# - JRS -- 2020-06-23 -- START OF MODIFICATIONS
 
-def addRect(pic, x, y, w, h, acolor=(0,0,0)):
+def addRect(pic, x, y, w, h, acolor=black):
     if not isinstance(pic, Picture):
         print("addRect(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
-    im = pic.getImage()
-    im = pictureMod.addRect(im, acolor, x, y, w, h)
-    pic.setImage(im)
-    return pic
+    pic.addRect(acolor, x, y, w, h)
 
-
-def addRectFilled(pic, x, y, w, h, acolor=(0,0,0)):
-    if not isinstance(picture, Picture):
+def addRectFilled(pic, x, y, w, h, acolor=black):
+    if not isinstance(pic, Picture):
         print("addRectFilled(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
-    im = pic.getImage()
-    im = pictureMod.addRectFilled(im, acolor, x, y, w, h)
-    pic.setImage(im)
-    return pic
+    pic.addRectFilled(acolor, x, y, w, h)
 
-# PamC: Added the following addOval, addOvalFilled, addArc, and addArcFilled
-# functions to add more graphics to pictures.
-
-
-def addOval(pic, x, y, w, h, acolor=(0,0,0)):
+def addOval(pic, x, y, w, h, acolor=black):
     if not isinstance(pic, Picture):
         print("addOval(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
-    #g = picture.getBufferedImage().getGraphics()
-    # g.setColor(acolor.color)
-    #g.drawRect(x - 1,y - 1,w,h)
-    im = pic.getImage()
-    im = pictureMod.addOval(im, acolor, x, y, w, h)
-    pic.setImage(im)
-    return pic
+    pic.addOval(acolor, x, y, w, h)
 
-
-def addOvalFilled(pic, x, y, w, h, acolor=(0,0,0)):
+def addOvalFilled(pic, x, y, w, h, acolor=black):
     if not isinstance(pic, Picture):
         print("addOvalFilled(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
-    im = pic.getImage()
-    im = pictureMod.addOvalFilled(im, acolor, x, y, w, h)
-    pic.setImage(im)
-    return pic
+    pic.addOvalFilled(acolor, x, y, w, h)
 
-
-def addArc(pic, x, y, w, h, start, angle, acolor=(0,0,0)):
+def addArc(pic, x, y, w, h, start, angle, acolor=black):
     if not isinstance(pic, Picture):
         print("addArc(picture, x, y, w, h, start, angle[, color]): First input is not a picture")
         raise ValueError
-    # if not isinstance(acolor, Color):
-    #     print("addArc(picture, x, y, w, h[, color]): Last input is not a color")
-    #     raise ValueError
-    im = pic.getImage()
-    im = pictureMod.addArc(pic.getImage(), acolor, x, y, w, h, start, angle)
-    pic.setImage(im)
-    return pic
+    pic.addArc(acolor, x, y, w, h, start, angle)
 
-
-def addArcFilled(pic, x, y, w, h, start, angle, acolor=(0,0,0)):
+def addArcFilled(pic, x, y, w, h, start, angle, acolor=black):
     if not isinstance(pic, Picture):
         print("addArcFilled(picture, x, y, w, h[, color]): First First input is not a picture")
         raise ValueError
-    # if not isinstance(acolor, Color):
-    #     print("addArcFill(picture, x, y, w, h[, color]): Last input is not a color")
-    #     raise ValueError
-    im = pic.getImage()
-    im = pictureMod.addArcFilled(pic.getImage(), acolor, x, y, w, h, start, angle)
-    pic.setImage(im)
-    return pic
+    pic.addArcFilled(acolor, x, y, w, h, start, angle)
 
-# note the -1; in JES we think of pictures as starting at (1,1) but not
-# in the Java.
-##
-# 29 Oct 2008: -1 changed to Picture._PictureIndexOffset
 
+# JRS -- 2020-06-23 -- END OF MODIFICATIONS
 
 def getPixel(pic, x, y):
     if not isinstance(pic, Picture):
