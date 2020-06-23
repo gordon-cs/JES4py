@@ -80,10 +80,37 @@ class MainWindow(wx.Frame):
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
         self.Show(True)
 
+    # Main image viewing window
+    def viewingWindow(self):
+        img = wx.EmptyImage(660,360)
+        self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(img))
+
+        # Event handler - Gets X, Y coordinates on mouse click
+        self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
+
+        # Stores the filepath of the image
+        self.photoTxt = wx.TextCtrl(self.panel, size=(200,-1))
+        self.photoTxt.Show(False)
+        
+        self.mainSizer = wx.BoxSizer(wx.VERTICAL)
+        self.hSizer1 = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.mainSizer.Add((-1, 50))
+
+        self.mainSizer.Add(wx.StaticLine(self.panel, wx.ID_ANY),
+                           0, wx.ALL|wx.EXPAND, 5)
+        
+        self.mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 5)
+        self.hSizer1.Add(self.photoTxt, 0, wx.ALL, 5)
+        self.mainSizer.Add(self.hSizer1, 0, wx.ALL, 5)
+
+        self.panel.SetSizer(self.mainSizer)
+        self.mainSizer.Fit(self.panel)
+        self.panel.Layout()
+    
     def ColorPicker(self):
         # Load the bitmap image and convert it into wxImage
-        #filepath = self.photoTxt.GetValue()
-        #img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
+    
 
         # Textboxes to display X and Y coordinates on click
         self.pixelTxtX = wx.TextCtrl(self.panel, wx.ALIGN_CENTER, size=(50,-1))
@@ -91,12 +118,13 @@ class MainWindow(wx.Frame):
 
         # Static text displays RGB values of the given coordinates
         self.rgbValue = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
+        
         # Dummie value
-        txt1 = "R: 000" 
-        txt2 = "G: 000" 
-        txt3 = "B: 000" 
-        txt = txt1+" "+txt2+" "+txt3
-        self.rgbValue.SetLabel(txt) # Sets the value to the statictext
+        valueR = "R: N/A" 
+        valueG = "G: N/A" 
+        valueB = "B: N/A" 
+        rgb = valueR+" "+valueG+" "+valueB
+        self.rgbValue.SetLabel(rgb) # Sets the value to the statictext
 
         # X and Y labels
         self.lblX = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
@@ -136,30 +164,13 @@ class MainWindow(wx.Frame):
         self.panel.SetSizer(self.box)
         self.box.Fit(self.panel)
         self.panel.Layout()
-        self.Show() 
+        self.Show()
 
-    def viewingWindow(self):
-        img = wx.EmptyImage(660,360)
-        self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(img))
-
-        self.photoTxt = wx.TextCtrl(self.panel, size=(200,-1))
-        self.photoTxt.Show(False)
-        
-        self.mainSizer = wx.BoxSizer(wx.VERTICAL)
-        self.hSizer1 = wx.BoxSizer(wx.HORIZONTAL)
-
-        self.mainSizer.Add((-1, 50))
-
-        self.mainSizer.Add(wx.StaticLine(self.panel, wx.ID_ANY),
-                           0, wx.ALL|wx.EXPAND, 5)
-        
-        self.mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 5)
-        self.hSizer1.Add(self.photoTxt, 0, wx.ALL, 5)
-        self.mainSizer.Add(self.hSizer1, 0, wx.ALL, 5)
-
-        self.panel.SetSizer(self.mainSizer)
-        self.mainSizer.Fit(self.panel)
-        self.panel.Layout()
+    def ImageCtrl_OnMouseClick(self, event):
+        # Returns X, Y coordinates on mouse click
+        ctrl_pos = event.GetPosition()
+        self.pixelTxtX.SetValue(str(ctrl_pos.x))
+        self.pixelTxtY.SetValue(str(ctrl_pos.y))
 
     def onOpen(self,e):
         # Browse for file
