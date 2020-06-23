@@ -84,22 +84,34 @@ class MainWindow(wx.Frame):
         # Load the bitmap image and convert it into wxImage
         #filepath = self.photoTxt.GetValue()
         #img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
-        self.box = wx.BoxSizer(wx.VERTICAL)
+        self.pixelTxtX = wx.TextCtrl(self.panel, wx.ALIGN_CENTER, size=(50,-1))
+        self.pixelTxtY = wx.TextCtrl(self.panel, wx.ALIGN_CENTER, size=(50,-1))
 
-        lbl = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
+        self.rgbValue = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
 
+
+        # Dummie value
         txt1 = "R: 000" 
         txt2 = "G: 000" 
         txt3 = "B: 000" 
         txt = txt1+" "+txt2+" "+txt3
 
-        lbl.SetLabel(txt)
+        self.rgbValue.SetLabel(txt)
 
-        self.box.Add(lbl,0,wx.ALIGN_CENTER, 0, 0)
+        self.box = wx.BoxSizer(wx.VERTICAL)
+        self.hbox1 = wx.BoxSizer(wx.HORIZONTAL)
+        self.hbox1.Add(self.pixelTxtX, 0, flag=wx.CENTER, border=5)
+        self.hbox1.Add((10, -1))
+        self.hbox1.Add(self.pixelTxtY, 0, flag=wx.RIGHT, border=5)
+        self.box.Add(self.hbox1, 0, flag=wx.LEFT|wx.RIGHT|wx.TOP|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
+
+        self.box.Add((-1, 5))  
+
+        self.box.Add(self.rgbValue, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 5)
 
         self.panel.SetSizer(self.box)
-
-        self.Centre() 
+        self.box.Fit(self.panel)
+        self.panel.Layout()
         self.Show() 
 
     def viewingWindow(self):
@@ -112,7 +124,7 @@ class MainWindow(wx.Frame):
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
         self.hSizer1 = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.mainSizer.Add((-1, 20))
+        self.mainSizer.Add((-1, 50))
 
         self.mainSizer.Add(wx.StaticLine(self.panel, wx.ID_ANY),
                            0, wx.ALL|wx.EXPAND, 5)
