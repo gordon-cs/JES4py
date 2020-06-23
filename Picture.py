@@ -1,7 +1,57 @@
+#from PIL import Image, ImageDraw
+import PIL.ImageDraw
 
-from PIL import Image, ImageDraw
-from picture import Picture
-import numpy as np
+class Picture:
+
+    def __init__(self, image):
+        self.title = image.filename
+        self.fileName = image.filename
+        self.width = image.width
+        self.height = image.height
+        self.image = image
+        #print("in constructor: ", image.__dict__.keys())
+        #print("in constructor: filename = ", image.filename)
+        #self.fileName = image.filename
+
+    #  * Method to return a string with information about this picture.
+    #  * @return a string with information about the picture such as fileName,
+    #  * height and width.
+    #  */
+    def __str__(self):
+        output = "Picture, filename {} height {} width {}".format(self.fileName, self.height, self.width)
+        return output
+
+    def getFileName(self):
+        return self.fileName
+
+    def setFileName(self, name):
+        self.fileName = name
+
+    def getTitle(self):
+        return self.title
+        
+    def setTitle(self, name):
+        self.title = name
+
+#    def getPixels(self):
+#        pixels = np.asarray(self.picture)
+#        # pixels = np.reshape(pixels, self.height, self.width)
+#        return pixels
+
+    def getImage(self):
+        return self.image
+
+    def setImage(self, image):
+        self.image = image
+        self.width = image.width
+        self.height = image.height
+
+    def getWidth(self):
+        return self.image.width
+
+    def getHeight(self):
+        return self.image.height
+
     #////////////////////// methods ///////////////////////////////////////
 
     #  Method to return a string with information about this picture.
@@ -22,11 +72,10 @@ import numpy as np
     #  * @param y1 the y-coordinate of the first point
     #  * @param x2 the x-coordinate of the second point
     #  * @param y2 the y-coordinate of the second point
-    # public void addLine(Color acolor, int x1, int y1, int x2, int y2) {
-    #     Graphics g = this.getBufferedImage().getGraphics();
-    #     g.setColor(acolor);
-    #     g.drawLine(x1 - SimplePicture._PictureIndexOffset, y1 - SimplePicture._PictureIndexOffset, x2 - SimplePicture._PictureIndexOffset, y2 - SimplePicture._PictureIndexOffset);
-    # }
+    def addLine(self, acolor, x1, y1, x2, y2):
+        draw = PIL.ImageDraw.Draw(self.image)
+        shape = [x1, y1, x2, y2]
+        draw.line(shape, fill=acolor.getRGB())
 
     #  * Method to add a line of text to a picture
     #  *    @param acolor the color of the text
@@ -52,17 +101,23 @@ import numpy as np
     #     g.drawString(string, x - SimplePicture._PictureIndexOffset, y - SimplePicture._PictureIndexOffset);
     # }
 
-    #     Method to draw the outline of a rectangle on a picture.
-    #     @param acolor the color of the rectangle
-    #     @param x the x-coordinate of the upper-left cornerof the rectangle
-    #     @param y the y-coordinate of the upper-left corner of the rectangle
-    #     @param w the width of the rectangle
-    #     @param h the height of the rectangle
-def addRect(pic, acolor, x, y, w, h):
-    draw = ImageDraw.Draw(pic)
-    shape = [x, y, x+w, y+h]
-    draw.rectangle(shape, fill = None, outline = acolor) 
-    return pic
+    def addRect(self, acolor, x, y, w, h):
+        """Method to draw the outline of a rectangle on a picture.
+    
+        acolor : instance of Color class
+            the color of the rectangle border
+        x : int
+            the x-coordinate of the upper-left cornerof the rectangle
+        y : int
+            the y-coordinate of the upper-left corner of the rectangle
+        w : int
+            the width of the rectangle
+        h : int
+            the height of the rectangle
+        """
+        draw = PIL.ImageDraw.Draw(self.image)
+        shape = [x, y, x+w, y+h]
+        draw.rectangle(shape, fill = None, outline = acolor.getRGB()) 
 
 #     Method to draw a solid rectangle on a picture.
 #     @param acolor the color of the rectangle
@@ -70,11 +125,11 @@ def addRect(pic, acolor, x, y, w, h):
 #     @param y the y-coordinate of the upper-left corner of the rectangle
 #     @param w the width of the rectangle
 #     @param h the height of the rectangle
-def addRectFilled(pic, acolor, x, y, w, h):
-    draw = ImageDraw.Draw(pic)
-    shape = [x, y, x+w, y+h]
-    draw.rectangle(shape, fill=acolor, outline = None) 
-    return pic
+    def addRectFilled(self, acolor, x, y, w, h):
+        draw = PIL.ImageDraw.Draw(self.image)
+        shape = [x, y, x+w, y+h]
+        color = acolor.getRGB()
+        draw.rectangle(shape, fill = color, outline = color) 
 
 #     Method to draw a solid oval on a picture.
 #     @param acolor the color of the oval
@@ -82,11 +137,11 @@ def addRectFilled(pic, acolor, x, y, w, h):
 #     @param y the y-coordinate of the upper-left corner of the bounding rectangle for the oval
 #     @param w the width of the oval
 #     @param h the height of the oval
-def addOvalFilled(pic, acolor, x, y, w, h):
-    draw = ImageDraw.Draw(pic)
-    shape = [x, y, x+w, y+h]
-    draw.ellipse(shape, fill = acolor, outline = None, width=1)
-    return pic
+    def addOvalFilled(self, acolor, x, y, w, h):
+        draw = PIL.ImageDraw.Draw(self.image)
+        shape = [x, y, x+w, y+h]
+        color = acolor.getRGB()
+        draw.ellipse(shape, fill = color, outline = color, width=1)
 
 #  Method to draw the outline of an oval on a picture.
 #     @param acolor the color of the oval
@@ -94,11 +149,10 @@ def addOvalFilled(pic, acolor, x, y, w, h):
 #     @param y the y-coordinate of the upper-left corner of the bounding rectangle for the oval
 #     @param w the width of the oval
 #     @param h the height of the oval
-def addOval(pic, acolor, x, y, w, h):
-    draw = ImageDraw.Draw(pic)
-    shape = [x, y, x+w, y+h]
-    draw.ellipse(shape, fill = None, outline = acolor, width=1)
-    return pic
+    def addOval(self, acolor, x, y, w, h):
+        draw = PIL.ImageDraw.Draw(self.image)
+        shape = [x, y, x+w, y+h]
+        draw.ellipse(shape, fill = None, outline = acolor.getRGB(), width = 1)
 
 #  Method to draw a solid arc on a picture
 #     @param acolor the color of the arc
@@ -108,11 +162,15 @@ def addOval(pic, acolor, x, y, w, h):
 #     @param h the height of the arc
 #     @param start the starting angle at which to draw the arc
 #     @param angle the angle of the arc, relative to the start angle
-def addArcFilled(pic, acolor, x, y, w, h, start, angle):
-    draw = ImageDraw.Draw(pic)
-    shape = [x, y, x+w, y+h]
-    draw.pieslice(shape, start, angle,fill = acolor, outline=None, width=1)
-    return pic
+    def addArcFilled(self, acolor, x, y, w, h, start, angle):
+        draw = PIL.ImageDraw.Draw(self.image)
+        shape = [x, y, x+w, y+h]
+        end = -start % 360
+        start = -(start+angle) % 360
+        if start > end:
+            start, end = end, start
+        color = acolor.getRGB()
+        draw.pieslice(shape, start, end, fill = color, outline = color, width = 1)
 
 #  Method to draw the outline of an arc on a picture
 #     @param acolor the color of the arc
@@ -122,11 +180,14 @@ def addArcFilled(pic, acolor, x, y, w, h, start, angle):
 #     @param h the height of the arc
 #     @param start the starting angle at which to draw the arc
 #     @param angle the angle of the arc, relative to the start angle
-def addArc(pic, acolor, x, y, w, h, start, angle):
-    draw = ImageDraw.Draw(pic)
-    shape = [x, y, x+w, y+h]
-    draw.arc(shape, start, angle, fill = acolor, width=1)
-    return pic
+    def addArc(self, acolor, x, y, w, h, start, angle):
+        draw = PIL.ImageDraw.Draw(self.image)
+        shape = [x, y, x+w, y+h]
+        end = -start % 360
+        start = -(start+angle) % 360
+        if start > end:
+            start, end = end, start
+        draw.arc(shape, start, end, fill = acolor.getRGB(), width = 1)
 
     #  Copies all the pixels from this picture to the destination picture,
     #  starting with the specified upper-left corner.  If this picture
@@ -175,8 +236,9 @@ def addArc(pic, acolor, x, y, w, h, start, angle):
     #  @param width the desired width of the cropped area
     #  @param height the desired height of the cropped area
     #  @return the new cropped picture
-def crop(pic, upperLeftX, upperLeftY, width, height):    
-    pic.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height))
-    return pic
+    def crop(self, upperLeftX, upperLeftY, width, height):
+        pic = self
+        pic.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height))
+        return pic
 
  # end of class Picture, put all new methods before this
