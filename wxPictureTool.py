@@ -82,7 +82,10 @@ class MainWindow(wx.Frame):
 
     # Main image viewing window
     def viewingWindow(self):
+        # initialize an empty image
         img = wx.EmptyImage(660,360)
+
+        # Convert the image into a bitmap image
         self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(img))
 
         # Event handler - Gets X, Y coordinates on mouse click
