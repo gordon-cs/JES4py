@@ -1,21 +1,22 @@
 from PIL import Image
-import numpy as np
+from Pixel import Pixel
 class Picture:
 
-    def __init__(self, picture, filename):
+    def __init__(self, image, filename):
         self.title = "None"
         self.fileName = filename
         self.extension = "jpg"
-        self.width = picture.width
-        self.height = picture.height
-        self.picture = picture
+        self.width = image.width
+        self.height = image.height
+        self.image = image
+        self.pixels = image.getdata()
 
     #  * Method to return a string with information about this picture.
     #  * @return a string with information about the picture such as fileName,
     #  * height and width.
     #  */
     def __str__(self):
-        output = "Picture, filename {} height {} width {}".format(self.fileName, self.picture.height, self.picture.width)
+        output = "Picture, filename {} height {} width {}".format(self.fileName, self.image.height, self.image.width)
         return output
 
     def getFileName(self):
@@ -31,20 +32,25 @@ class Picture:
         return self.title
 
     def getPixels(self):
-        pixels = np.asarray(self.picture)
-        # pixels = np.reshape(pixels, self.height, self.width)
-        return pixels
+        return self.pixels
+
+    def getPixel(self, x, y): 
+        imageList = self.getPixels()
+        val = imageList[x+(y*self.width)]
+        pix = Pixel(self.image, x, y)
+        return pix
 
     def getImage(self):
-        return self.picture
+        return self.image
 
     def setImage(self, pic):
-        self.picture = pic
+        self.image = pic
         self.width = pic.width
         self.height = pic.height
 
     def getWidth(self):
-        return self.picture.width
+        return self.image.width
 
     def getHeight(self):
-        return self.picture.height
+        return self.image.height
+
