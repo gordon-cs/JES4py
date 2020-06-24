@@ -5,8 +5,8 @@ from Pixel import Pixel
 class Picture:
 
     def __init__(self, image):
-        self.title = image.filename
-        self.fileName = image.filename
+        self.title = ""
+        self.fileName = ""
         self.width = image.width
         self.height = image.height
         self.image = image
@@ -19,7 +19,7 @@ class Picture:
     #  * height and width.
     #  */
     def __str__(self):
-        output = "Picture, filename {} height {} width {}".format(self.fileName, self.height, self.width)
+        output = "Picture, filename {} height {} width {}".format(pic, self.height, self.width)
         return output
 
     def getFileName(self):
