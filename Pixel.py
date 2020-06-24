@@ -52,4 +52,5 @@ class Pixel:
         return self.image.getpixel((self.x,self.y))
 
     def setColor(self, color):
-        self.image.putpixel((self.x, self.y), color)
+            col = (color.getRed(), color.getGreen(), color.getBlue())
+            self.image.putpixel((self.x, self.y), col)
