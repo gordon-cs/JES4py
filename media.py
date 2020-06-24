@@ -782,9 +782,9 @@ def setColor(pixel, color):
     if not isinstance(pixel, Pixel):
         print("setColor(pixel,color): First input is not a pixel")
         raise ValueError
-    # if not isinstance(color, Color):
-    #     print("setColor(pixel,color): Second input is not a color")
-    #     raise ValueError
+    if not isinstance(color, Color):
+        print("setColor(pixel,color): Second input is not a color")
+        raise ValueError
     pixel.setColor(color)
 
 
