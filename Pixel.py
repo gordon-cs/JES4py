@@ -58,3 +58,6 @@ class Pixel:
     def setColor(self, color):
             col = (color.getRed(), color.getGreen(), color.getBlue())
             self.image.putpixel((self.x, self.y), col)
+
+    def correctLevel(self, level):
+        return level % 256
