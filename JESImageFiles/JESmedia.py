@@ -88,7 +88,7 @@ from picture import Picture
 # import traceback
 # import user
 import pictureMod
-# import Pixel
+from Pixel import Pixel
 # import Sound
 # import StoppableInput
 # import StoppableOutput
@@ -654,7 +654,7 @@ def makeEmptyPicture(width, height, acolor=(255, 255, 255)):
     # careful here; do we want empty strings or "None"?
     mode = "RGB"
     size = (width, height)
-    #im = PIL.Image.new(mode, size, acolor)
+    im = img.new(mode, size, acolor)
     filename = ""
     pic = Picture(im, filename)
     return pic
@@ -830,9 +830,7 @@ def getPixel(pic, x, y):
     if (x < 0 or x > pic.getWidth() or y < 0 or y > pic.getHeight()):
         print("The pixel location you chose was out of bounds")
         raise ValueError
-    loc = (x,y)
-    im = pic.getImage()
-    return im.getPixel(loc)
+    return pic.getPixel(x,y)
 
 # Added as a better name for getPixel
 def getPixelAt(pic, x, y):
@@ -840,7 +838,6 @@ def getPixelAt(pic, x, y):
 
 
 def setRed(pixel, value):
-    value = Pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setRed(pixel,value): Input is not a pixel")
         raise ValueError
@@ -855,7 +852,6 @@ def getRed(pixel):
 
 
 def setBlue(pixel, value):
-    value = Pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setBlue(pixel,value): Input is not a pixel")
         raise ValueError
@@ -870,7 +866,6 @@ def getBlue(pixel):
 
 
 def setGreen(pixel, value):
-    value = Pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setGreen(pixel,value): Input is not a pixel")
         raise ValueError
@@ -888,17 +883,17 @@ def getColor(pixel):
     if not isinstance(pixel, Pixel):
         print("getColor(pixel): Input is not a pixel")
         raise ValueError
-    return Color(pixel.getColor())
+    return pixel.getColor()
 
 
 def setColor(pixel, color):
     if not isinstance(pixel, Pixel):
         print("setColor(pixel,color): First input is not a pixel")
         raise ValueError
-    if not isinstance(color, Color):
-        print("setColor(pixel,color): Second input is not a color")
-        raise ValueError
-    pixel.setColor(color.color)
+    # if not isinstance(color, Color):
+    #     print("setColor(pixel,color): Second input is not a color")
+    #     raise ValueError
+    pixel.setColor(color)
 
 
 def getX(pixel):
