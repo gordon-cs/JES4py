@@ -644,6 +644,7 @@ def getPixelAt(pic, x, y):
 
 
 def setRed(pixel, value):
+    value = Pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setRed(pixel,value): Input is not a pixel")
         raise ValueError
@@ -661,6 +662,7 @@ def getRed(pixel):
 
 
 def setBlue(pixel, value):
+    value = Pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setBlue(pixel,value): Input is not a pixel")
         raise ValueError
@@ -678,6 +680,7 @@ def getBlue(pixel):
 
 
 def setGreen(pixel, value):
+    value = Pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setGreen(pixel,value): Input is not a pixel")
         raise ValueError
@@ -702,6 +705,7 @@ def getColor(pixel):
 
 
 def setColor(pixel, color):
+    value = Pixel.correctLevel(color)
     if not isinstance(pixel, Pixel):
         print("setColor(pixel,color): First input is not a pixel")
         raise ValueError
