@@ -1,4 +1,5 @@
 from PIL import Image
+from Color import Color
 class Pixel:
 
     def __init__(self, image, x, y):
@@ -12,7 +13,8 @@ class Pixel:
     #  * height and width.
     #  */
     def __str__(self):
-        output = "Pixel: picture {}, x: {} y: {} color:{}".format(self.image, self.x, self.y, self.image.getpixel((self.x,self.y)))
+        pix = self.image.getpixel((self.x,self.y))
+        output = "Pixel red={} green={} blue={}".format(pix[0], pix[1], pix[2])
         return output
 
     def getX(self):
@@ -49,7 +51,9 @@ class Pixel:
         self.image.putpixel((self.x, self.y), (col[0], col[1], value))
 
     def getColor(self):
-        return self.image.getpixel((self.x,self.y))
+        pix = self.image.getpixel((self.x,self.y))
+        col = Color(pix[0],pix[1], pix[2])
+        return col
 
     def setColor(self, color):
             col = (color.getRed(), color.getGreen(), color.getBlue())
