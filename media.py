@@ -23,12 +23,13 @@ import math
 # import MovieWriter
 import FileChooser
 import random
-from Color import Color
+from Pixel import Color
 import JESConfig
 import PIL.Image
 #from PIL import Image as img
 from Pixel import Pixel
 from Picture import Picture
+from tkinter import colorchooser
 from tkinter import *
 from tkinter import filedialog
 
@@ -443,7 +444,7 @@ def randomPixels(somePic, number):
     explore(pixelsToPicture(pixellist))
 
 
-def pixelsToPicture(pixels, defaultColor=(255, 255, 255), maxX=100, maxY=100):
+def pixelsToPicture(pixels, defaultColor=white, maxX=100, maxY=100):
     # Find maxX
     maxX = max([getX(p) for p in pixels])
     # find maxY
@@ -456,7 +457,7 @@ def pixelsToPicture(pixels, defaultColor=(255, 255, 255), maxX=100, maxY=100):
     return newpic
 
 
-def makePicture(filepath, defaultColor=(255, 255, 255)):
+def makePicture(filepath, defaultColor=white):
     global mediaFolder
     if not isinstance(filepath, str):
         return pixelsToPicture(filepath, defaultColor=defaultColor)
@@ -465,7 +466,10 @@ def makePicture(filepath, defaultColor=(255, 255, 255)):
     if not os.path.isfile(filepath):
         print("makePicture(filePath): There is no file at " + filepath)
         raise ValueError
-    im =  PIL.Image.open(filepath)
+    im = PIL.Image.open(filepath)
+    if not isinstance(im, PIL.Image.Image):
+        print("{} is not a file type that could not be opened as an image".format(filepath))
+        raise ValueError
     pic = Picture(im)
     return pic
 
@@ -475,7 +479,7 @@ def makePicture(filepath, defaultColor=(255, 255, 255)):
 # with different background colors.
 
 
-def makeEmptyPicture(width, height, acolor=(255, 255, 255)):
+def makeEmptyPicture(width, height, acolor=white):
     if width > 10000 or height > 10000:
         print("makeEmptyPicture(width, height[, acolor]): height and width must be less than 10000 each")
         raise ValueError
@@ -516,7 +520,7 @@ def getHeight(pic):
 
 
 def show(pic, title=None):
-    # picture.setTitle(getShortPath(picture.filename))
+    pic.setTitle(title)
     if not isinstance(pic, Picture):
         print("show(picture): Input is not a picture")
         raise ValueError
@@ -532,6 +536,12 @@ def repaint(pic):
 
 ## adding graphics to your pictures! ##
 
+def pickAColor(self):
+    # Dorn 5/8/2009:  Edited to be thread safe since this code is executed from an
+    # interpreter JESThread and will result in an update to the main JES GUI due to
+    # it being a modal dialog.
+    tup = colorchooser.askcolor()
+    return tup[0]
 
 def addLine(pic, x1, y1, x2, y2, acolor=black):
     if not isinstance(pic, Picture):
@@ -712,7 +722,7 @@ def setColor(pixel, color):
     if not isinstance(color, Color):
         print("setColor(pixel,color): Second input is not a color")
         raise ValueError
-    pixel.setColor(color)
+    pixel.color
 
 def getX(pixel):
     if not isinstance(pixel, Pixel):
