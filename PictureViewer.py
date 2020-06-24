@@ -62,7 +62,7 @@ if __name__ == '__main__':
     app.MainLoop()
 
 """
-
+"""
 class PictureTool(wx.App):
     def __init__(self, redirect=False, filename=None):
         wx.App.__init__(self, redirect, filename)
@@ -167,5 +167,3 @@ with ib.ImageDialog(None) as dlg:
         print("You pressed Cancel")
 
 app.MainLoop()
-"""
-

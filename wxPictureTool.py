@@ -6,6 +6,8 @@
 import os
 import wx
 import wx.lib.inspection
+import wx.lib.plot as plot
+from PIL import Image
 
 """
 class PictureTool(pil_img):
@@ -25,7 +27,7 @@ class PictureTool(pil_img):
 
 class MainWindow(wx.Frame):
     def __init__(self, parent, title):
-        MainFrame = wx.Frame.__init__(self, parent, title=title, size=(700,500))
+        MainFrame = wx.Frame.__init__(self, parent, title=title, size=(660,500))
         self.panel = wx.Panel(self)        
         wx.lib.inspection.InspectionTool().Show()
         # Maximum horizontal dimension
@@ -83,17 +85,18 @@ class MainWindow(wx.Frame):
     # Main image viewing window
     def viewingWindow(self):
         # initialize an empty image
-        img = wx.EmptyImage(660,360)
+        img = wx.EmptyImage(600,360)
 
         # Convert the image into a bitmap image
         self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(img))
+
 
         # Event handler - Gets X, Y coordinates on mouse click
         self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
 
         # Stores the filepath of the image
         self.photoTxt = wx.TextCtrl(self.panel, size=(200,-1))
-        self.photoTxt.Show(False)
+        self.photoTxt.Show(True)
         
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
         self.hSizer1 = wx.BoxSizer(wx.HORIZONTAL)
@@ -109,7 +112,7 @@ class MainWindow(wx.Frame):
 
         self.panel.SetSizer(self.mainSizer)
         self.mainSizer.Fit(self.panel)
-        self.panel.Layout()
+        #self.panel.Layout()
     
     def ColorPicker(self):
         # Load the bitmap image and convert it into wxImage
@@ -125,7 +128,8 @@ class MainWindow(wx.Frame):
         # Dummie value
         valueR = "R: N/A" 
         valueG = "G: N/A" 
-        valueB = "B: N/A" 
+        #valueB = "B: N/A" 
+        valueB = "X = {}".format(self.pixelTxtX.GetValue())
         rgb = valueR+" "+valueG+" "+valueB
         self.rgbValue.SetLabel(rgb) # Sets the value to the statictext
 
@@ -172,6 +176,9 @@ class MainWindow(wx.Frame):
     def ImageCtrl_OnMouseClick(self, event):
         # Returns X, Y coordinates on mouse click
         ctrl_pos = event.GetPosition()
+   
+        #r = wx.Colour.GetRGB(self, self.imageCtrl)
+
         self.pixelTxtX.SetValue(str(ctrl_pos.x))
         self.pixelTxtY.SetValue(str(ctrl_pos.y))
 
