@@ -1,5 +1,6 @@
 #from PIL import Image, ImageDraw
 import PIL.ImageDraw
+from Pixel import Pixel
 
 class Picture:
 
@@ -33,10 +34,14 @@ class Picture:
     def setTitle(self, name):
         self.title = name
 
-#    def getPixels(self):
-#        pixels = np.asarray(self.picture)
-#        # pixels = np.reshape(pixels, self.height, self.width)
-#        return pixels
+    def getPixels(self):
+        return self.image.getdata()
+
+    def getPixel(self, x, y): 
+        imageList = self.getPixels()
+        val = imageList[x+(y*self.width)]
+        pix = Pixel(self.image, x, y)
+        return pix
 
     def getImage(self):
         return self.image
