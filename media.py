@@ -560,12 +560,7 @@ def makePicture(filepath, defaultColor=(255, 255, 255)):
     if not os.path.isfile(filepath):
         print("makePicture(filePath): There is no file at " + filepath)
         raise ValueError
-    # picture = Picture()
-    # picture.loadOrFail(filepath)
-    # return picture
     im =  PIL.Image.open(filepath)
-    #im = img.Image.putData(im)
-    #im = im.crop((0,0,im.width,im.height))
     pic = Picture(im)
     return pic
 
@@ -582,9 +577,6 @@ def makeEmptyPicture(width, height, acolor=(255, 255, 255)):
     if width <= 0 or height <= 0:
         print("makeEmptyPicture(width, height[, acolor]): height and width must be greater than 0 each")
         raise ValueError
-    # picture.createImage(width, height)
-    # picture.filename = ''
-    # careful here; do we want empty strings or "None"?
     mode = "RGB"
     size = (width, height)
     im = PIL.Image.new(mode, size, acolor)
@@ -620,8 +612,6 @@ def getHeight(pic):
 
 def show(pic, title=None):
     # picture.setTitle(getShortPath(picture.filename))
-    # if title <> None:
-            # picture.setTitle(title)
     if not isinstance(pic, Picture):
         print("show(picture): Input is not a picture")
         raise ValueError
@@ -681,11 +671,17 @@ def addRect(pic, x, y, w, h, acolor=black):
     if not isinstance(pic, Picture):
         print("addRect(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
+    if not isinstance(acolor, Color):
+        print("addRect(pic, x, y, w, h[, color]): Last input is not a color")
+        raise ValueError
     pic.addRect(acolor, x, y, w, h)
 
 def addRectFilled(pic, x, y, w, h, acolor=black):
     if not isinstance(pic, Picture):
         print("addRectFilled(picture, x, y, w, h[, color]): First input is not a picture")
+        raise ValueError
+    if not isinstance(acolor, Color):
+        print("addRectFilled(pic, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
     pic.addRectFilled(acolor, x, y, w, h)
 
@@ -693,11 +689,17 @@ def addOval(pic, x, y, w, h, acolor=black):
     if not isinstance(pic, Picture):
         print("addOval(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
+    if not isinstance(acolor, Color):
+        print("addOval(pic, x, y, w, h[, color]): Last input is not a color")
+        raise ValueError
     pic.addOval(acolor, x, y, w, h)
 
 def addOvalFilled(pic, x, y, w, h, acolor=black):
     if not isinstance(pic, Picture):
         print("addOvalFilled(picture, x, y, w, h[, color]): First input is not a picture")
+        raise ValueError
+    if not isinstance(acolor, Color):
+        print("addOvalFilled(pic, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
     pic.addOvalFilled(acolor, x, y, w, h)
 
@@ -705,11 +707,17 @@ def addArc(pic, x, y, w, h, start, angle, acolor=black):
     if not isinstance(pic, Picture):
         print("addArc(picture, x, y, w, h, start, angle[, color]): First input is not a picture")
         raise ValueError
+    if not isinstance(acolor, Color):
+        print("addArc(pic, x, y, w, h, start, angle[, color]): Last input is not a color")
+        raise ValueError
     pic.addArc(acolor, x, y, w, h, start, angle)
 
 def addArcFilled(pic, x, y, w, h, start, angle, acolor=black):
     if not isinstance(pic, Picture):
         print("addArcFilled(picture, x, y, w, h[, color]): First First input is not a picture")
+        raise ValueError
+    if not isinstance(acolor, Color):
+        print("addArcFilled(pic, x, y, w, h, start, angle[, color]): Last input is not a color")
         raise ValueError
     pic.addArcFilled(acolor, x, y, w, h, start, angle)
 
@@ -734,6 +742,9 @@ def setRed(pixel, value):
     if not isinstance(pixel, Pixel):
         print("setRed(pixel,value): Input is not a pixel")
         raise ValueError
+    if not isinstance(value, Color):
+        print("setRed(pixel, value): Second input is not a color")
+        raise ValueError
     pixel.setRed(value)
 
 
@@ -748,6 +759,9 @@ def setBlue(pixel, value):
     if not isinstance(pixel, Pixel):
         print("setBlue(pixel,value): Input is not a pixel")
         raise ValueError
+    if not isinstance(value, Color):
+        print("setBlue(pixel, value): Second input is not a color")
+        raise ValueError
     pixel.setBlue(value)
 
 
@@ -761,6 +775,9 @@ def getBlue(pixel):
 def setGreen(pixel, value):
     if not isinstance(pixel, Pixel):
         print("setGreen(pixel,value): Input is not a pixel")
+        raise ValueError
+    if not isinstance(value, Color):
+        print("setGreen(pixel, value): Second input is not a color")
         raise ValueError
     pixel.setGreen(value)
 
@@ -783,9 +800,9 @@ def setColor(pixel, color):
     if not isinstance(pixel, Pixel):
         print("setColor(pixel,color): First input is not a pixel")
         raise ValueError
-    # if not isinstance(color, Color):
-    #     print("setColor(pixel,color): Second input is not a color")
-    #     raise ValueError
+    if not isinstance(color, Color):
+        print("setColor(pixel,color): Second input is not a color")
+        raise ValueError
     pixel.setColor(color)
 
 
