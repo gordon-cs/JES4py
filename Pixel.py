@@ -62,17 +62,10 @@ class Pixel:
     def correctLevel(self, level):
         return level%256
 
-# this class is solely for the purpose of
-# making makeLighter makeDarker work.
-# both of these functions destructively modify a color
-# and a color in java is a constant value so we have to put
-# this python interface here
-#
-# Buck Scharfnorth (28 May 2008): Modified to no longer assume the value is 0-255
-# and the gray Color constructor to allow only 1 color parameter (will
-# take 2, but ignores the second)
-
-# JRS -- 2020-06-23 -- TEMPORARY FUNCTION UNTIL PIXEL CLASS IS AVAILABLE
+# Class that for storing and doing cmputations with colors and RGB values.
+# Has getters and setters for the red, green, and blue portions of the over
+# all color as well as giving the user capabilities to compare color values.
+# Currently makeLighter and makeDarker do not work properly
 class Color:
 
     def __init__(self, r, g=None, b=None):
