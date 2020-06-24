@@ -945,7 +945,11 @@ def duplicatePicture(picture):
     if not isinstance(picture, Picture):
         print("duplicatePicture(picture): Input is not a picture")
         raise ValueError
-    return picture(picture)
+    im = PIL.Image.new(mode = "RGB", size = (picture.getWidth(), picture.getHeight()))
+    pix = picture.getImage().getdata()
+    im.putdata(pix)
+    pic = Picture(im)
+    return pic
 
 def cropPicture(pic, upperLeftX, upperLeftY, width, height):
  if not isinstance(pic, picture):
