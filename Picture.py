@@ -78,6 +78,19 @@ class Picture:
     #  * @param x2 the x-coordinate of the second point
     #  * @param y2 the y-coordinate of the second point
     def addLine(self, acolor, x1, y1, x2, y2):
+        """Method to draw a line on a picture.
+    
+        acolor : instance of Color class
+            the color of the line
+        x1 : int
+            the x-coordinate of the first point
+        y1 : int
+            the y-coordinate of the first point
+        x2 : int
+            the x-coordinate of the second point
+        y2 : int
+            the y-coordinate of the second point
+        """
         draw = PIL.ImageDraw.Draw(self.image)
         shape = [x1, y1, x2, y2]
         draw.line(shape, fill=acolor.getRGB())
