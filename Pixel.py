@@ -17,6 +17,9 @@ class Pixel:
         output = "Pixel red={} green={} blue={}".format(pix[0], pix[1], pix[2])
         return output
 
+    def __repr__(self):
+        return self.__str__()
+
     def getX(self):
         return self.x
 
