@@ -37,10 +37,9 @@ class Picture:
     def getPixels(self):
         size = self.width*self.height
         pixList = list()
-        for i in range(0,size):
-            x = i%self.width
-            y = (i-x)/self.width
-            pixList.append(Pixel(self.getImage,x,y))
+        for y in range(0, self.height):
+            for x in range(0, self.width):
+                pixList.append(Pixel(self.image,x,y))
         return pixList
 
     def getPixel(self, x, y): 
