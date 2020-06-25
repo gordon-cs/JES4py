@@ -4,8 +4,8 @@ from media import *
 #addRect(pic1, 10, 10, 50, 100, (255,0,0))
 #show(pic1)
 
-file = pickAFile()
-pic2 = makePicture(file)
+#file = pickAFile()
+pic2 = makeEmptyPicture(300,300,green)
 pic2.setFileName("Empty File")
 addRectFilled(pic2, 100, 100, 50, 100, blue)
 addRect(pic2, 100, 100, 50, 100, red)

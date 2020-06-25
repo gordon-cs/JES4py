@@ -35,14 +35,12 @@ class Picture:
         self.title = name
 
     def getPixels(self):
-        colList = list(self.image.getdata())
+        size = self.width*self.height
         pixList = list()
-        counter = 0
-        for i in colList:
-            x = counter%self.width
-            y = (counter-x)/self.width
+        for i in range(0,size):
+            x = i%self.width
+            y = (i-x)/self.width
             pixList.append(Pixel(self.getImage,x,y))
-            counter+=1
         return pixList
 
     def getPixel(self, x, y): 
