@@ -1,5 +1,6 @@
 #from PIL import Image, ImageDraw
 import PIL.ImageDraw
+from Pixel import Pixel
 
 class Picture:
 
@@ -33,10 +34,18 @@ class Picture:
     def setTitle(self, name):
         self.title = name
 
-#    def getPixels(self):
-#        pixels = np.asarray(self.picture)
-#        # pixels = np.reshape(pixels, self.height, self.width)
-#        return pixels
+    def getPixels(self):
+        size = self.width*self.height
+        pixList = list()
+        for y in range(0, self.height):
+            for x in range(0, self.width):
+                pixList.append(Pixel(self.image,x,y))
+        return pixList
+
+    def getPixel(self, x, y): 
+        #pix = self.image.getpixel((x,y))
+        pix = Pixel(self.image, x, y)
+        return pix
 
     def getImage(self):
         return self.image
@@ -66,13 +75,20 @@ class Picture:
 
     #/* adding graphics to pictures, for use in JES. (added by alexr, Oct 2006) */
 
-    #  * Method to draw a line between two points on a picture
-    #  * @param acolor the color of the line
-    #  * @param x1 the x-coordinate of the first point
-    #  * @param y1 the y-coordinate of the first point
-    #  * @param x2 the x-coordinate of the second point
-    #  * @param y2 the y-coordinate of the second point
     def addLine(self, acolor, x1, y1, x2, y2):
+        """Method to draw a line on a picture.
+    
+        acolor : instance of Color class
+            the color of the line
+        x1 : int
+            the x-coordinate of the first point
+        y1 : int
+            the y-coordinate of the first point
+        x2 : int
+            the x-coordinate of the second point
+        y2 : int
+            the y-coordinate of the second point
+        """
         draw = PIL.ImageDraw.Draw(self.image)
         shape = [x1, y1, x2, y2]
         draw.line(shape, fill=acolor.getRGB())
@@ -107,7 +123,7 @@ class Picture:
         acolor : instance of Color class
             the color of the rectangle border
         x : int
-            the x-coordinate of the upper-left cornerof the rectangle
+            the x-coordinate of the upper-left corner of the rectangle
         y : int
             the y-coordinate of the upper-left corner of the rectangle
         w : int
@@ -119,50 +135,80 @@ class Picture:
         shape = [x, y, x+w, y+h]
         draw.rectangle(shape, fill = None, outline = acolor.getRGB()) 
 
-#     Method to draw a solid rectangle on a picture.
-#     @param acolor the color of the rectangle
-#     @param x the x-coordinate of the upper-left corner of the rectangle
-#     @param y the y-coordinate of the upper-left corner of the rectangle
-#     @param w the width of the rectangle
-#     @param h the height of the rectangle
     def addRectFilled(self, acolor, x, y, w, h):
+        """Method to draw a filled rectangle on a picture.
+    
+        acolor : instance of Color class
+            the color that the rectangle is filled
+        x : int
+            the x-coordinate of the upper-left corner of the rectangle
+        y : int
+            the y-coordinate of the upper-left corner of the rectangle
+        w : int
+            the width of the rectangle
+        h : int
+            the height of the rectangle
+        """
         draw = PIL.ImageDraw.Draw(self.image)
         shape = [x, y, x+w, y+h]
         color = acolor.getRGB()
         draw.rectangle(shape, fill = color, outline = color) 
 
-#     Method to draw a solid oval on a picture.
-#     @param acolor the color of the oval
-#     @param x the x-coordinate of the upper-left corner of the bounding rectangle for the oval
-#     @param y the y-coordinate of the upper-left corner of the bounding rectangle for the oval
-#     @param w the width of the oval
-#     @param h the height of the oval
     def addOvalFilled(self, acolor, x, y, w, h):
+        """Method to draw a filled oval on a picture.
+    
+        acolor : instance of Color class
+            the color that the oval is filled with.
+        x : int
+            the x-coordinate of the upper-left corner of the boundary rectangle for the oval
+        y : int
+            the y-coordinate of the upper-left corner of the boundary rectangle for the oval
+        w : int
+            the width of the oval
+        h : int
+            the height of the oval
+        """
         draw = PIL.ImageDraw.Draw(self.image)
         shape = [x, y, x+w, y+h]
         color = acolor.getRGB()
         draw.ellipse(shape, fill = color, outline = color, width=1)
 
-#  Method to draw the outline of an oval on a picture.
-#     @param acolor the color of the oval
-#     @param x the x-coordinate of the upper-left corner of the bounding rectangle for the oval
-#     @param y the y-coordinate of the upper-left corner of the bounding rectangle for the oval
-#     @param w the width of the oval
-#     @param h the height of the oval
     def addOval(self, acolor, x, y, w, h):
+        """Method to draw the outline of an oval on a picture.
+    
+        acolor : instance of Color class
+            the color of the oval border
+        x : int
+            the x-coordinate of the upper-left corner of the boundary rectangle for the oval
+        y : int
+            the y-coordinate of the upper-left corner of the boundary rectangle for the oval
+        w : int
+            the width of the oval
+        h : int
+            the height of the oval
+        """
         draw = PIL.ImageDraw.Draw(self.image)
         shape = [x, y, x+w, y+h]
         draw.ellipse(shape, fill = None, outline = acolor.getRGB(), width = 1)
 
-#  Method to draw a solid arc on a picture
-#     @param acolor the color of the arc
-#     @param x the x-coordinate of the center of the arc
-#     @param y the y-coordinate of the center of the arc
-#     @param w the width of the arc
-#     @param h the height of the arc
-#     @param start the starting angle at which to draw the arc
-#     @param angle the angle of the arc, relative to the start angle
     def addArcFilled(self, acolor, x, y, w, h, start, angle):
+        """Method to draw a filled in arc on a picture.
+    
+        acolor : instance of Color class
+            the color that the arc is filled with
+        x : int
+            the x-coordinate of the center of the arc
+        y : int
+            the y-coordinate of the center of the arc
+        w : int
+            the width of the arc
+        h : int
+            the height of the arc
+        start : int
+            the start angle of the arc in degrees
+        angle : int
+            the angle of the arc relative to start in degrees
+        """
         draw = PIL.ImageDraw.Draw(self.image)
         shape = [x, y, x+w, y+h]
         end = -start % 360
@@ -172,15 +218,24 @@ class Picture:
         color = acolor.getRGB()
         draw.pieslice(shape, start, end, fill = color, outline = color, width = 1)
 
-#  Method to draw the outline of an arc on a picture
-#     @param acolor the color of the arc
-#     @param x the x-coordinate of the center of the arc
-#     @param y the y-coordinate of the center of the arc
-#     @param w the width of the arc
-#     @param h the height of the arc
-#     @param start the starting angle at which to draw the arc
-#     @param angle the angle of the arc, relative to the start angle
     def addArc(self, acolor, x, y, w, h, start, angle):
+        """Method to draw the outline of an arc on a picture.
+    
+        acolor : instance of Color class
+            the color that outlines arc
+        x : int
+            the x-coordinate of the center of the arc
+        y : int
+            the y-coordinate of the center of the arc
+        w : int
+            the width of the arc
+        h : int
+            the height of the arc
+        start : int
+            the start angle of the arc in degrees
+        angle : int
+            the angle of the arc relative to start in degrees
+        """
         draw = PIL.ImageDraw.Draw(self.image)
         shape = [x, y, x+w, y+h]
         end = -start % 360
@@ -223,20 +278,18 @@ class Picture:
 
     # }
 
-    #  Returns a cropped version of this picture: copies the pixels in
-    #  it starting at the specified upper-left corner and taking as
-    #  many pixels as specified by <code>width</code> and <code>height</code>.
-    #  The final cropped picture may be smaller than indicated by the
-    #  parameters if the cropping area as specified would go beyond the
-    #  bounds of this picture.  The cropping area will be <code>0 x 0</code>
-    #  if the specified upper-left corner is not in the bounds of the
-    #  destination picture.
-    #  @param upperLeftX the x-coord of the upper-left corner
-    #  @param upperLeftY the y-coord of the upper-left corner
-    #  @param width the desired width of the cropped area
-    #  @param height the desired height of the cropped area
-    #  @return the new cropped picture
     def crop(self, upperLeftX, upperLeftY, width, height):
+        """Method to draw the outline of an arc on a picture.
+    
+        upperLeftX : int
+            the x-coord of the upper-left corner new cropped image
+        upperLeftY : int
+            the y-coord of the upper-left corner new cropped image
+        width : int
+            the desired width of the cropped picture
+        height : int
+            the desired height of the cropped picture
+        """
         pic = self
         pic.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height))
         return pic

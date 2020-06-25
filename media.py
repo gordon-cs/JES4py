@@ -23,10 +23,11 @@ import math
 # import MovieWriter
 import FileChooser
 import random
-
+from Pixel import Color
 import JESConfig
 import PIL.Image
 #from PIL import Image as img
+from Pixel import Pixel
 from Picture import Picture
 from tkinter import colorchooser
 from tkinter import *
@@ -48,6 +49,20 @@ _lastFilePath = ""
 true = 1
 false = 0
 
+# Constants
+black = Color(0, 0, 0)
+white = Color(255, 255, 255)
+blue = Color(0, 0, 255)
+red = Color(255, 0, 0)
+green = Color(0, 255, 0)
+gray = Color(128, 128, 128)
+darkGray = Color(64, 64, 64)
+lightGray = Color(192, 192, 192)
+yellow = Color(255, 255, 0)
+orange = Color(255, 200, 0)
+pink = Color(255, 175, 175)
+magenta = Color(255, 0, 255)
+cyan = Color(0, 255, 255)
 
 def setMediaPath(file=None):
     global mediaFolder
@@ -416,114 +431,6 @@ def setColorWrapAround(setting):
 def getColorWrapAround():
     return Pixel.getWrapLevels()
 
-
-# this class is solely for the purpose of
-# making makeLighter makeDarker work.
-# both of these functions destructively modify a color
-# and a color in java is a constant value so we have to put
-# this python interface here
-#
-# Buck Scharfnorth (28 May 2008): Modified to no longer assume the value is 0-255
-# and the gray Color constructor to allow only 1 color parameter (will
-# take 2, but ignores the second)
-
-# JRS -- 2020-06-23 -- TEMPORARY FUNCTION UNTIL PIXEL CLASS IS AVAILABLE
-def PixelcorrectLevel(c):
-    """Return pixel value in range [0..255]
-    """
-    return c % 256
-
-class Color:
-
-    def __init__(self, r, g=None, b=None):
-        if b == None:
-            if isinstance(r, Color):
-                self.color = r
-            else:
-                val = PixelcorrectLevel(r)
-                self.color = (val, val, val)
-        else:
-            self.color = (PixelcorrectLevel(r), PixelcorrectLevel(g), PixelcorrectLevel(b))
-
-    def __str__(self):
-        return "color r=" + str(self.getRed()) + " g=" + str(self.getGreen()) + " b=" + str(self.getBlue())
-
-    def __repr__(self):
-        return "Color(" + str(self.getRed()) + ", " + str(self.getGreen()) + ", " + str(self.getBlue()) + ")"
-
-    def __eq__(self, newcolor):
-        return ((self.getRed() == newcolor.getRed()) and (self.getGreen() == newcolor.getGreen()) and (self.getBlue() == newcolor.getBlue()))
-
-    def __ne__(self, newcolor):
-        return (not self.__eq__(newcolor))
-
-    # Added by BrianO
-    def __add__(self, other):
-        r = self.getRed() + other.getRed()
-        g = self.getGreen() + other.getGreen()
-        b = self.getBlue() + other.getBlue()
-
-        return Color(PixelcorrectLevel(r), PixelcorrectLevel(g), PixelcorrectLevel(b))
-
-    # Added by BrianO
-    def __sub__(self, other):
-        r = self.getRed() - other.getRed()
-        g = self.getGreen() - other.getGreen()
-        b = self.getBlue() - other.getBlue()
-
-        return Color(PixelcorrectLevel(r), PixelcorrectLevel(g), PixelcorrectLevel(b))
-
-    def setRGB(self, r, g, b):
-        self.color = (PixelcorrectLevel(r), PixelcorrectLevel(g), PixelcorrectLevel(b))
-
-    def getRGB(self):
-        return self.color
-
-    def getRed(self):
-        return self.color[0]
-
-    def getGreen(self):
-        return self.color[1]
-
-    def getBlue(self):
-        return self.color[2]
-
-    def distance(self, othercolor):
-        r = pow((self.getRed() - othercolor.getRed()), 2)
-        g = pow((self.getGreen() - othercolor.getGreen()), 2)
-        b = pow((self.getBlue() - othercolor.getBlue()), 2)
-        return math.sqrt(r + g + b)
-
-    def makeDarker(self):
-        return self.color.darker()
-
-    def makeLighter(self):
-        return self.color.brighter()
-
-
-def pickAColor():
-    # Dorn 5/8/2009:  Edited to be thread safe since this code is executed from an
-    # interpreter JESThread and will result in an update to the main JES GUI due to
-    # it being a modal dialog.
-    tup = colorchooser.askcolor()
-    return tup[0]
-
-
-# Constants
-black = Color(0, 0, 0)
-white = Color(255, 255, 255)
-blue = Color(0, 0, 255)
-red = Color(255, 0, 0)
-green = Color(0, 255, 0)
-gray = Color(128, 128, 128)
-darkGray = Color(64, 64, 64)
-lightGray = Color(192, 192, 192)
-yellow = Color(255, 255, 0)
-orange = Color(255, 200, 0)
-pink = Color(255, 175, 175)
-magenta = Color(255, 0, 255)
-cyan = Color(0, 255, 255)
-
 ##
 # Global picture functions
 ##
@@ -537,7 +444,7 @@ def randomPixels(somePic, number):
     explore(pixelsToPicture(pixellist))
 
 
-def pixelsToPicture(pixels, defaultColor=(255, 255, 255), maxX=100, maxY=100):
+def pixelsToPicture(pixels, defaultColor=white, maxX=100, maxY=100):
     # Find maxX
     maxX = max([getX(p) for p in pixels])
     # find maxY
@@ -550,7 +457,7 @@ def pixelsToPicture(pixels, defaultColor=(255, 255, 255), maxX=100, maxY=100):
     return newpic
 
 
-def makePicture(filepath, defaultColor=(255, 255, 255)):
+def makePicture(filepath, defaultColor=white):
     global mediaFolder
     if not isinstance(filepath, str):
         return pixelsToPicture(filepath, defaultColor=defaultColor)
@@ -559,12 +466,10 @@ def makePicture(filepath, defaultColor=(255, 255, 255)):
     if not os.path.isfile(filepath):
         print("makePicture(filePath): There is no file at " + filepath)
         raise ValueError
-    # picture = Picture()
-    # picture.loadOrFail(filepath)
-    # return picture
-    im =  PIL.Image.open(filepath)
-    #im = img.Image.putData(im)
-    #im = im.crop((0,0,im.width,im.height))
+    im = PIL.Image.open(filepath)
+    if not isinstance(im, PIL.Image.Image):
+        print("{} is not a file type that could not be opened as an image".format(filepath))
+        raise ValueError
     pic = Picture(im)
     return pic
 
@@ -574,19 +479,17 @@ def makePicture(filepath, defaultColor=(255, 255, 255)):
 # with different background colors.
 
 
-def makeEmptyPicture(width, height, acolor=(255, 255, 255)):
+def makeEmptyPicture(width, height, acolor=white):
     if width > 10000 or height > 10000:
         print("makeEmptyPicture(width, height[, acolor]): height and width must be less than 10000 each")
         raise ValueError
     if width <= 0 or height <= 0:
         print("makeEmptyPicture(width, height[, acolor]): height and width must be greater than 0 each")
         raise ValueError
-    # picture.createImage(width, height)
-    # picture.filename = ''
-    # careful here; do we want empty strings or "None"?
     mode = "RGB"
     size = (width, height)
-    im = PIL.Image.new(mode, size, acolor)
+    tup = (acolor.getRed(), acolor.getGreen(), acolor.getBlue())
+    im = PIL.Image.new(mode, size, tup)
     im.filename = ""
     pic = Picture(im)
     return pic
@@ -618,9 +521,7 @@ def getHeight(pic):
 
 
 def show(pic, title=None):
-    # picture.setTitle(getShortPath(picture.filename))
-    # if title <> None:
-            # picture.setTitle(title)
+    pic.setTitle(title)
     if not isinstance(pic, Picture):
         print("show(picture): Input is not a picture")
         raise ValueError
@@ -636,6 +537,12 @@ def repaint(pic):
 
 ## adding graphics to your pictures! ##
 
+def pickAColor(self):
+    # Dorn 5/8/2009:  Edited to be thread safe since this code is executed from an
+    # interpreter JESThread and will result in an update to the main JES GUI due to
+    # it being a modal dialog.
+    tup = colorchooser.askcolor()
+    return tup[0]
 
 def addLine(pic, x1, y1, x2, y2, acolor=black):
     if not isinstance(pic, Picture):
@@ -680,11 +587,17 @@ def addRect(pic, x, y, w, h, acolor=black):
     if not isinstance(pic, Picture):
         print("addRect(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
+    if not isinstance(acolor, Color):
+        print("addRect(pic, x, y, w, h[, color]): Last input is not a color")
+        raise ValueError
     pic.addRect(acolor, x, y, w, h)
 
 def addRectFilled(pic, x, y, w, h, acolor=black):
     if not isinstance(pic, Picture):
         print("addRectFilled(picture, x, y, w, h[, color]): First input is not a picture")
+        raise ValueError
+    if not isinstance(acolor, Color):
+        print("addRectFilled(pic, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
     pic.addRectFilled(acolor, x, y, w, h)
 
@@ -692,11 +605,17 @@ def addOval(pic, x, y, w, h, acolor=black):
     if not isinstance(pic, Picture):
         print("addOval(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
+    if not isinstance(acolor, Color):
+        print("addOval(pic, x, y, w, h[, color]): Last input is not a color")
+        raise ValueError
     pic.addOval(acolor, x, y, w, h)
 
 def addOvalFilled(pic, x, y, w, h, acolor=black):
     if not isinstance(pic, Picture):
         print("addOvalFilled(picture, x, y, w, h[, color]): First input is not a picture")
+        raise ValueError
+    if not isinstance(acolor, Color):
+        print("addOvalFilled(pic, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
     pic.addOvalFilled(acolor, x, y, w, h)
 
@@ -704,11 +623,17 @@ def addArc(pic, x, y, w, h, start, angle, acolor=black):
     if not isinstance(pic, Picture):
         print("addArc(picture, x, y, w, h, start, angle[, color]): First input is not a picture")
         raise ValueError
+    if not isinstance(acolor, Color):
+        print("addArc(pic, x, y, w, h, start, angle[, color]): Last input is not a color")
+        raise ValueError
     pic.addArc(acolor, x, y, w, h, start, angle)
 
 def addArcFilled(pic, x, y, w, h, start, angle, acolor=black):
     if not isinstance(pic, Picture):
         print("addArcFilled(picture, x, y, w, h[, color]): First First input is not a picture")
+        raise ValueError
+    if not isinstance(acolor, Color):
+        print("addArcFilled(pic, x, y, w, h, start, angle[, color]): Last input is not a color")
         raise ValueError
     pic.addArcFilled(acolor, x, y, w, h, start, angle)
 
@@ -722,9 +647,7 @@ def getPixel(pic, x, y):
     if (x < 0 or x > pic.getWidth() or y < 0 or y > pic.getHeight()):
         print("The pixel location you chose was out of bounds")
         raise ValueError
-    loc = (x,y)
-    im = pic.getImage()
-    return im.getPixel(loc)
+    return pic.getPixel(x,y)
 
 # Added as a better name for getPixel
 def getPixelAt(pic, x, y):
@@ -732,7 +655,7 @@ def getPixelAt(pic, x, y):
 
 
 def setRed(pixel, value):
-    value = Pixel.correctLevel(value)
+    value = pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setRed(pixel,value): Input is not a pixel")
         raise ValueError
@@ -747,7 +670,7 @@ def getRed(pixel):
 
 
 def setBlue(pixel, value):
-    value = Pixel.correctLevel(value)
+    value = pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setBlue(pixel,value): Input is not a pixel")
         raise ValueError
@@ -762,7 +685,7 @@ def getBlue(pixel):
 
 
 def setGreen(pixel, value):
-    value = Pixel.correctLevel(value)
+    value = pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setGreen(pixel,value): Input is not a pixel")
         raise ValueError
@@ -780,7 +703,7 @@ def getColor(pixel):
     if not isinstance(pixel, Pixel):
         print("getColor(pixel): Input is not a pixel")
         raise ValueError
-    return Color(pixel.getColor())
+    return pixel.getColor()
 
 
 def setColor(pixel, color):
@@ -790,8 +713,7 @@ def setColor(pixel, color):
     if not isinstance(color, Color):
         print("setColor(pixel,color): Second input is not a color")
         raise ValueError
-    pixel.setColor(color.color)
-
+    pixel.setColor(color)
 
 def getX(pixel):
     if not isinstance(pixel, Pixel):
@@ -944,7 +866,7 @@ def cropPicture(pic, upperLeftX, upperLeftY, width, height):
  if upperLeftY < 1 or upperLeftY > getHeight(picture):
    print("crop(picture, upperLeftX, upperLeftY, width, height): upperLeftY must be within the picture")
    raise ValueError
- return picture.crop(pic, upperLeftX-1, upperLeftY-1, width, height)
+ return pic.crop(pic, upperLeftX-1, upperLeftY-1, width, height)
 
 ##
 # Input and Output interfaces
