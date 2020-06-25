@@ -13,7 +13,7 @@ class Pixel:
     #  * height and width.
     #  */
     def __str__(self):
-        pix = self.image.getpixel((self.x,self.y))
+        pix = self.getImage().getpixel((self.x,self.y))
         output = "Pixel red={} green={} blue={}".format(pix[0], pix[1], pix[2])
         return output
 

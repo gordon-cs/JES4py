@@ -488,7 +488,8 @@ def makeEmptyPicture(width, height, acolor=white):
         raise ValueError
     mode = "RGB"
     size = (width, height)
-    im = PIL.Image.new(mode, size, acolor)
+    tup = (acolor.getRed(), acolor.getGreen(), acolor.getBlue())
+    im = PIL.Image.new(mode, size, tup)
     im.filename = ""
     pic = Picture(im)
     return pic
@@ -654,12 +655,9 @@ def getPixelAt(pic, x, y):
 
 
 def setRed(pixel, value):
-    value = Pixel.correctLevel(value)
+    value = pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setRed(pixel,value): Input is not a pixel")
-        raise ValueError
-    if not isinstance(value, Color):
-        print("setRed(pixel, value): Second input is not a color")
         raise ValueError
     pixel.setRed(value)
 
@@ -672,12 +670,9 @@ def getRed(pixel):
 
 
 def setBlue(pixel, value):
-    value = Pixel.correctLevel(value)
+    value = pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setBlue(pixel,value): Input is not a pixel")
-        raise ValueError
-    if not isinstance(value, Color):
-        print("setBlue(pixel, value): Second input is not a color")
         raise ValueError
     pixel.setBlue(value)
 
@@ -690,12 +685,9 @@ def getBlue(pixel):
 
 
 def setGreen(pixel, value):
-    value = Pixel.correctLevel(value)
+    value = pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setGreen(pixel,value): Input is not a pixel")
-        raise ValueError
-    if not isinstance(value, Color):
-        print("setGreen(pixel, value): Second input is not a color")
         raise ValueError
     pixel.setGreen(value)
 
@@ -715,14 +707,13 @@ def getColor(pixel):
 
 
 def setColor(pixel, color):
-    value = Pixel.correctLevel(color)
     if not isinstance(pixel, Pixel):
         print("setColor(pixel,color): First input is not a pixel")
         raise ValueError
     if not isinstance(color, Color):
         print("setColor(pixel,color): Second input is not a color")
         raise ValueError
-    pixel.color
+    pixel.setColor(color)
 
 def getX(pixel):
     if not isinstance(pixel, Pixel):

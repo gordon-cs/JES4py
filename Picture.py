@@ -46,8 +46,7 @@ class Picture:
         return pixList
 
     def getPixel(self, x, y): 
-        imageList = self.getPixels()
-        val = imageList[x+(y*self.width)]
+        #pix = self.image.getpixel((x,y))
         pix = Pixel(self.image, x, y)
         return pix
 
