@@ -115,24 +115,14 @@ class MainWindow(wx.Frame):
         #self.panel.Layout()
     
     def ColorPicker(self):
-        # Load the bitmap image and convert it into wxImage
-    
-
         # Textboxes to display X and Y coordinates on click
         self.pixelTxtX = wx.TextCtrl(self.panel, wx.ALIGN_CENTER, size=(50,-1))
         self.pixelTxtY = wx.TextCtrl(self.panel, wx.ALIGN_CENTER, size=(50,-1))
 
         # Static text displays RGB values of the given coordinates
-        self.rgbValue = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
+        # Initialized with dummie values
+        self.rgbValue = wx.StaticText(self.panel, label=u'R: {} G: {} B: {}'.format("N/A", "N/A", "N/A"),style = wx.ALIGN_CENTER)
         
-        # Dummie value
-        valueR = "R: N/A" 
-        valueG = "G: N/A" 
-        #valueB = "B: N/A" 
-        valueB = "X = {}".format(self.pixelTxtX.GetValue())
-        rgb = valueR+" "+valueG+" "+valueB
-        self.rgbValue.SetLabel(rgb) # Sets the value to the statictext
-
         # X and Y labels
         self.lblX = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
         self.lblY = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
@@ -176,11 +166,13 @@ class MainWindow(wx.Frame):
     def ImageCtrl_OnMouseClick(self, event):
         # Returns X, Y coordinates on mouse click
         ctrl_pos = event.GetPosition()
-   
-        #r = wx.Colour.GetRGB(self, self.imageCtrl)
-
         self.pixelTxtX.SetValue(str(ctrl_pos.x))
         self.pixelTxtY.SetValue(str(ctrl_pos.y))
+        r = self.image.GetRed(ctrl_pos.x, ctrl_pos.y)
+        g = self.image.GetGreen(ctrl_pos.x, ctrl_pos.y)
+        b = self.image.GetBlue(ctrl_pos.x, ctrl_pos.y)
+        # print ("R: {} G: {} B: {}".format(r,g,b))
+        self.rgbValue.SetLabel(label=u'R: {} G: {} B: {}'.format(r, g, b))
 
     def onOpen(self,e):
         # Browse for file
@@ -207,6 +199,7 @@ class MainWindow(wx.Frame):
             NewH = self.PhotoMaxSize
             NewW = self.PhotoMaxSize * W / H
         img = img.Scale(NewW,NewH)
+        self.image = img
         self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
         self.panel.Refresh()
 
