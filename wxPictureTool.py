@@ -1,4 +1,3 @@
-
 # Simple picture tool
 # CS Summer Practicum 2020
 # Author: Gahngnin Kim
@@ -6,8 +5,6 @@
 import os
 import wx
 import wx.lib.inspection
-import wx.lib.plot as plot
-from PIL import Image
 
 """
 class PictureTool(pil_img):
