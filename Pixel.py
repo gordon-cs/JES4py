@@ -300,7 +300,10 @@ class Color:
                       self.correctLevel(b)]
 
     def getRGB(self):
-        return tuple(self.color)
+        red = self.correctLevel(self.color[0])
+        green = self.correctLevel(self.color[1])
+        blue = self.correctLevel(self.color[2])
+        return (red,green,blue)
 
     def setRed(self, value):
         self.color[0] = self.correctLevel(value)

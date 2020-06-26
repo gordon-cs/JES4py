@@ -655,7 +655,6 @@ def getPixelAt(pic, x, y):
 
 
 def setRed(pixel, value):
-    value = pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setRed(pixel,value): Input is not a pixel")
         raise ValueError
@@ -670,7 +669,6 @@ def getRed(pixel):
 
 
 def setBlue(pixel, value):
-    value = pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setBlue(pixel,value): Input is not a pixel")
         raise ValueError
@@ -685,7 +683,6 @@ def getBlue(pixel):
 
 
 def setGreen(pixel, value):
-    value = pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setGreen(pixel,value): Input is not a pixel")
         raise ValueError
@@ -710,23 +707,23 @@ def setColor(pixel, color):
     if not isinstance(pixel, Pixel):
         print("setColor(pixel,color): First input is not a pixel")
         raise ValueError
-    if not isinstance(color, Color):
-        print("setColor(pixel,color): Second input is not a color")
-        raise ValueError
+    # if not isinstance(color, Color):
+    #     print("setColor(pixel,color): Second input is not a color")
+    #     raise ValueError
     pixel.setColor(color)
 
 def getX(pixel):
     if not isinstance(pixel, Pixel):
         print("getX(pixel): Input is not a pixel")
         raise ValueError
-    return pixel.getX() + Picture._PictureIndexOffset
+    return pixel.getX()# + Picture._PictureIndexOffset
 
 
 def getY(pixel):
     if not isinstance(pixel, Pixel):
         print("getY(pixel): Input is not a pixel")
         raise ValueError
-    return pixel.getY() + Picture._PictureIndexOffset
+    return pixel.getY() #+ Picture._PictureIndexOffset
 
 
 def distance(c1, c2):
@@ -788,7 +785,7 @@ def makeBrighter(color):  # This is the same as makeLighter(color)
 
 
 def makeColor(red, green=0, blue=0):
-    return (red, green, blue)
+    return Color(red, green, blue)
 
 
 def setAllPixelsToAColor(picture, color):
