@@ -1,4 +1,5 @@
-#from PIL import Image, ImageDraw
+import wx
+import os
 import PIL.ImageDraw
 from Pixel import Pixel
 
@@ -55,25 +56,36 @@ class Picture:
         self.width = image.width
         self.height = image.height
 
+    def getWxImage(self, copy_alpha=True):
+        """Convert imbedded PIL.Image to wx.Image
+
+        Parameters
+        ----------
+        copy_alpha : boolean
+            if True and image has alpha values then convert them
+
+        Returns
+        -------
+        wx.Image
+            the converted image
+        """
+        orig_width, orig_height = self.image.size
+        wx_img = wx.Image(orig_width, orig_height)
+        wx_img.SetData(self.image.convert('RGB').tobytes())
+
+        if copy_alpha and (self.image.mode[-1] == 'A'):
+            alpha = self.image.getchannel("A").tobytes()
+            wx_img.InitAlpha()
+            for i in range(orig_width):
+                for j in range(orig_height):
+                    wx_img.SetAlpha(i, j, alpha[i + j * orig_width])
+        return wx_img
+
     def getWidth(self):
         return self.image.width
 
     def getHeight(self):
         return self.image.height
-
-    #////////////////////// methods ///////////////////////////////////////
-
-    #  Method to return a string with information about this picture.
-    #  @return a string with information about the picture such as fileName,
-    #  height and width.
-    # public String toString() {
-    #     String output = "Picture, filename " + getFileName() +
-    #                     " height " + getHeight()
-    #                     + " width " + getWidth();
-    #     return output;
-    # }
-
-    #/* adding graphics to pictures, for use in JES. (added by alexr, Oct 2006) */
 
     def addLine(self, acolor, x1, y1, x2, y2):
         """Method to draw a line on a picture.
@@ -120,6 +132,8 @@ class Picture:
     def addRect(self, acolor, x, y, w, h):
         """Method to draw the outline of a rectangle on a picture.
     
+        Parameters
+        ----------
         acolor : instance of Color class
             the color of the rectangle border
         x : int
@@ -138,6 +152,8 @@ class Picture:
     def addRectFilled(self, acolor, x, y, w, h):
         """Method to draw a filled rectangle on a picture.
     
+        Parameters
+        ----------
         acolor : instance of Color class
             the color that the rectangle is filled
         x : int
@@ -157,6 +173,8 @@ class Picture:
     def addOvalFilled(self, acolor, x, y, w, h):
         """Method to draw a filled oval on a picture.
     
+        Parameters
+        ----------
         acolor : instance of Color class
             the color that the oval is filled with.
         x : int
@@ -176,6 +194,8 @@ class Picture:
     def addOval(self, acolor, x, y, w, h):
         """Method to draw the outline of an oval on a picture.
     
+        Parameters
+        ----------
         acolor : instance of Color class
             the color of the oval border
         x : int
@@ -194,6 +214,8 @@ class Picture:
     def addArcFilled(self, acolor, x, y, w, h, start, angle):
         """Method to draw a filled in arc on a picture.
     
+        Parameters
+        ----------
         acolor : instance of Color class
             the color that the arc is filled with
         x : int
@@ -221,6 +243,8 @@ class Picture:
     def addArc(self, acolor, x, y, w, h, start, angle):
         """Method to draw the outline of an arc on a picture.
     
+        Parameters
+        ----------
         acolor : instance of Color class
             the color that outlines arc
         x : int
@@ -279,8 +303,13 @@ class Picture:
     # }
 
     def crop(self, upperLeftX, upperLeftY, width, height):
-        """Method to draw the outline of an arc on a picture.
-    
+        """Returns a cropped version of this picture
+
+        Copies the pixels in it starting at the specified upper-left corner
+        and taking as many pixels as specified by width and height.
+
+        Parameters
+        ----------
         upperLeftX : int
             the x-coord of the upper-left corner new cropped image
         upperLeftY : int
@@ -289,9 +318,54 @@ class Picture:
             the desired width of the cropped picture
         height : int
             the desired height of the cropped picture
+
+        Returns
+        -------
+        Picture
+            the cropped copy of the original picture
         """
         pic = self
         pic.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height))
         return pic
+
+    def show(self):
+        """Display a PIL Image using a WX App
+
+        Parameters
+        ----------
+        image : PIL.Image
+            the image to display
+        """
+        class mainWindow(wx.Frame):
+            """frame class that display an image"""
+            def __init__(self, image, parent=None, id=-1,
+                    pos=wx.DefaultPosition, title=None):
+                """create a frame instance and display image"""
+                temp = image.ConvertToBitmap()
+                size = temp.GetWidth(), temp.GetHeight()
+                wx.Frame.__init__(self, parent, id, pos=pos, title=title, size=size)
+                self.bmp = wx.StaticBitmap(parent=self, bitmap=temp)
+
+        class ShowImage(wx.App):
+            """application class"""
+            def __init__(self, image=None, title=None, *args, **kwargs):
+                self.image = image
+                self.title = title
+                wx.App.__init__(self, *args, **kwargs)
+
+            def OnInit(self):
+                self.frame = mainWindow(image=self.image, title=self.title)
+                self.frame.Show()
+                return True
+
+        # Need wx app to run in separate thread or process.  It seems
+        # that starting a wxPython GUI in a worker thread is not a good idea
+        # so the easiest thing to do is just fork a new process.
+        pid = os.fork()
+        if pid == 0:
+            wxImage = self.getWxImage()
+            app = ShowImage(image=wxImage, title=self.fileName)
+            app.MainLoop()
+            exit(0)
 
  # end of class Picture, put all new methods before this
