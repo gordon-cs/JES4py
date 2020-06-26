@@ -137,7 +137,7 @@ class Pixel:
             red level for pixel
         """
         color = Color(self.image.getpixel((self.x, self.y)))
-        color.setRed(value)
+        color.setRed(round(value))
         self.image.putpixel((self.x, self.y), color.getRGB())
 
     def setGreen(self, value):
@@ -149,7 +149,7 @@ class Pixel:
             green level for pixel
         """
         color = Color(self.image.getpixel((self.x, self.y)))
-        color.setGreen(value)
+        color.setGreen(round(value))
         self.image.putpixel((self.x, self.y), color.getRGB())
 
     def setBlue(self, value):
@@ -161,7 +161,7 @@ class Pixel:
             blue level for pixel
         """
         color = Color(self.image.getpixel((self.x, self.y)))
-        color.setBlue(value)
+        color.setBlue(round(value))
         self.image.putpixel((self.x, self.y), color.getRGB())
 
     def getColor(self):
@@ -239,7 +239,7 @@ class Color:
         """
         self.wrapColorLevels = JESConfig.CONFIG_WRAPPIXELVALUES != '0'
 
-        if b == None:
+        if b == None or g == None:
             if isinstance(r, tuple):
                 self.color = list(r)
             elif isinstance(r, list):
@@ -282,9 +282,10 @@ class Color:
 
     # Added by BrianO
     def __add__(self, otherColor):
-        r = self.correctLevel(self.color[0] + otherColor.color[0])
-        g = self.correctLevel(self.color[1] + otherColor.color[1])
-        b = self.correctLevel(self.color[2] + otherColor.color[2])
+        if isinstance(otherColor, Color):
+            r = self.correctLevel(self.color[0] + otherColor.color[0])
+            g = self.correctLevel(self.color[1] + otherColor.color[1])
+            b = self.correctLevel(self.color[2] + otherColor.color[2])
         return Color(r, g, b)
 
     # Added by BrianO
@@ -320,10 +321,14 @@ class Color:
         return self.color[2]
 
     def distance(self, otherColor):
-        r = pow((self.color[0] - otherColor.color[0]), 2)
-        g = pow((self.color[1] - otherColor.color[1]), 2)
-        b = pow((self.color[2] - otherColor.color[2]), 2)
-        return math.sqrt(r + g + b)
+        if isinstance(otherColor, Color):
+            r = pow((self.color[0] - otherColor.color[0]), 2)
+            g = pow((self.color[1] - otherColor.color[1]), 2)
+            b = pow((self.color[2] - otherColor.color[2]), 2)
+            return math.sqrt(r + g + b)
+        else:
+            print("distance() expects a Color object")
+            return
 
     def scaleColor(self, scaleFactor):
         r = self.correctLevel(self.color[0] * scaleFactor)
