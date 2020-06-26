@@ -90,7 +90,7 @@ class MainWindow(wx.Frame):
 
         # Event handler - Gets X, Y coordinates on mouse click
         self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
-        self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ColorThumbnail)
+        # self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ColorThumbnail)
 
         # Stores the filepath of the image
         self.photoTxt = wx.TextCtrl(self.panel, size=(200,-1))
@@ -151,7 +151,7 @@ class MainWindow(wx.Frame):
 
         # Display Y coordinate on click
         self.hbox1.Add(self.lblY, 0, flag=wx.CENTER, border=0)
-        self.hbox1.Add(self.thumbnail, 0, flag=wx.RIGHT, border=5) # Text Control Box
+        self.hbox1.Add(self.pixelTxtY, 0, flag=wx.RIGHT, border=5) # Text Control Box
         
         self.box.Add(self.hbox1, 0, flag=wx.LEFT|wx.RIGHT|wx.TOP|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
 
@@ -164,7 +164,7 @@ class MainWindow(wx.Frame):
 
         #self.hbox2.Add(self.rgbValue, 0, flag=wx.CENTER, border=5)
 
-        self.box.Add(self.thumbnail, 0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=1)
+        self.box.Add(self.rgbValue, 0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=1)
 
         self.panel.SetSizer(self.box)
         self.box.Fit(self.panel)
@@ -182,9 +182,9 @@ class MainWindow(wx.Frame):
         # print ("R: {} G: {} B: {}".format(r,g,b))
         self.rgbValue.SetLabel(label=u'R: {} G: {} B: {}'.format(r, g, b))
 
-    #def ColorThumbnail(self, event):
-        #self.thumbnail = self.image.Create(self, 30, 30, self.image.RGBValue)
-        #print (self.thumbnail)
+    # def ColorThumbnail(self, event):
+    #     self.thumbnail = self.image.Create(self, 30, 30, self.image.RGBValue)
+    #     print (self.thumbnail)
 
     def onOpen(self,e):
         # Browse for file
