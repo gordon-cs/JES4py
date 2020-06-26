@@ -90,10 +90,11 @@ class MainWindow(wx.Frame):
 
         # Event handler - Gets X, Y coordinates on mouse click
         self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
+        self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ColorThumbnail)
 
         # Stores the filepath of the image
         self.photoTxt = wx.TextCtrl(self.panel, size=(200,-1))
-        self.photoTxt.Show(True)
+        self.photoTxt.Show(False)
         
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
         self.hSizer1 = wx.BoxSizer(wx.HORIZONTAL)
@@ -119,6 +120,8 @@ class MainWindow(wx.Frame):
         # Static text displays RGB values of the given coordinates
         # Initialized with dummie values
         self.rgbValue = wx.StaticText(self.panel, label=u'R: {} G: {} B: {}'.format("N/A", "N/A", "N/A"),style = wx.ALIGN_CENTER)
+
+        self.thumbnail = wx.EmptyImage(10, 10)
         
         # X and Y labels
         self.lblX = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
@@ -135,11 +138,12 @@ class MainWindow(wx.Frame):
         # Initialize the sizers for layout
         self.box = wx.BoxSizer(wx.VERTICAL)
         self.hbox1 = wx.BoxSizer(wx.HORIZONTAL)
+        self.hbox2 = wx.BoxSizer(wx.HORIZONTAL)
 
         # Display Y coordinate on click
         self.hbox1.Add(self.lblX, 0, flag=wx.CENTER, border=0)
         #self.hbox1.Add(self.buttonX1, -1, flag=wx.CENTER, border=0)
-        self.hbox1.Add(self.pixelTxtX, 0, flag=wx.CENTER, border=5)
+        self.hbox1.Add(self.pixelTxtX, 0, flag=wx.CENTER, border=5) # Text Control Box
         #self.hbox1.Add(self.buttonX2, -1, flag=wx.CENTER, border=0)
 
         # Horizonal spacer
@@ -147,13 +151,20 @@ class MainWindow(wx.Frame):
 
         # Display Y coordinate on click
         self.hbox1.Add(self.lblY, 0, flag=wx.CENTER, border=0)
-        self.hbox1.Add(self.pixelTxtY, 0, flag=wx.RIGHT, border=5)
+        self.hbox1.Add(self.thumbnail, 0, flag=wx.RIGHT, border=5) # Text Control Box
         
         self.box.Add(self.hbox1, 0, flag=wx.LEFT|wx.RIGHT|wx.TOP|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
 
-        self.box.Add((-1, 5))  
+        self.box.Add((-1, 5))
+        
+        #self.hbox2.Add(self.ColorThumbnail, 0, flag=wx.CENTER, border=5)
 
-        self.box.Add(self.rgbValue, 0, wx.ALIGN_CENTER_HORIZONTAL, 5)
+        # Horizonal spacer
+        #self.hbox2.Add((10, -1))
+
+        #self.hbox2.Add(self.rgbValue, 0, flag=wx.CENTER, border=5)
+
+        self.box.Add(self.thumbnail, 0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=1)
 
         self.panel.SetSizer(self.box)
         self.box.Fit(self.panel)
@@ -170,6 +181,10 @@ class MainWindow(wx.Frame):
         b = self.image.GetBlue(ctrl_pos.x, ctrl_pos.y)
         # print ("R: {} G: {} B: {}".format(r,g,b))
         self.rgbValue.SetLabel(label=u'R: {} G: {} B: {}'.format(r, g, b))
+
+    #def ColorThumbnail(self, event):
+        #self.thumbnail = self.image.Create(self, 30, 30, self.image.RGBValue)
+        #print (self.thumbnail)
 
     def onOpen(self,e):
         # Browse for file
