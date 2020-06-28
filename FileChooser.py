@@ -6,6 +6,8 @@
 import os
 import easygui as eg
 import JESConfig
+import ast
+
 
 def pickAFile():
     """Method to let the user pick a file and return the full name as
@@ -49,6 +51,13 @@ def setMediaPath(directory):
     Parameters:
         directory - the directory to use for the media path
     """
+    f = open("JESConfig.py", "w+")
+    contents = f.read()
+    dict = ast.literal_eval(contents)
+    dict["CONFIG_MEDIAPATH"] = directory
+    # dict["CONFIG_MEDIAPATH"]="myPath"
+    f.write(str(dict))
+    f.close()
     JESConfig.CONFIG_MEDIAPATH = directory
 
 def pickMediaPath():

@@ -67,7 +67,7 @@ cyan = Color(0, 255, 255)
 
 _currentMediaPath = ''
 
-def hello():
+def updateMediaPathFromHistory():
     f = open("JESConfig.py", "r")
     contents = f.read()
     dict = ast.literal_eval(contents)
