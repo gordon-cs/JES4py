@@ -27,8 +27,6 @@ def writeToConfig(newPath):
     if os.path.exists(filePath):
         f = open(filePath, "r")
         contents = f.read()
-        print(filePath)
-        print(contents)
         #dict = ast.literal_eval(contents)
         dict = json.loads(contents)
         dict["CONFIG_MEDIAPATH"]=newPath
@@ -38,8 +36,6 @@ def writeToConfig(newPath):
         #f.write(str(dict))
         f.close()
     else:
-        print(filePath)
-        print("dict")
         f = open(filePath, "w")
         dict = {"CONFIG_WRAPPIXELVALUES": 0, "CONFIG_MEDIAPATH": newPath}
         f.write(str(dict))

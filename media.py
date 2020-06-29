@@ -74,7 +74,6 @@ def setMediaPath(file=None):
     else:
         FileChooser.setMediaPath(file)
     mediaFolder = getMediaPath()
-    return mediaFolder
 
 
 def getMediaPath(filename=""):

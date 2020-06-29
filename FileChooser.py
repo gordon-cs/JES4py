@@ -4,9 +4,9 @@
 """
 
 import os
-import easygui as eg
 import JESConfig
 import ast
+import wx
 
 
 def pickAFile():
@@ -16,7 +16,16 @@ def pickAFile():
 
     Returns:
         the file file name of the picked file or None"""
-    return eg.fileopenbox(title="Pick A File")
+    #return eg.fileopenbox(title="Pick A File")
+    frame = wx.Frame(None, -1, 'win.py')
+    frame.SetSize(0,0,200,50)
+
+    # Create open file dialog
+    openFileDialog = wx.FileDialog(frame, "Open", "", "", "Python files (*.py)|*.py",wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+    openFileDialog.ShowModal()
+    path = openFileDialog.GetPath()
+    openFileDialog.Destroy()
+    return path
 
 def pickADirectory():
     """Method to let the user pick a directory and return the full
@@ -24,7 +33,21 @@ def pickADirectory():
 
     Returns:
         the full directory path"""
-    return eg.diropenbox(title="Pick A Folder")
+    app = wx.App()
+
+    frame = wx.Frame(None, -1, 'pathPicker.py')
+    frame.SetSize(0,0,200,50)
+
+    # Create open file dialog
+    # openFileDialog = wx.FileDialog(frame, "Open", "", "", "",wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+    openDirDialog = wx.DirDialog (frame, "Choose input directory", "",wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
+    openDirDialog.ShowModal()
+    path = openDirDialog.GetPath()
+    openDirDialog.Destroy()
+    JESConfig.CONFIG_MEDIAPATH = path
+    JESConfig.writeToConfig(JESConfig.CONFIG_MEDIAPATH)
+    return path
+
 
 def getMediaPath(fileName):
     """Method to get full path for the passed file name
@@ -55,5 +78,16 @@ def setMediaPath(directory):
     JESConfig.writeToConfig(directory)
 
 def pickMediaPath():
-    JESConfig.CONFIG_MEDIAPATH = eg.diropenbox(title="Choose Media Path")
+    app = wx.App()
+
+    frame = wx.Frame(None, -1, 'pathPicker.py')
+    frame.SetSize(0,0,200,50)
+
+    # Create open file dialog
+    # openFileDialog = wx.FileDialog(frame, "Open", "", "", "",wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+    openDirDialog = wx.DirDialog (frame, "Choose input directory", "",wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
+    openDirDialog.ShowModal()
+    path = openDirDialog.GetPath()
+    openDirDialog.Destroy()
+    JESConfig.CONFIG_MEDIAPATH = path
     JESConfig.writeToConfig(JESConfig.CONFIG_MEDIAPATH)
