@@ -34,8 +34,8 @@ def getMediaPath(fileName):
     Returns:
         the full path for the file
     """
-    return os.path.join(getMediaDirectory(), fileName)
-    #return os.path.join(JESConfig.CONFIG_MEDIAPATH, fileName)
+    #return os.path.join(getMediaDirectory(), fileName)
+    return os.path.join(JESConfig.CONFIG_MEDIAPATH, fileName)
 
 def getMediaDirectory():
     """Method to get the directory for the media
@@ -43,13 +43,7 @@ def getMediaDirectory():
     Returns:
         the media directory
     """
-    f = open("JESConfig.py", "r")
-    contents = f.read()
-    dict = ast.literal_eval(contents)
-    mediaDir = dict["CONFIG_MEDIAPATH"]
-    # dict["CONFIG_MEDIAPATH"]="myPath"
-    f.close()
-    return mediaDir
+    return JESConfig.CONFIG_MEDIAPATH
 
 def setMediaPath(directory):
     """Method to set the media path by setting the directory to use
@@ -57,25 +51,9 @@ def setMediaPath(directory):
     Parameters:
         directory - the directory to use for the media path
     """
-    f = open("JESConfig.py", "r")
-    contents = f.read()
-    dict = ast.literal_eval(contents)
-    dict["CONFIG_MEDIAPATH"]=directory
-    f.close()
-    f = open("JESConfig.py", "w")
-    f.write(str(dict))
-    f.close()
-    #JESConfig.CONFIG_MEDIAPATH = directory
+    JESConfig.CONFIG_MEDIAPATH = directory
+    JESConfig.writeToConfig(directory)
 
 def pickMediaPath():
-    """Method to pick a media path using the file chooser and set it
-    """
-    # JESConfig.CONFIG_MEDIAPATH = eg.diropenbox(title="Choose Media Path")
-    f = open("JESConfig.py", "r")
-    contents = f.read()
-    dict = ast.literal_eval(contents)
-    dict["CONFIG_MEDIAPATH"]=eg.diropenbox(title="Choose Media Path")
-    f.close()
-    f = open("JESConfig.py", "w")
-    f.write(str(dict))
-    f.close()
+    JESConfig.CONFIG_MEDIAPATH = eg.diropenbox(title="Choose Media Path")
+    JESConfig.writeToConfig(JESConfig.CONFIG_MEDIAPATH)

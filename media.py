@@ -65,20 +65,6 @@ pink = Color(255, 175, 175)
 magenta = Color(255, 0, 255)
 cyan = Color(0, 255, 255)
 
-_currentMediaPath = ''
-
-def updateMediaPathFromHistory():
-    f = open("JESConfig.py", "r")
-    contents = f.read()
-    dict = ast.literal_eval(contents)
-    global _currentMediaPath
-    _currentMediaPath = dict["CONFIG_MEDIAPATH"]
-    # dict["CONFIG_MEDIAPATH"]="myPath"
-    f.close()
-    # f = open("JESConfig.py", "w")
-    # f.write(str(dict))
-    # f.close()
-    print(_currentMediaPath)
 
 
 def setMediaPath(file=None):
