@@ -416,8 +416,9 @@ class Picture:
                 """Create a frame instance and display image"""
                 temp = image.ConvertToBitmap()
                 size = temp.GetWidth(), temp.GetHeight()
-                wx.Frame.__init__(self, parent, id, pos=pos, title=title, size=size)
+                wx.Frame.__init__(self, parent, id, title, pos, size)
                 self.bmp = wx.StaticBitmap(parent=self, bitmap=temp)
+                self.SetClientSize(size)
 
         class ShowImage(wx.App):
             """Application class"""
