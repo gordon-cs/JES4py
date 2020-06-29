@@ -121,12 +121,13 @@ class MainWindow(wx.Frame):
         # Initialized with dummie values
         self.rgbValue = wx.StaticText(self.panel, label=u'R: {} G: {} B: {}'.format("N/A", "N/A", "N/A"),style = wx.ALIGN_CENTER)
 
-        # initialize an empty image
-        self.emptyImg = wx.EmptyImage(20,20)
-
-        # Preset color image
+        # Initialize color preview (square bitmap image)
         self.bmp = wx.EmptyBitmap(20,20)
-        
+        dc = wx.MemoryDC()
+        dc.SelectObject(self.bmp)
+        dc.SetBackground(wx.Brush("Black"))
+        dc.Clear()
+        del dc
 
 
         # Convert the image into a bitmap image
@@ -195,15 +196,20 @@ class MainWindow(wx.Frame):
         b = self.image.GetBlue(ctrl_pos.x, ctrl_pos.y)
         # print ("R: {} G: {} B: {}".format(r,g,b))
         self.rgbValue.SetLabel(label=u'R: {} G: {} B: {}'.format(r, g, b))
-        #self.colorPreview.
-        #myColor = self.image.RGBValue
-        self.dc = wx.MemoryDC( self.bmp )
-        self.dc.SetBackground(wx.Brush("Blue")) #SetBackground( wx.Brush( myColor ) )
-        #self.dc.Clear()
+        self.ColorThumbnail()
 
-    # def ColorThumbnail(self, event):
-    #     self.thumbnail = self.image.Create(self, 30, 30, self.image.RGBValue)
-    #     print (self.thumbnail)
+    def ColorThumbnail(self):
+        w, h = 20, 20
+        self.bmp = wx.EmptyBitmap(w, h)
+        dc = wx.MemoryDC()
+        dc.SelectObject(self.bmp)
+        dc.SetBackground(wx.Brush("Blue"))
+        dc.Clear()
+        del dc
+         #SetBackground( wx.Brush( myColor ) )
+        #self.dc.Clear()
+         #self.thumbnail = self.image.Create(self, 30, 30, self.image.RGBValue)
+        self.Show(True)
 
     def onOpen(self,e):
         # Browse for file
