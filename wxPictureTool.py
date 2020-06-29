@@ -121,8 +121,20 @@ class MainWindow(wx.Frame):
         # Initialized with dummie values
         self.rgbValue = wx.StaticText(self.panel, label=u'R: {} G: {} B: {}'.format("N/A", "N/A", "N/A"),style = wx.ALIGN_CENTER)
 
-        self.thumbnail = wx.EmptyImage(10, 10)
+        # initialize an empty image
+        self.emptyImg = wx.EmptyImage(20,20)
+
+        # Preset color image
+        self.bmp = wx.EmptyBitmap(20,20)
         
+
+
+        # Convert the image into a bitmap image
+        #self.colorPreview = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(self.emptyImg))
+        self.colorPreview = wx.StaticBitmap(self.panel, wx.ID_ANY, self.bmp)
+        self.colorPreview.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
+
+
         # X and Y labels
         self.lblX = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
         self.lblY = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
@@ -153,18 +165,20 @@ class MainWindow(wx.Frame):
         self.hbox1.Add(self.lblY, 0, flag=wx.CENTER, border=0)
         self.hbox1.Add(self.pixelTxtY, 0, flag=wx.RIGHT, border=5) # Text Control Box
         
+        # Add the hbox1 to the main sizer
         self.box.Add(self.hbox1, 0, flag=wx.LEFT|wx.RIGHT|wx.TOP|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
 
+        # Vertical spacer
         self.box.Add((-1, 5))
         
-        #self.hbox2.Add(self.ColorThumbnail, 0, flag=wx.CENTER, border=5)
+        # Add items to the second sizer (hbox2)
+        self.hbox2.Add(self.rgbValue, 0, flag=wx.CENTER, border=5)
+        self.hbox2.Add((10, -1)) # Horizonal spacer
+        self.hbox2.Add(self.colorPreview, 0, flag=wx.CENTER, border=5) # Small image that shows the color at the selected pixel
+        
+        # Add hbox2 to the main sizer
+        self.box.Add(self.hbox2, 0, flag=wx.LEFT|wx.RIGHT|wx.TOP|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
 
-        # Horizonal spacer
-        #self.hbox2.Add((10, -1))
-
-        #self.hbox2.Add(self.rgbValue, 0, flag=wx.CENTER, border=5)
-
-        self.box.Add(self.rgbValue, 0, flag=wx.ALIGN_CENTER_HORIZONTAL, border=1)
 
         self.panel.SetSizer(self.box)
         self.box.Fit(self.panel)
@@ -181,6 +195,11 @@ class MainWindow(wx.Frame):
         b = self.image.GetBlue(ctrl_pos.x, ctrl_pos.y)
         # print ("R: {} G: {} B: {}".format(r,g,b))
         self.rgbValue.SetLabel(label=u'R: {} G: {} B: {}'.format(r, g, b))
+        #self.colorPreview.
+        #myColor = self.image.RGBValue
+        self.dc = wx.MemoryDC( self.bmp )
+        self.dc.SetBackground(wx.Brush("Blue")) #SetBackground( wx.Brush( myColor ) )
+        #self.dc.Clear()
 
     # def ColorThumbnail(self, event):
     #     self.thumbnail = self.image.Create(self, 30, 30, self.image.RGBValue)
