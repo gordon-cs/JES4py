@@ -6,16 +6,12 @@ from Pixel import Pixel
 class Picture:
 
     def __init__(self, image):
+        self.image = image
         self.title = image.filename
-        self.fileName = image.filename
+        #self.fileName = image.filename
         #self.width = image.width
         #self.height = image.height
-        self.image = image
 
-    #  * Method to return a string with information about this picture.
-    #  * @return a string with information about the picture such as fileName,
-    #  * height and width.
-    #  */
     def __str__(self):
         """Return string representation of this picture
 
@@ -25,7 +21,7 @@ class Picture:
             representation of this picture
         """
         output = "Picture, filename {} height {} width {}".format(
-            self.fileName, self.height, self.width)
+            self.image.filename, self.image.height, self.image.width)
         return output
 
     def getFileName(self):
@@ -36,7 +32,7 @@ class Picture:
         str
             name of file containing picture data
         """
-        return self.fileName
+        return self.image.filename
 
     def setFileName(self, filename):
         """Set picture file name
@@ -46,7 +42,8 @@ class Picture:
         filename : str
             filename to assign to this picture
         """
-        self.fileName = filename
+        #self.fileName = filename
+        self.image.filename = filename
 
     def getTitle(self):
         """Return picture title
@@ -80,8 +77,8 @@ class Picture:
             list of pixels in this picture
         """
         pixels = list()
-        for y in range(self.height):
-            for x in range(self.width):
+        for y in range(self.image.height):
+            for x in range(self.image.width):
                 pixels.append(Pixel(self.image, x, y))
         return pixels
 
@@ -437,7 +434,7 @@ class Picture:
         def doShow():
             """Run the wx app to show the image"""
             wxImage = self.getWxImage()
-            app = ShowImage(image=wxImage, title=self.fileName)
+            app = ShowImage(image=wxImage, title=self.title)
             app.MainLoop()
             #exit(0)
 
