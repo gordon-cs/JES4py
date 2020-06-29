@@ -1,5 +1,5 @@
 import wx
-import os
+from multiprocessing import Process
 import PIL.ImageDraw
 from Pixel import Pixel
 
@@ -410,13 +410,8 @@ class Picture:
         return pic
 
     def show(self):
-        """Display a PIL Image using a WX App
+        """Display a PIL Image using a WX App"""
 
-        Parameters
-        ----------
-        image : PIL.Image
-            the image to display
-        """
         class mainWindow(wx.Frame):
             """Frame class that display an image"""
             def __init__(self, image, parent=None, id=-1,
@@ -439,14 +434,19 @@ class Picture:
                 self.frame.Show()
                 return True
 
-        # Need wx app to run in separate thread or process.  It seems
-        # that starting a wxPython GUI in a worker thread is not a good idea
-        # so the easiest thing to do is just fork a new process.
-        pid = os.fork()
-        if pid == 0:
+        def doShow():
+            """Run the wx app to show the image"""
             wxImage = self.getWxImage()
             app = ShowImage(image=wxImage, title=self.fileName)
             app.MainLoop()
-            exit(0)
+            #exit(0)
+
+        # We want control to return immediately to the command prompt or
+        # calling script but wx will block because of wx.MainLoop().  To
+        # get around this we start a new process to run the wx GUI.
+
+        p = Process(target=doShow, args=())
+        p.start()
+        #p.join()
 
  # end of class Picture, put all new methods before this
