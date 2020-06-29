@@ -78,6 +78,7 @@ def updateMediaPathFromHistory():
     # f = open("JESConfig.py", "w")
     # f.write(str(dict))
     # f.close()
+    print(_currentMediaPath)
 
 
 def setMediaPath(file=None):

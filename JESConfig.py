@@ -1,1 +1,1 @@
-{'CONFIG_WRAPPIXELVALUES': 0, 'CONFIG_MEDIAPATH': 'Hell'}
+{'CONFIG_WRAPPIXELVALUES': 0, 'CONFIG_MEDIAPATH': 'C:\\Users\\nickn\\OneDrive\\Pictures\\Camera Roll'}
