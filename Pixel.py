@@ -1,10 +1,18 @@
-from PIL import Image
-import math
 import JESConfig
+import math
 
 class Pixel:
     """Provides access to pixels within a PIL image
+
+    Attributes
+    ----------
+    wrapLevels : boolean
+        Indicates whether levels outside the range 0-255 are clamped
+        or wrapped around (saturating or modular arithmetic).
+        False to clamp levels, true to modulo them.
     """
+
+    wrapLevels = False
 
     def __init__(self, image=None, x=None, y=None):
         """Pixel constructor
@@ -16,8 +24,9 @@ class Pixel:
         x : int
             column of the pixel
         y : int
-            row of hhe pixel
+            row of the pixel
         """
+        self.wrapLevels = JESConfig.CONFIG_WRAPPIXELVALUES != '0'
         self.image = image
         self.x = x
         self.y = y
@@ -35,7 +44,7 @@ class Pixel:
         return "Pixel red={} green={} blue={}".format(rgb[0], rgb[1], rgb[2])
 
     def __repr__(self):
-        """Represetation of pixel
+        """Representation of pixel
 
         Returns
         -------
@@ -126,6 +135,7 @@ class Pixel:
         value : int
             alpha level for pixel
         """
+        value = 0
         # do nothing, as we have not implemented alpha values
 
     def setRed(self, value):
@@ -136,9 +146,10 @@ class Pixel:
         value : int
             red level for pixel
         """
+        value = Pixel.correctLevel(value)
         color = Color(self.image.getpixel((self.x, self.y)))
-        color.setRed(round(value))
-        self.image.putpixel((self.x, self.y), color.getRGB())
+        newColor = (value, color.getGreen(), color.getBlue())
+        self.image.putpixel((self.x, self.y), newColor)
 
     def setGreen(self, value):
         """Set green level in the pixel
@@ -148,9 +159,10 @@ class Pixel:
         value : int
             green level for pixel
         """
+        value = Pixel.correctLevel(value)
         color = Color(self.image.getpixel((self.x, self.y)))
-        color.setGreen(round(value))
-        self.image.putpixel((self.x, self.y), color.getRGB())
+        newColor = (color.getRed(), value, color.getBlue())
+        self.image.putpixel((self.x, self.y), newColor)
 
     def setBlue(self, value):
         """Set blue level in the pixel
@@ -160,9 +172,10 @@ class Pixel:
         value : int
             blue level for pixel
         """
+        value = Pixel.correctLevel(value)
         color = Color(self.image.getpixel((self.x, self.y)))
-        color.setBlue(round(value))
-        self.image.putpixel((self.x, self.y), color.getRGB())
+        newColor = (color.getRed(), color.getGreen(), value)
+        self.image.putpixel((self.x, self.y), newColor)
 
     def getColor(self):
         """Returns the color object for the pixel
@@ -193,13 +206,15 @@ class Pixel:
         """
         self.setColor(otherPixel.getColor())
 
-    def updatePicture(self, alpha, red, green, blue):
+    #def updatePicture(self, alpha, red, green, blue):
         """Update the picture based on the passed color values for this pixel
+
+        **** 2020-06-28 WHAT IS THIS FUNCTION SUPPOSED TO DO? ****
 
         Parameters
         ----------
         alpha : int
-            transparancy value (CURRENTLY IGNORED)
+            transparency value (CURRENTLY IGNORED)
         red : int
             red color value
         green : int
@@ -208,23 +223,66 @@ class Pixel:
             blue color value
         """
         #self.setAlpha(alpha)
-        self.setRed(red)
-        self.setGreen(green)
-        self.setBlue(blue)
+        #self.setRed(red)
+        #self.setGreen(green)
+        #self.setBlue(blue)
+
+    @classmethod
+    def correctLevel(cls, level):
+        """Map color to [0..255] according to the wrapLevels setting
+
+        Parameters
+        ----------
+        level : int
+            nonnegative integer representing a color value
+
+        Returns
+        -------
+        int
+            corrected color level
+        """
+        if cls.wrapLevels:
+            return round(level) % 256
+        elif level < 0:
+            return 0
+        elif level > 255:
+            return 255
+        return level
+
+    @classmethod
+    def setWrapLevels(cls, doWrap):
+        """Changes Pixel's behavior for dealing with levels outside [0..255]
+
+        Parameters
+        ----------
+        doWrap : boolean
+            true to cause color level wrapping, false for level truncation
+        """
+        cls.wrapLevels = doWrap
+
+    @classmethod
+    def getWrapLevels(cls):
+        """Return Pixel's behavior for dealing with levels outside [0..255]
+
+        Returns
+        -------
+        boolean
+            true means levels are wrapped, false means levels are truncated
+        """
+        return cls.wrapLevels
+
+
 
 class Color:
     """Class for storing and doing computations with colors and RGB values
 
     Has getters and setters for the red, green, and blue portions of
     the over all color as well as giving the user capabilities to
-    compare color values.  Currently makeLighter and makeDarker do not
-    work properly
+    compare color values.
     """
 
-    wrapColorLevels = False
-
     def __init__(self, r, g=None, b=None):
-        """Initalize a color object
+        """Initialize a color object
 
         Parameters
         ----------
@@ -237,22 +295,22 @@ class Color:
         b : int
             blue level (if not provided then r is used)
         """
-        self.wrapColorLevels = JESConfig.CONFIG_WRAPPIXELVALUES != '0'
 
         if b == None or g == None:
             if isinstance(r, tuple):
-                self.color = list(r)
-            elif isinstance(r, list):
                 self.color = r
+            elif isinstance(r, list):
+                self.color = tuple(r)
             elif isinstance(r, Color):
                 self.color = r.color
             else:
-                val = self.correctLevel(r)
-                self.color = [val, val, val]
+                val = Pixel.correctLevel(r)
+                self.color = (val, val, val)
         else:
-            self.color = [self.correctLevel(r),
-                          self.correctLevel(g),
-                          self.correctLevel(b)]
+            r = Pixel.correctLevel(r)
+            g = Pixel.correctLevel(g)
+            b = Pixel.correctLevel(b)
+            self.color = (r, g, b)
 
     def __str__(self):
         """String for Color
@@ -265,7 +323,7 @@ class Color:
         return "color r={} g={} b={}".format(self.color[0], self.color[1], self.color[2])
     
     def __repr__(self):
-        """Represetation of color
+        """Representation of color
 
         Returns
         -------
@@ -274,56 +332,139 @@ class Color:
         """
         return self.__str__()
     
-    def __eq__(self, newColor):
-        return (self.color == newColor.color)
+    def __eq__(self, otherColor):
+        """Test for equality between two color objects
 
-    def __ne__(self, newColor):
-        return (not self.__eq__(newColor))
+        Parameters
+        ----------
+        otherColor : Color
+            color to compare
 
-    # Added by BrianO
+        Returns
+        -------
+        boolean
+            True if colors are the same, False otherwise
+        """
+        return (self.color == otherColor.color)
+
+    def __ne__(self, otherColor):
+        """Test for inequality between two color objects
+
+        Parameters
+        ----------
+        otherColor : Color
+            color to compare
+
+        Returns
+        -------
+        boolean
+            True if colors are not the same, False otherwise
+        """
+        return (not self.__eq__(otherColor))
+
     def __add__(self, otherColor):
+        """Sum of this color and otherColor
+
+        Parameters
+        ----------
+        otherColor : Color
+            the color to add
+        
+        Returns
+        -------
+        Color
+            the sum of the two colors, mapped to [0..255]
+        """
         if isinstance(otherColor, Color):
-            r = self.correctLevel(self.color[0] + otherColor.color[0])
-            g = self.correctLevel(self.color[1] + otherColor.color[1])
-            b = self.correctLevel(self.color[2] + otherColor.color[2])
+            r = Pixel.correctLevel(self.color[0] + otherColor.color[0])
+            g = Pixel.correctLevel(self.color[1] + otherColor.color[1])
+            b = Pixel.correctLevel(self.color[2] + otherColor.color[2])
         return Color(r, g, b)
 
-    # Added by BrianO
     def __sub__(self, otherColor):
-        r = self.correctLevel(self.color[0] - otherColor.color[0])
-        g = self.correctLevel(self.color[1] - otherColor.color[1])
-        b = self.correctLevel(self.color[2] - otherColor.color[2])
+        """Difference of this color and otherColor
+        
+        Parameters
+        ----------
+        otherColor : Color
+            the color to subtract
+        
+        Returns
+        -------
+        Color
+            the difference of the two colors, mapped to [0..255]
+        """
+        r = Pixel.correctLevel(self.color[0] - otherColor.color[0])
+        g = Pixel.correctLevel(self.color[1] - otherColor.color[1])
+        b = Pixel.correctLevel(self.color[2] - otherColor.color[2])
         return Color(r, g, b)
 
     def setRGB(self, r, g, b):
-        self.color = [self.correctLevel(r), self.correctLevel(g),
-                      self.correctLevel(b)]
+        """Sets this color's red, green, blue color values
+    
+        Parameters
+        ----------
+        r, g, b : int or float
+            the red, green, and blue values
+        """
+        r = Pixel.correctLevel(r)
+        g = Pixel.correctLevel(g)
+        b = Pixel.correctLevel(b)
+        self.color = (r, g, b)
 
     def getRGB(self):
-        red = self.correctLevel(self.color[0])
-        green = self.correctLevel(self.color[1])
-        blue = self.correctLevel(self.color[2])
-        return (red,green,blue)
+        """Returns the colors RGB values in a tuple 
 
-    def setRed(self, value):
-        self.color[0] = self.correctLevel(value)
-
-    def setGreen(self, value):
-        self.color[1] = self.correctLevel(value)
-
-    def setBlue(self, value):
-        self.color[2] = self.correctLevel(value)
+        Returns
+        -------
+        tuple of int
+            tuple of red, green, and blue values
+        """
+        return self.color
 
     def getRed(self):
+        """Returns the color's red value
+
+        Returns
+        -------
+        int
+            the red value
+        """
         return self.color[0]
 
     def getGreen(self):
+        """Returns the color's green value
+
+        Returns
+        -------
+        int
+            the green value
+        """
         return self.color[1]
 
     def getBlue(self):
+        """Returns the color's blue value
+
+        Returns
+        -------
+        int
+            the blue value
+        """
         return self.color[2]
 
     def distance(self, otherColor):
+        """Computes the Euclidean distance norm between two colors
+
+        Parameters
+        ----------
+        otherColor : Color
+            the color to compute the distance to
+
+        Returns
+        -------
+        float
+            the Euclidean distance between the two colors
+        """
         if isinstance(otherColor, Color):
             r = pow((self.color[0] - otherColor.color[0]), 2)
             g = pow((self.color[1] - otherColor.color[1]), 2)
@@ -334,55 +475,39 @@ class Color:
             return
 
     def scaleColor(self, scaleFactor):
-        r = self.correctLevel(self.color[0] * scaleFactor)
-        g = self.correctLevel(self.color[1] * scaleFactor)
-        b = self.correctLevel(self.color[2] * scaleFactor)
+        """Return a uniformly scaled version of this color
+
+        Parameters
+        ----------
+        scaleFactor : float
+            the factor to scale each color component by
+
+        Returns
+        -------
+        Color
+            the color with the scaled components
+        """
+        r = Pixel.correctLevel(self.color[0] * scaleFactor)
+        g = Pixel.correctLevel(self.color[1] * scaleFactor)
+        b = Pixel.correctLevel(self.color[2] * scaleFactor)
         return Color(r, g, b)
 
     def makeDarker(self):
+        """Return a darker version of this color
+
+        Returns
+        -------
+        Color
+            darker version of color
+        """
         return self.scaleColor(0.8)
 
     def makeLighter(self):
+        """Return a lighter version of this color
+
+        Returns
+        -------
+        Color
+            lighter version of color
+        """
         return self.scaleColor(1.25)
-
-    def correctLevel(self, level):
-        """Map color to [0..255] according to the wrapColorLevels setting
-
-        Parameters
-        ----------
-        level : int
-            nonnegative integer representing a color value
-
-        Returns
-        -------
-        int
-            corrected color level
-        """
-        if self.wrapColorLevels:
-            level = round(level) % 256
-        elif level < 0:
-            level = 0
-        elif level > 255:
-            level = 255
-        return level
-
-    def setWrapLevels(self, doWrap):
-        """Changes Pixel's behavior for dealing with levels outside [0..255]
-
-        Parameters
-        ----------
-        doWrap : boolean
-            true to cause color level wrapping, false for level truncation
-        """
-        self.wrapColorLevels = doWrap
-
-    def getWrapLevels(self):
-        """Return Pixel's behavior for dealing with levels outside [0..255]
-
-        Returns
-        -------
-        boolean
-            true means levels are wrapped, false means levels are truncated
-        """
-        return self.wrapColorLevels
-

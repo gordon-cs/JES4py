@@ -1,4 +1,3 @@
-#from PIL import Image, ImageDraw
 import PIL.ImageDraw
 from Pixel import Pixel
 
