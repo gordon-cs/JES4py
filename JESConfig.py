@@ -3,7 +3,7 @@ import os
 import ast
 
 CONFIG_WRAPPIXELVALUES = 0
-CONFIG_MEDIAPATH = ''
+CONFIG_MEDIAPATH = ""
 CONFIG_FILENAME = ".jesconf"
 
 def readFromConfig():
@@ -17,7 +17,7 @@ def readFromConfig():
         f.close()
     else:
         f = open(filePath, "w+")
-        dict = {"CONFIG_WRAPPIXELVALUES": 0, "CONFIG_MEDIAPATH": ''}
+        dict = {"CONFIG_WRAPPIXELVALUES": 0, "CONFIG_MEDIAPATH": ""}
         f.write(str(dict))
         f.close()
 
@@ -38,5 +38,5 @@ def writeToConfig(newPath):
     else:
         f = open(filePath, "w")
         dict = {"CONFIG_WRAPPIXELVALUES": 0, "CONFIG_MEDIAPATH": newPath}
-        f.write(str(dict))
+        f.write(json.dumps(dict))
         f.close()
