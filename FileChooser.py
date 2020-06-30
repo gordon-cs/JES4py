@@ -44,8 +44,10 @@ def pickADirectory():
     openDirDialog.ShowModal()
     path = openDirDialog.GetPath()
     openDirDialog.Destroy()
-    JESConfig.CONFIG_MEDIAPATH = path
-    JESConfig.writeOrGenerateFromConfig(JESConfig.CONFIG_MEDIAPATH)
+    # JESConfig.writeDict(path)
+    # JESConfig.readDict()
+    # JESConfig.writeOrGenerateFromConfig(JESConfig.readDict()[])
+    JESConfig.setConfigVal("CONFIG_MEDIAPATH", path)
     return path
 
 
@@ -58,7 +60,7 @@ def getMediaPath(fileName):
         the full path for the file
     """
     #return os.path.join(getMediaDirectory(), fileName)
-    return os.path.join(JESConfig.CONFIG_MEDIAPATH, fileName)
+    return os.path.join(JESConfig.getConfigVal("CONFIG_MEDIAPATH"), fileName)
 
 def getMediaDirectory():
     """Method to get the directory for the media
@@ -66,7 +68,7 @@ def getMediaDirectory():
     Returns:
         the media directory
     """
-    return JESConfig.CONFIG_MEDIAPATH
+    return JESConfig.getConfigVal("CONFIG_MEDIAPATH")
 
 def setMediaPath(directory):
     """Method to set the media path by setting the directory to use
@@ -74,8 +76,7 @@ def setMediaPath(directory):
     Parameters:
         directory - the directory to use for the media path
     """
-    JESConfig.CONFIG_MEDIAPATH = directory
-    JESConfig.writeToConfig(directory)
+    JESConfig.setConfigVal("CONFIG_MEDIAPATH", directory)
 
 def pickMediaPath():
     app = wx.App()
@@ -89,5 +90,4 @@ def pickMediaPath():
     openDirDialog.ShowModal()
     path = openDirDialog.GetPath()
     openDirDialog.Destroy()
-    JESConfig.CONFIG_MEDIAPATH = path
-    JESConfig.writeToConfig(JESConfig.CONFIG_MEDIAPATH)
+    JESConfig.setConfigVal("CONFIG_MEDIAPATH", path)
