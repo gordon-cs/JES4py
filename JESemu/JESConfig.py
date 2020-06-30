@@ -6,7 +6,7 @@ CONFIG_WRAPPIXELVALUES = 0
 CONFIG_MEDIAPATH = ""
 CONFIG_FILENAME = ".jesconf"
 
-def readFromConfig():
+def readOrGenerateConfig():
     filePath = os.path.join(os.path.expanduser("~"), CONFIG_FILENAME)
     global CONFIG_MEDIAPATH
     if os.path.exists(filePath):
@@ -22,7 +22,7 @@ def readFromConfig():
         f.close()
 
 
-def writeToConfig(newPath):
+def updateOrGenerateConfig(newPath):
     filePath = os.path.join(os.path.expanduser("~"), CONFIG_FILENAME)
     if os.path.exists(filePath):
         f = open(filePath, "r")

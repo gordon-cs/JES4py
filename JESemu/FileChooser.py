@@ -45,7 +45,7 @@ def pickADirectory():
     path = openDirDialog.GetPath()
     openDirDialog.Destroy()
     JESConfig.CONFIG_MEDIAPATH = path
-    JESConfig.writeToConfig(JESConfig.CONFIG_MEDIAPATH)
+    JESConfig.writeOrGenerateFromConfig(JESConfig.CONFIG_MEDIAPATH)
     return path
 
 
