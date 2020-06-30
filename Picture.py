@@ -7,10 +7,10 @@ class Picture:
 
     def __init__(self, image):
         self.image = image
-        self.title = image.filename
-        #self.fileName = image.filename
-        #self.width = image.width
-        #self.height = image.height
+        try:
+            self.filename = self.title = image.filename
+        except AttributeError:
+            self.filename = self.title = ''
 
     def __str__(self):
         """Return string representation of this picture
@@ -402,8 +402,11 @@ class Picture:
         Picture
             the cropped copy of the original picture
         """
-        pic = self
-        pic.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height))
+        croppedImage = self.image.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height))
+        #croppedImage.show()
+        pic = Picture(croppedImage)
+        pic.filename = self.filename
+        pic.title = self.title
         return pic
 
     def show(self):
