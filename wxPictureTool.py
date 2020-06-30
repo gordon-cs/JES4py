@@ -2,7 +2,7 @@
 # CS Summer Practicum 2020
 # Author: Gahngnin Kim
 
-import os
+import os, sys
 import wx
 import wx.lib.inspection
 
@@ -83,6 +83,7 @@ class MainWindow(wx.Frame):
     def viewingWindow(self):
         # initialize an empty image
         img = wx.EmptyImage(600,360)
+        # img = wx.Image.
 
         # Convert the image into a bitmap image
         self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(img))
@@ -123,12 +124,12 @@ class MainWindow(wx.Frame):
 
         # Initialize color preview (square bitmap image)
         self.bmp = wx.EmptyBitmap(20,20)
+        
         dc = wx.MemoryDC()
         dc.SelectObject(self.bmp)
-        dc.SetBackground(wx.Brush("Black"))
+        dc.SetBackground(wx.Brush("Red"))
         dc.Clear()
         del dc
-
 
         # Convert the image into a bitmap image
         #self.colorPreview = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(self.emptyImg))
@@ -196,20 +197,23 @@ class MainWindow(wx.Frame):
         b = self.image.GetBlue(ctrl_pos.x, ctrl_pos.y)
         # print ("R: {} G: {} B: {}".format(r,g,b))
         self.rgbValue.SetLabel(label=u'R: {} G: {} B: {}'.format(r, g, b))
-        self.ColorThumbnail()
-
-    def ColorThumbnail(self):
-        w, h = 20, 20
-        self.bmp = wx.EmptyBitmap(w, h)
+        
         dc = wx.MemoryDC()
         dc.SelectObject(self.bmp)
         dc.SetBackground(wx.Brush("Blue"))
         dc.Clear()
         del dc
-         #SetBackground( wx.Brush( myColor ) )
-        #self.dc.Clear()
-         #self.thumbnail = self.image.Create(self, 30, 30, self.image.RGBValue)
-        self.Show(True)
+        self.Refresh(eraseBackground=False)
+        self.Update()
+        self.panel.Refresh()
+
+    # def ColorThumbnail(self):
+    #     #w, h = 20, 20
+    #     dc = wx.MemoryDC()
+    #     dc.SelectObject(self.bmp)
+    #     dc.SetBackground(wx.Brush("Blue"))
+    #     dc.Clear()
+    #     del dc
 
     def onOpen(self,e):
         # Browse for file
