@@ -5,7 +5,6 @@
 
 import os
 import JESConfig
-import ast
 import wx
 
 
@@ -17,6 +16,8 @@ def pickAFile():
     Returns:
         the file file name of the picked file or None"""
     #return eg.fileopenbox(title="Pick A File")
+    app = wx.App()
+
     frame = wx.Frame(None, -1, 'win.py')
     frame.SetSize(0,0,200,50)
 

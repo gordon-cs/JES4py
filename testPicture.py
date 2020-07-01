@@ -2,9 +2,9 @@
 
 from media import *
 
-pic1 = makePicture('Sandbox/nico.jpg')
-addRect(pic1, 0, 0, 150, 300, red)
-pic1.show()
+# pic1 = makePicture('Sandbox/nico.jpg')
+# addRect(pic1, 0, 0, 150, 300, red)
+# pic1.show()
 #show(pic1)
 
 #file = pickAFile()

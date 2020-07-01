@@ -95,7 +95,7 @@ def getMediaFolder(filename=""):
 
 def showMediaFolder():
     global mediaFolder
-    print("The media path is currently: "), mediaFolder
+    print("The media path is currently: "+ mediaFolder)
 
 
 def getShortPath(filename):
@@ -939,9 +939,7 @@ def playNote(note, duration, intensity=64):
 def pickAFile():
     # Note: this needs to be done in a threadsafe manner, see FileChooser
     # for details how this is accomplished.
-    Tk().withdraw()
-    return filedialog.askopenfilename(initialdir = "/",title = "Select file")
-
+    return FileChooser.pickAFile()
 
 def pickAFolder():
     # Note: this needs to be done in a threadsafe manner, see FileChooser
