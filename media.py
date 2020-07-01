@@ -30,9 +30,9 @@ import PIL.Image
 #from PIL import Image as img
 from Pixel import Pixel
 from Picture import Picture
+import wx
 from tkinter import colorchooser
 from tkinter import *
-from tkinter import filedialog
 
 # from jes.tools.framesequencer import FrameSequencerTool
 
@@ -539,12 +539,19 @@ def repaint(pic):
 
 ## adding graphics to your pictures! ##
 
-def pickAColor(self):
+def pickAColor():
     # Dorn 5/8/2009:  Edited to be thread safe since this code is executed from an
     # interpreter JESThread and will result in an update to the main JES GUI due to
     # it being a modal dialog.
-    tup = colorchooser.askcolor()
-    return tup[0]
+    app = wx.App()
+
+    dlg = wx.ColourDialog(wx.GetApp().GetTopWindow())
+    if dlg.ShowModal() == wx.ID_OK:
+        red =  dlg.GetColourData().GetColour().Red()
+        green = dlg.GetColourData().GetColour().Green()
+        blue = dlg.GetColourData().GetColour().Blue()
+        col = Color(red,green,blue)
+        return col
 
 def addLine(pic, x1, y1, x2, y2, acolor=black):
     if not isinstance(pic, Picture):
@@ -859,13 +866,13 @@ def duplicatePicture(picture):
     return picture(picture)
 
 def cropPicture(pic, upperLeftX, upperLeftY, width, height):
- if not isinstance(pic, picture):
+ if not isinstance(pic, Picture):
    print("crop(picture, upperLeftX, upperLeftY, width, height): First parameter is not a picture")
    raise ValueError
- if upperLeftX < 1 or upperLeftX > getWidth(picture):
+ if upperLeftX < 1 or upperLeftX > getWidth(Picture):
    print("crop(picture, upperLeftX, upperLeftY, width, height): upperLeftX must be within the picture")
    raise ValueError
- if upperLeftY < 1 or upperLeftY > getHeight(picture):
+ if upperLeftY < 1 or upperLeftY > getHeight(Picture):
    print("crop(picture, upperLeftX, upperLeftY, width, height): upperLeftY must be within the picture")
    raise ValueError
  return pic.crop(pic, upperLeftX-1, upperLeftY-1, width, height)
