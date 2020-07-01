@@ -188,11 +188,13 @@ class Picture:
     #  *    @param x the x-coordinate of the bottom left corner of the text
     #  *    @param y the y-coordinate of the bottom left corner of the text
     #  *    @param string the text to be added to the picture
-    # public void addText(Color acolor, int x, int y, String string) {
-    #     Graphics g = this.getBufferedImage().getGraphics();
-    #     g.setColor(acolor);
-    #     g.drawString(string, x - SimplePicture._PictureIndexOffset, y - SimplePicture._PictureIndexOffset);
-    # }
+    def addText(self, acolor, x, y, string):
+        draw = PIL.ImageDraw.Draw(self.image)
+        # font = ImageFont.truetype(<font-file>, <font-size>)
+        # font = ImageFont.truetype("sans-serif.ttf", 16)
+        # draw.text((x, y),"Sample Text",(r,g,b))
+
+        draw.text((x, y), string, acolor.getRGB())
 
     #  * Method to add text to a picture withe a particular font style
     #  *    @param acolor the color of the text
