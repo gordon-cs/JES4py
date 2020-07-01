@@ -9,7 +9,6 @@
 import sys
 import os
 import math
-import ast
 # import traceback
 # import user
 #import pictureMod
@@ -64,21 +63,6 @@ orange = Color(255, 200, 0)
 pink = Color(255, 175, 175)
 magenta = Color(255, 0, 255)
 cyan = Color(0, 255, 255)
-
-_currentMediaPath = ''
-
-def hello():
-    f = open("JESConfig.py", "r")
-    contents = f.read()
-    dict = ast.literal_eval(contents)
-    global _currentMediaPath
-    _currentMediaPath = dict["CONFIG_MEDIAPATH"]
-    # dict["CONFIG_MEDIAPATH"]="myPath"
-    f.close()
-    # f = open("JESConfig.py", "w")
-    # f.write(str(dict))
-    # f.close()
-
 
 def setMediaPath(file=None):
     global mediaFolder

@@ -1,1 +1,4 @@
-{'CONFIG_WRAPPIXELVALUES': 0, 'CONFIG_MEDIAPATH': 'myPath'}
+# Global configuration parameters
+
+CONFIG_WRAPPIXELVALUES = '0'
+CONFIG_MEDIAPATH = ''
