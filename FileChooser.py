@@ -15,7 +15,6 @@ def pickAFile():
 
     Returns:
         the file file name of the picked file or None"""
-    #return eg.fileopenbox(title="Pick A File")
     app = wx.App()
 
     frame = wx.Frame(None, -1, 'filePicker.py')
@@ -55,7 +54,6 @@ def getMediaPath(fileName):
     Returns:
         the full path for the file
     """
-    #return os.path.join(getMediaDirectory(), fileName)
     return os.path.join(JESConfig.getConfigVal("CONFIG_MEDIAPATH"), fileName)
 
 def getMediaDirectory():
@@ -81,7 +79,6 @@ def pickMediaPath():
     frame.SetSize(0,0,200,50)
 
     # Create open file dialog
-    # openFileDialog = wx.FileDialog(frame, "Open", "", "", "",wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
     openDirDialog = wx.DirDialog (frame, "Choose input directory", "",wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
     openDirDialog.ShowModal()
     path = openDirDialog.GetPath()
