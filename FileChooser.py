@@ -22,7 +22,7 @@ def pickAFile():
     frame.SetSize(0,0,200,50)
 
     # Create open file dialog
-    openFileDialog = wx.FileDialog(frame, "Open", "", "", "Python files (*.py)|*.py",wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+    openFileDialog = wx.FileDialog(frame, "Pick A File", "", "", "",wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
     openFileDialog.ShowModal()
     path = openFileDialog.GetPath()
     openFileDialog.Destroy()
@@ -41,7 +41,7 @@ def pickADirectory():
 
     # Create open file dialog
     # openFileDialog = wx.FileDialog(frame, "Open", "", "", "",wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
-    openDirDialog = wx.DirDialog (frame, "Choose input directory", "",wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
+    openDirDialog = wx.DirDialog (frame, "Pick A Folder", "",wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
     openDirDialog.ShowModal()
     path = openDirDialog.GetPath()
     openDirDialog.Destroy()
