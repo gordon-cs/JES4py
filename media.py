@@ -31,8 +31,6 @@ import PIL.Image
 from Pixel import Pixel
 from Picture import Picture
 import wx
-from tkinter import colorchooser
-from tkinter import *
 
 # from jes.tools.framesequencer import FrameSequencerTool
 
