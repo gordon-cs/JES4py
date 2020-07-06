@@ -196,6 +196,20 @@ class Picture:
         """
         return self.image.height
 
+    #////////////////////// methods ///////////////////////////////////////
+
+    #  Method to return a string with information about this picture.
+    #  @return a string with information about the picture such as fileName,
+    #  height and width.
+    # public String toString() {
+    #     String output = "Picture, filename " + getFileName() +
+    #                     " height " + getHeight()
+    #                     + " width " + getWidth();
+    #     return output;
+    # }
+
+    #/* adding graphics to pictures, for use in JES. (added by alexr, Oct 2006) */
+
     def addLine(self, acolor, x1, y1, x2, y2):
         """Draw a line on this picture
     
@@ -244,8 +258,6 @@ class Picture:
     def addRect(self, acolor, x, y, w, h):
         """Draw the outline of a rectangle on this picture
     
-        Parameters
-        ----------
         acolor : instance of Color class
             the color of the rectangle border
         x : int
@@ -264,9 +276,7 @@ class Picture:
     def addRectFilled(self, acolor, x, y, w, h):
         """Draw a filled rectangle on this picture
     
-        Parameters
-        ----------
-        acolor : Color
+        acolor : instance of Color class
             the color that the rectangle is filled
         x : int
             the x-coordinate of the upper-left corner of the rectangle
@@ -285,10 +295,8 @@ class Picture:
     def addOvalFilled(self, acolor, x, y, w, h):
         """Draw a filled oval on this picture
     
-        Parameters
-        ----------
-        acolor : Color
-            the color that the oval is filled with
+        acolor : instance of Color class
+            the color that the oval is filled with.
         x : int
             the x-coordinate of the upper-left corner of the boundary rectangle for the oval
         y : int
@@ -306,9 +314,7 @@ class Picture:
     def addOval(self, acolor, x, y, w, h):
         """Draw the outline of an oval on this picture
     
-        Parameters
-        ----------
-        acolor : Color
+        acolor : instance of Color class
             the color of the oval border
         x : int
             the x-coordinate of the upper-left corner of the boundary rectangle for the oval
@@ -326,9 +332,7 @@ class Picture:
     def addArcFilled(self, acolor, x, y, w, h, start, angle):
         """Draw a filled in arc on this picture
     
-        Parameters
-        ----------
-        acolor : Color
+        acolor : instance of Color class
             the color that the arc is filled with
         x : int
             the x-coordinate of the center of the arc
@@ -355,9 +359,7 @@ class Picture:
     def addArc(self, acolor, x, y, w, h, start, angle):
         """Draw the outline of an arc on this picture
     
-        Parameters
-        ----------
-        acolor : Color
+        acolor : instance of Color class
             the color that outlines arc
         x : int
             the x-coordinate of the center of the arc
@@ -423,11 +425,6 @@ class Picture:
             the desired width of the cropped picture
         height : int
             the desired height of the cropped picture
-
-        Returns
-        -------
-        Picture
-            the cropped copy of the original picture
         """
         croppedImage = self.image.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height))
         # self.image = croppedImage
