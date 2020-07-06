@@ -199,26 +199,22 @@ class MainWindow(wx.Frame):
         b = self.image.GetBlue(ctrl_pos.x, ctrl_pos.y)
         # print ("R: {} G: {} B: {}".format(r,g,b))
         self.rgbValue.SetLabel(label=u'R: {} G: {} B: {}'.format(r, g, b))
-        print (r, g, b)
-        #dc.SetBrush(wx.Brush(wx.Color(r,g,b), wx.SOLID))
-        bmp = wx.Bitmap(20,20)
+
+        # Sets the color of the square image on mouse click
+        bmp = wx.Bitmap(20,20) # Empty bitmap image initialized
         dc = wx.MemoryDC()
         dc.SelectObject(bmp)
-        dc.SetBackground(wx.Brush(wx.Colour(r,g,b), wx.SOLID))
+        dc.SetBackground(wx.Brush(wx.Colour(r,g,b), wx.SOLID)) # Sets the color
         dc.Clear()
         del dc
 
-        # convert it to a wx.Bitmap, and put it on the wx.StaticBitmap
+        # Replace the bitmap with the new one
         self.colorPreview.SetBitmap(bmp)
 
         # You can fit the frame to the image, if you want.
         #self.Fit()
         #self.Layout()
-        self.Refresh()
-
-        # self.Refresh(eraseBackground=False)
-        # self.Update()
-        # self.panel.Refresh()
+        self.Refresh() # Updates the static bitmap
 
     def onOpen(self,e):
         # Browse for file
@@ -394,11 +390,6 @@ class MainWindow(wx.Frame):
 
     def onExit(self,e):
         self.Close(True)  # Close the frame.
-
-def GetJpgList(dir):
-    jpgs = [f for f in os.listdir(dir) if f[-4:] == ".jpg"]
-    # print "JPGS are:", jpgs
-    return [os.path.join(dir, f) for f in jpgs]
 
 if __name__ == '__main__':
     app = wx.App(False)
