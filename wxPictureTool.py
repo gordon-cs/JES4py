@@ -27,6 +27,14 @@ class MainWindow(wx.Frame):
         MainFrame = wx.Frame.__init__(self, parent, title=title, size=(660,500))
         self.panel = wx.Panel(self)        
         wx.lib.inspection.InspectionTool().Show()
+        #################################################
+        # there needs to be an "Images" directory with one or more jpegs in it in the
+        # current working directory for this to work
+        self.jpgs = GetJpgList("./Images") # get all the jpegs in the Images directory
+        self.CurrentJpg = 0
+
+        self.MaxImageSize = 20
+        #################################################
         # Maximum horizontal dimension
         self.PhotoMaxSize = 600
 
@@ -90,7 +98,6 @@ class MainWindow(wx.Frame):
 
         # Event handler - Gets X, Y coordinates on mouse click
         self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
-        # self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ColorThumbnail)
 
         # Stores the filepath of the image
         self.photoTxt = wx.TextCtrl(self.panel, size=(200,-1))
@@ -113,6 +120,11 @@ class MainWindow(wx.Frame):
         #self.panel.Layout()
     
     def ColorPicker(self):
+        # initialize an empty bitmap
+        self.bmp = wx.Bitmap(20,20)
+        self.colorPreview = wx.StaticBitmap(self.panel, wx.ID_ANY, self.bmp)
+        self.colorPreview.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
+
         # Textboxes to display X and Y coordinates on click
         self.pixelTxtX = wx.TextCtrl(self.panel, wx.ALIGN_CENTER, size=(50,-1))
         self.pixelTxtY = wx.TextCtrl(self.panel, wx.ALIGN_CENTER, size=(50,-1))
@@ -120,20 +132,18 @@ class MainWindow(wx.Frame):
         # Static text displays RGB values of the given coordinates
         # Initialized with dummie values
         self.rgbValue = wx.StaticText(self.panel, label=u'R: {} G: {} B: {}'.format("N/A", "N/A", "N/A"),style = wx.ALIGN_CENTER)
-
-        # Initialize color preview (square bitmap image)
-        self.bmp = wx.Bitmap(20,20)
         
-        dc = wx.MemoryDC()
-        dc.SelectObject(self.bmp)
-        dc.SetBackground(wx.Brush("Red"))
-        dc.Clear()
-        del dc
+        
+        # dc = wx.MemoryDC()
+        # dc.SelectObject(self.bmp)
+        # dc.SetBackground(wx.Brush("Red"))
+        # dc.Clear()
+        # del dc
 
         # Convert the image into a bitmap image
         #self.colorPreview = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(self.emptyImg))
-        self.colorPreview = wx.StaticBitmap(self.panel, wx.ID_ANY, self.bmp)
-        self.colorPreview.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
+        # self.colorPreview = wx.StaticBitmap(self.panel, wx.ID_ANY, self.bmp)
+        # self.colorPreview.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
 
 
         # X and Y labels
@@ -187,6 +197,31 @@ class MainWindow(wx.Frame):
         self.Show()
 
     def ImageCtrl_OnMouseClick(self, event):
+        Img = wx.Image(self.jpgs[self.CurrentJpg], wx.BITMAP_TYPE_JPEG)
+
+        # scale the image, preserving the aspect ratio
+        W = Img.GetWidth()
+        H = Img.GetHeight()
+        if W > H:
+            NewW = self.MaxImageSize
+            NewH = self.MaxImageSize * H / W
+        else:
+            NewH = self.MaxImageSize
+            NewW = self.MaxImageSize * W / H
+        Img = Img.Scale(NewW,NewH)
+ 
+        # convert it to a wx.Bitmap, and put it on the wx.StaticBitmap
+        self.colorPreview.SetBitmap(wx.BitmapFromImage(Img))
+
+        # You can fit the frame to the image, if you want.
+        #self.Fit()
+        #self.Layout()
+        self.Refresh()
+
+        self.CurrentJpg += 1
+        if self.CurrentJpg > len(self.jpgs) -1:
+            self.CurrentJpg = 0
+
         # Returns X, Y coordinates on mouse click
         ctrl_pos = event.GetPosition()
         self.pixelTxtX.SetValue(str(ctrl_pos.x))
@@ -202,9 +237,9 @@ class MainWindow(wx.Frame):
         dc.SetBackground(wx.Brush("Blue"))
         dc.Clear()
         del dc
-        self.Refresh(eraseBackground=False)
-        self.Update()
-        self.panel.Refresh()
+        # self.Refresh(eraseBackground=False)
+        # self.Update()
+        # self.panel.Refresh()
 
     # def ColorThumbnail(self):
     #     #w, h = 20, 20
@@ -388,6 +423,11 @@ class MainWindow(wx.Frame):
 
     def onExit(self,e):
         self.Close(True)  # Close the frame.
+
+def GetJpgList(dir):
+    jpgs = [f for f in os.listdir(dir) if f[-4:] == ".jpg"]
+    # print "JPGS are:", jpgs
+    return [os.path.join(dir, f) for f in jpgs]
 
 if __name__ == '__main__':
     app = wx.App(False)
