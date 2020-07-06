@@ -18,7 +18,7 @@ def pickAFile():
     #return eg.fileopenbox(title="Pick A File")
     app = wx.App()
 
-    frame = wx.Frame(None, -1, 'win.py')
+    frame = wx.Frame(None, -1, 'filePicker.py')
     frame.SetSize(0,0,200,50)
 
     # Create open file dialog
@@ -40,15 +40,10 @@ def pickADirectory():
     frame.SetSize(0,0,200,50)
 
     # Create open file dialog
-    # openFileDialog = wx.FileDialog(frame, "Open", "", "", "",wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
     openDirDialog = wx.DirDialog (frame, "Pick A Folder", JESConfig.getConfigVal('CONFIG_MEDIAPATH'), wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
     openDirDialog.ShowModal()
     path = openDirDialog.GetPath()
     openDirDialog.Destroy()
-    # JESConfig.writeDict(path)
-    # JESConfig.readDict()
-    # JESConfig.writeOrGenerateFromConfig(JESConfig.readDict()[])
-    JESConfig.setConfigVal("CONFIG_MEDIAPATH", path)
     return path
 
 
