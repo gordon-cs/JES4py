@@ -26,34 +26,29 @@ class MainWindow(wx.Frame):
     def __init__(self, parent, title):
         MainFrame = wx.Frame.__init__(self, parent, title=title, size=(660,500))
         self.panel = wx.Panel(self)        
-        # wx.lib.inspection.InspectionTool().Show()
+        # wx.lib.inspection.InspectionTool().Show() # Inspection tool for debugging
         
-        # Maximum horizontal dimension
+        # Maximum horizontal dimension. Needs to be removed later.
         self.PhotoMaxSize = 600
 
-        # Color Eyedropper
-        self.ColorPicker()
-
-        # Image viewer
-        self.viewingWindow()
-
-        # A Statusbar in the bottom of the window
-        self.CreateStatusBar()
+        self.ColorPicker() # Color Eyedropper
+        self.viewingWindow() # Image viewer
+        self.CreateStatusBar() # A Statusbar in the bottom of the window
 
         # Setting up the menu bar
         self.filemenu = wx.Menu()
 
         # Setting up the menu items
-        # wx.ID_ABOUT and wx.ID_EXIT are standard IDs provided by wxWidgets.
+        # Standard ID given to each item are provided by wxWidgets.
         menuOpen = self.filemenu.Append(wx.ID_OPEN, "&Open", "Browse images to open")
         self.filemenu.AppendSeparator()
-        menuZoom25 = self.filemenu.Append(wx.ID_FILE, "&25%","Zoom by 25%")
-        menuZoom50 = self.filemenu.Append(wx.ID_FILE1, "&50%","Zoom by 50%")
-        menuZoom75 = self.filemenu.Append(wx.ID_FILE2, "&75%","Zoom by 75%")
+        menuZoom25 = self.filemenu.Append(wx.ID_ANY, "&25%","Zoom by 25%")
+        menuZoom50 = self.filemenu.Append(wx.ID_ANY, "&50%","Zoom by 50%")
+        menuZoom75 = self.filemenu.Append(wx.ID_ANY, "&75%","Zoom by 75%")
         menuZoom100 = self.filemenu.Append(wx.ID_ZOOM_100, "&100%","Zoom by 100% (original size)")
-        menuZoom150 = self.filemenu.Append(wx.ID_FILE3, "&150%","Zoom by 150%")
-        menuZoom200 = self.filemenu.Append(wx.ID_FILE4, "&200%","Zoom by 200%")
-        menuZoom500 = self.filemenu.Append(wx.ID_ZOOM_IN, "&500%","Zoom by 500%")
+        menuZoom150 = self.filemenu.Append(wx.ID_ANY, "&150%","Zoom by 150%")
+        menuZoom200 = self.filemenu.Append(wx.ID_ANY, "&200%","Zoom by 200%")
+        menuZoom500 = self.filemenu.Append(wx.ID_ANY, "&500%","Zoom by 500%")
         self.filemenu.AppendSeparator()
         menuAbout = self.filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
         self.filemenu.AppendSeparator()
@@ -69,10 +64,8 @@ class MainWindow(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onZoom, menuZoom150)
         self.Bind(wx.EVT_MENU, self.onZoom, menuZoom200)
         self.Bind(wx.EVT_MENU, self.onZoom, menuZoom500)
-
         self.Bind(wx.EVT_MENU, self.onAbout, menuAbout)
         self.Bind(wx.EVT_MENU, self.onExit, menuExit)
-
 
         # Creating the menubar.
         menuBar = wx.MenuBar()
@@ -80,14 +73,14 @@ class MainWindow(wx.Frame):
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
         self.Show(True)
 
-    # Main image viewing window
     def viewingWindow(self):
+        """ Main image viewing window
+        """
         # initialize an empty image
         wxImg = wx.Image(600,360) # wx.Image(width, height, clear)
 
         # Convert the image into a bitmap image
         self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.Bitmap(wxImg))
-
 
         # Event handler - Gets X, Y coordinates on mouse click
         self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
@@ -96,23 +89,33 @@ class MainWindow(wx.Frame):
         self.photoTxt = wx.TextCtrl(self.panel, size=(200,-1))
         self.photoTxt.Show(False)
         
-        self.mainSizer = wx.BoxSizer(wx.VERTICAL)
-        self.hSizer1 = wx.BoxSizer(wx.HORIZONTAL)
+        #########LAYOUT SETUP###########
+        # Initialize vertical and horizontal boxsizers
+        self.mainSizer = wx.BoxSizer(wx.VERTICAL) # Main vertical boxsizer
+        self.hSizer = wx.BoxSizer(wx.HORIZONTAL)
 
+        # Vertical spacer
         self.mainSizer.Add((-1, 50))
 
+        # Draws a horizontal line
         self.mainSizer.Add(wx.StaticLine(self.panel, wx.ID_ANY),
                            0, wx.ALL|wx.EXPAND, 5)
         
+        # Places components to the sizers
         self.mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 5)
-        self.hSizer1.Add(self.photoTxt, 0, wx.ALL, 5)
-        self.mainSizer.Add(self.hSizer1, 0, wx.ALL, 5)
+        self.hSizer.Add(self.photoTxt, 0, wx.ALL, 5)
+        self.mainSizer.Add(self.hSizer, 0, wx.ALL, 5)
 
+        # Set the main sizer to fit the top level panel
         self.panel.SetSizer(self.mainSizer)
         self.mainSizer.Fit(self.panel)
-        #self.panel.Layout()
     
     def ColorPicker(self):
+        """ Reads color information from the selected pixel.
+            Displays X and Y coordinates, RGB values, and the color of the pixel.
+            The user can select the pixel by directly clicking on it OR
+            by typing a specific coordinate.
+        """
         # initialize an empty bitmap
         self.bmp = wx.Bitmap(20,20)
         self.colorPreview = wx.StaticBitmap(self.panel, wx.ID_ANY, self.bmp)
@@ -147,9 +150,7 @@ class MainWindow(wx.Frame):
 
         # Display Y coordinate on click
         self.hbox1.Add(self.lblX, 0, flag=wx.CENTER, border=0)
-        #self.hbox1.Add(self.buttonX1, -1, flag=wx.CENTER, border=0)
         self.hbox1.Add(self.pixelTxtX, 0, flag=wx.CENTER, border=5) # Text Control Box
-        #self.hbox1.Add(self.buttonX2, -1, flag=wx.CENTER, border=0)
 
         # Horizonal spacer
         self.hbox1.Add((10, -1))
@@ -179,6 +180,10 @@ class MainWindow(wx.Frame):
         self.Show()
 
     def ImageCtrl_OnMouseClick(self, event):
+        """ Gets X and Y coordinates of the selected pixel
+            and displays the values on the text control boxes (pixelTxtX & pixelTxtY).
+            Then, passes those positions to ColorInfo() to get RGB values
+        """
         # Returns X, Y coordinates on mouse click
         ctrl_pos = event.GetPosition()
         self.x = ctrl_pos.x
@@ -188,18 +193,20 @@ class MainWindow(wx.Frame):
         self.ColorInfo()
 
     def ImageCtrl_OnEnter(self, event):
+        """ Gets X and Y coordinates from the user input
+            Passes those coordinates onto ColorInfo() to get RGB values
+        """
         self.x = self.pixelTxtX.GetValue()
         self.y = self.pixelTxtY.GetValue()
-        # if self.x.isEmpty():
-        #     print ("No coordinates entered. Both X and Y must be entered.")
-        # else:
         self.ColorInfo()
 
     def ColorInfo(self):
+        """ Takes the X,Y coordinates and return RGB values
+            Creates a small color square that shows the color of the selected pixel
+        """
         r = self.image.GetRed(int(self.x), int(self.y))
         g = self.image.GetGreen(int(self.x), int(self.y))
         b = self.image.GetBlue(int(self.x), int(self.y))
-        # print ("R: {} G: {} B: {}".format(r,g,b))
         self.rgbValue.SetLabel(label=u'R: {} G: {} B: {}'.format(r, g, b))
 
         # Sets the color of the square image on mouse click
@@ -210,13 +217,11 @@ class MainWindow(wx.Frame):
         dc.Clear()
         del dc
 
-        # Replace the bitmap with the new one
-        self.colorPreview.SetBitmap(bmp)
-
+        self.colorPreview.SetBitmap(bmp) # Replace the bitmap with the new one
         self.Refresh() # Updates the static bitmap
 
     def onOpen(self,e):
-        # Browse for file
+        """Browse for file"""
         
         wildcard = "JPEG files (*.jpg)|*.jpg"
         dialog = wx.FileDialog(None, "Choose a file",
@@ -229,7 +234,7 @@ class MainWindow(wx.Frame):
         self.onView()
 
     def onZoom(self,event):
-        """Scale the image by changing the scale factor
+        """ Scale the image by changing the scale factor
         """
         id_selected = event.GetId() # Gets the event id of the selected menu item
         obj = event.GetEventObject() # Gets the event object
