@@ -82,11 +82,10 @@ class MainWindow(wx.Frame):
     # Main image viewing window
     def viewingWindow(self):
         # initialize an empty image
-        img = wx.EmptyImage(600,360)
-        # img = wx.Image.
+        wxImg = wx.Image(600,360) # wx.Image(width, height, clear)
 
         # Convert the image into a bitmap image
-        self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(img))
+        self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.Bitmap(wxImg))
 
 
         # Event handler - Gets X, Y coordinates on mouse click
@@ -123,7 +122,7 @@ class MainWindow(wx.Frame):
         self.rgbValue = wx.StaticText(self.panel, label=u'R: {} G: {} B: {}'.format("N/A", "N/A", "N/A"),style = wx.ALIGN_CENTER)
 
         # Initialize color preview (square bitmap image)
-        self.bmp = wx.EmptyBitmap(20,20)
+        self.bmp = wx.Bitmap(20,20)
         
         dc = wx.MemoryDC()
         dc.SelectObject(self.bmp)
