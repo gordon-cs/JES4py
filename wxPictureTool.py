@@ -199,18 +199,17 @@ class MainWindow(wx.Frame):
         b = self.image.GetBlue(ctrl_pos.x, ctrl_pos.y)
         # print ("R: {} G: {} B: {}".format(r,g,b))
         self.rgbValue.SetLabel(label=u'R: {} G: {} B: {}'.format(r, g, b))
-        
-
-        Img = wx.Bitmap.FromRGBA(20, 20, red=r, green=g, blue=b, alpha=0)
-        # pixelColor = self.imageCtrl.Get
-        # dc = wx.MemoryDC()
-        # dc.SelectObject(Img)
-        # dc.SetBackground(wx.Brush("Blue"))
-        # dc.Clear()
-        # del dc
+        print (r, g, b)
+        #dc.SetBrush(wx.Brush(wx.Color(r,g,b), wx.SOLID))
+        bmp = wx.Bitmap(20,20)
+        dc = wx.MemoryDC()
+        dc.SelectObject(bmp)
+        dc.SetBackground(wx.Brush(wx.Colour(r,g,b), wx.SOLID))
+        dc.Clear()
+        del dc
 
         # convert it to a wx.Bitmap, and put it on the wx.StaticBitmap
-        self.colorPreview.SetBitmap(wx.Bitmap(Img))
+        self.colorPreview.SetBitmap(bmp)
 
         # You can fit the frame to the image, if you want.
         #self.Fit()
@@ -245,7 +244,7 @@ class MainWindow(wx.Frame):
         else:
             NewH = self.PhotoMaxSize
             NewW = self.PhotoMaxSize * W / H
-        img = img.Scale(NewW,NewH)
+        img = img.Scale(int(NewW),int(NewH))
         self.image = img
         self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
@@ -266,7 +265,7 @@ class MainWindow(wx.Frame):
         ScaledW = NewW * 0.25
         ScaledH = NewH * 0.25
 
-        img = img.Scale(ScaledW,ScaledH)
+        img = img.Scale(int(ScaledW),int(ScaledH))
         self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
 
@@ -286,7 +285,7 @@ class MainWindow(wx.Frame):
         ScaledW = NewW * 0.50
         ScaledH = NewH * 0.50
 
-        img = img.Scale(ScaledW,ScaledH)
+        img = img.Scale(int(ScaledW),int(ScaledH))
         self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
 
@@ -306,7 +305,7 @@ class MainWindow(wx.Frame):
         ScaledW = NewW * 0.75
         ScaledH = NewH * 0.75
 
-        img = img.Scale(ScaledW,ScaledH)
+        img = img.Scale(int(ScaledW),int(ScaledH))
         self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
 
@@ -323,7 +322,7 @@ class MainWindow(wx.Frame):
         else:
             NewH = self.PhotoMaxSize
             NewW = self.PhotoMaxSize * W / H
-        img = img.Scale(NewW,NewH)
+        img = img.Scale(int(NewW),int(NewH))
         self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
 
@@ -343,7 +342,7 @@ class MainWindow(wx.Frame):
         ScaledW = NewW * 1.50
         ScaledH = NewH * 1.50
 
-        img = img.Scale(ScaledW,ScaledH)
+        img = img.Scale(int(ScaledW),int(ScaledH))
         self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
 
@@ -363,7 +362,7 @@ class MainWindow(wx.Frame):
         ScaledW = NewW * 2.0
         ScaledH = NewH * 2.0
 
-        img = img.Scale(ScaledW,ScaledH)
+        img = img.Scale(int(ScaledW),int(ScaledH))
         self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
     
@@ -383,7 +382,7 @@ class MainWindow(wx.Frame):
         ScaledW = NewW * 5.0
         ScaledH = NewH * 5.0
 
-        img = img.Scale(ScaledW,ScaledH)
+        img = img.Scale(int(ScaledW),int(ScaledH))
         self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
 
