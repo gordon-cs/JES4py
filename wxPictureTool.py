@@ -119,25 +119,14 @@ class MainWindow(wx.Frame):
         self.colorPreview.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
 
         # Textboxes to display X and Y coordinates on click
-        self.pixelTxtX = wx.TextCtrl(self.panel, wx.ALIGN_CENTER, size=(50,-1))
-        self.pixelTxtY = wx.TextCtrl(self.panel, wx.ALIGN_CENTER, size=(50,-1))
+        self.pixelTxtX = wx.TextCtrl(self.panel, wx.ALIGN_CENTER, style=wx.TE_PROCESS_ENTER, size=(50,-1))
+        self.pixelTxtY = wx.TextCtrl(self.panel, wx.ALIGN_CENTER, style=wx.TE_PROCESS_ENTER, size=(50,-1))
+        self.pixelTxtX.Bind(wx.EVT_TEXT_ENTER, self.ImageCtrl_OnEnter)
+        self.pixelTxtY.Bind(wx.EVT_TEXT_ENTER, self.ImageCtrl_OnEnter)
 
         # Static text displays RGB values of the given coordinates
         # Initialized with dummie values
         self.rgbValue = wx.StaticText(self.panel, label=u'R: {} G: {} B: {}'.format("N/A", "N/A", "N/A"),style = wx.ALIGN_CENTER)
-        
-        
-        # dc = wx.MemoryDC()
-        # dc.SelectObject(self.bmp)
-        # dc.SetBackground(wx.Brush("Red"))
-        # dc.Clear()
-        # del dc
-
-        # Convert the image into a bitmap image
-        #self.colorPreview = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.BitmapFromImage(self.emptyImg))
-        # self.colorPreview = wx.StaticBitmap(self.panel, wx.ID_ANY, self.bmp)
-        # self.colorPreview.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
-
 
         # X and Y labels
         self.lblX = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
@@ -192,11 +181,24 @@ class MainWindow(wx.Frame):
     def ImageCtrl_OnMouseClick(self, event):
         # Returns X, Y coordinates on mouse click
         ctrl_pos = event.GetPosition()
-        self.pixelTxtX.SetValue(str(ctrl_pos.x))
-        self.pixelTxtY.SetValue(str(ctrl_pos.y))
-        r = self.image.GetRed(ctrl_pos.x, ctrl_pos.y)
-        g = self.image.GetGreen(ctrl_pos.x, ctrl_pos.y)
-        b = self.image.GetBlue(ctrl_pos.x, ctrl_pos.y)
+        self.x = ctrl_pos.x
+        self.y = ctrl_pos.y
+        self.pixelTxtX.SetValue(str(self.x))
+        self.pixelTxtY.SetValue(str(self.y))
+        self.ColorInfo()
+
+    def ImageCtrl_OnEnter(self, event):
+        self.x = self.pixelTxtX.GetValue()
+        self.y = self.pixelTxtY.GetValue()
+        # if self.x.isEmpty():
+        #     print ("No coordinates entered. Both X and Y must be entered.")
+        # else:
+        self.ColorInfo()
+
+    def ColorInfo(self):
+        r = self.image.GetRed(int(self.x), int(self.y))
+        g = self.image.GetGreen(int(self.x), int(self.y))
+        b = self.image.GetBlue(int(self.x), int(self.y))
         # print ("R: {} G: {} B: {}".format(r,g,b))
         self.rgbValue.SetLabel(label=u'R: {} G: {} B: {}'.format(r, g, b))
 
@@ -211,9 +213,6 @@ class MainWindow(wx.Frame):
         # Replace the bitmap with the new one
         self.colorPreview.SetBitmap(bmp)
 
-        # You can fit the frame to the image, if you want.
-        #self.Fit()
-        #self.Layout()
         self.Refresh() # Updates the static bitmap
 
     def onOpen(self,e):
