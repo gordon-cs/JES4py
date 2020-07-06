@@ -29,7 +29,7 @@ import PIL.Image
 #from PIL import Image as img
 from Pixel import Pixel
 from Picture import Picture
-from tkinter import colorchooser
+import wx
 from tkinter import *
 from tkinter import filedialog
 
@@ -541,8 +541,15 @@ def pickAColor(self):
     # Dorn 5/8/2009:  Edited to be thread safe since this code is executed from an
     # interpreter JESThread and will result in an update to the main JES GUI due to
     # it being a modal dialog.
-    tup = colorchooser.askcolor()
-    return tup[0]
+    app = wx.App()
+
+    dlg = wx.ColourDialog(wx.GetApp().GetTopWindow())
+    if dlg.ShowModal() == wx.ID_OK:
+        red =  dlg.GetColourData().GetColour().Red()
+        green = dlg.GetColourData().GetColour().Green()
+        blue = dlg.GetColourData().GetColour().Blue()
+        col = Color(red,green,blue)
+        return col
 
 def addLine(pic, x1, y1, x2, y2, acolor=black):
     if not isinstance(pic, Picture):
