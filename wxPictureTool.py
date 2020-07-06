@@ -1,4 +1,4 @@
-# Simple picture tool
+# Simple picture tool to replace JES picture tool
 # CS Summer Practicum 2020
 # Author: Gahngnin Kim
 
