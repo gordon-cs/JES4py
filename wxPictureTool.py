@@ -27,14 +27,7 @@ class MainWindow(wx.Frame):
         MainFrame = wx.Frame.__init__(self, parent, title=title, size=(660,500))
         self.panel = wx.Panel(self)        
         wx.lib.inspection.InspectionTool().Show()
-        #################################################
-        # there needs to be an "Images" directory with one or more jpegs in it in the
-        # current working directory for this to work
-        self.jpgs = GetJpgList("./Images") # get all the jpegs in the Images directory
-        self.CurrentJpg = 0
-
-        self.MaxImageSize = 20
-        #################################################
+        
         # Maximum horizontal dimension
         self.PhotoMaxSize = 600
 
@@ -197,31 +190,6 @@ class MainWindow(wx.Frame):
         self.Show()
 
     def ImageCtrl_OnMouseClick(self, event):
-        Img = wx.Image(self.jpgs[self.CurrentJpg], wx.BITMAP_TYPE_JPEG)
-
-        # scale the image, preserving the aspect ratio
-        W = Img.GetWidth()
-        H = Img.GetHeight()
-        if W > H:
-            NewW = self.MaxImageSize
-            NewH = self.MaxImageSize * H / W
-        else:
-            NewH = self.MaxImageSize
-            NewW = self.MaxImageSize * W / H
-        Img = Img.Scale(NewW,NewH)
- 
-        # convert it to a wx.Bitmap, and put it on the wx.StaticBitmap
-        self.colorPreview.SetBitmap(wx.BitmapFromImage(Img))
-
-        # You can fit the frame to the image, if you want.
-        #self.Fit()
-        #self.Layout()
-        self.Refresh()
-
-        self.CurrentJpg += 1
-        if self.CurrentJpg > len(self.jpgs) -1:
-            self.CurrentJpg = 0
-
         # Returns X, Y coordinates on mouse click
         ctrl_pos = event.GetPosition()
         self.pixelTxtX.SetValue(str(ctrl_pos.x))
@@ -232,22 +200,26 @@ class MainWindow(wx.Frame):
         # print ("R: {} G: {} B: {}".format(r,g,b))
         self.rgbValue.SetLabel(label=u'R: {} G: {} B: {}'.format(r, g, b))
         
-        dc = wx.MemoryDC()
-        dc.SelectObject(self.bmp)
-        dc.SetBackground(wx.Brush("Blue"))
-        dc.Clear()
-        del dc
+
+        Img = wx.Bitmap.FromRGBA(20, 20, red=r, green=g, blue=b, alpha=0)
+        # pixelColor = self.imageCtrl.Get
+        # dc = wx.MemoryDC()
+        # dc.SelectObject(Img)
+        # dc.SetBackground(wx.Brush("Blue"))
+        # dc.Clear()
+        # del dc
+
+        # convert it to a wx.Bitmap, and put it on the wx.StaticBitmap
+        self.colorPreview.SetBitmap(wx.Bitmap(Img))
+
+        # You can fit the frame to the image, if you want.
+        #self.Fit()
+        #self.Layout()
+        self.Refresh()
+
         # self.Refresh(eraseBackground=False)
         # self.Update()
         # self.panel.Refresh()
-
-    # def ColorThumbnail(self):
-    #     #w, h = 20, 20
-    #     dc = wx.MemoryDC()
-    #     dc.SelectObject(self.bmp)
-    #     dc.SetBackground(wx.Brush("Blue"))
-    #     dc.Clear()
-    #     del dc
 
     def onOpen(self,e):
         # Browse for file
@@ -275,7 +247,7 @@ class MainWindow(wx.Frame):
             NewW = self.PhotoMaxSize * W / H
         img = img.Scale(NewW,NewH)
         self.image = img
-        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
 
     # Zoom the image by 25%
@@ -295,7 +267,7 @@ class MainWindow(wx.Frame):
         ScaledH = NewH * 0.25
 
         img = img.Scale(ScaledW,ScaledH)
-        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
 
     # Zoom the image by 50%
@@ -315,7 +287,7 @@ class MainWindow(wx.Frame):
         ScaledH = NewH * 0.50
 
         img = img.Scale(ScaledW,ScaledH)
-        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
 
     # Zoom the image by 75%
@@ -335,7 +307,7 @@ class MainWindow(wx.Frame):
         ScaledH = NewH * 0.75
 
         img = img.Scale(ScaledW,ScaledH)
-        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
 
     # Zoom the image by 100%
@@ -352,7 +324,7 @@ class MainWindow(wx.Frame):
             NewH = self.PhotoMaxSize
             NewW = self.PhotoMaxSize * W / H
         img = img.Scale(NewW,NewH)
-        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
 
     # Zoom the image by 150%
@@ -372,7 +344,7 @@ class MainWindow(wx.Frame):
         ScaledH = NewH * 1.50
 
         img = img.Scale(ScaledW,ScaledH)
-        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
 
     # Zoom the image by 200%
@@ -392,7 +364,7 @@ class MainWindow(wx.Frame):
         ScaledH = NewH * 2.0
 
         img = img.Scale(ScaledW,ScaledH)
-        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
     
     # Zoom the image by 500%
@@ -412,7 +384,7 @@ class MainWindow(wx.Frame):
         ScaledH = NewH * 5.0
 
         img = img.Scale(ScaledW,ScaledH)
-        self.imageCtrl.SetBitmap(wx.BitmapFromImage(img))
+        self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
 
     def onAbout(self,e):
