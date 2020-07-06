@@ -2,11 +2,14 @@ import wx
 from multiprocessing import Process
 import PIL.ImageDraw
 from Pixel import Pixel
+from Pixel import Color
+from FileChooser import *
 
 class Picture:
 
-    def __init__(self, image):
+    def __init__(self, image, extension=".jpg"):
         self.image = image
+        self.extension = extension
         try:
             self.filename = self.title = image.filename
         except AttributeError:
@@ -97,6 +100,34 @@ class Picture:
         """
         pix = Pixel(self.image, x, y)
         return pix
+
+    def getBasicPixel(self, x, y):
+        """Return the pixel at specified coordinates as a tuple.
+
+        Parameters
+        ----------
+        x, y : int
+            the coordinates of the pixel
+        
+        Returns
+        -------
+        Tuple
+            the color of the pixel at position (x,y) as a tuple
+        """
+        return self.getPixel(x,y).getColor().getRGB()
+
+    def setBasicPixel(self, x, y, rgb):
+        """Sets the pixel at specified coordinates to a color based on rgb(Tuple)
+
+        Parameters
+        ----------
+        x, y : int
+            the coordinates of the pixel
+        rgb : tuple
+            the color the pixel will be set to
+        """
+        col = Color(rgb[0], rgb[1], rgb[2])
+        self.getPixel(x,y).setColor(col)
 
     def getImage(self):
         """Return the PIL Image associated with this picture
@@ -202,12 +233,13 @@ class Picture:
     #  *    @param y the y-coordinate of the bottom left corner of the text
     #  *    @param string the text to be added to the picture
     #  *    @param style the font style to be used
-    # public void addTextWithStyle(Color acolor, int x, int y, String string, Font style) {
-    #     Graphics g = this.getBufferedImage().getGraphics();
-    #     g.setColor(acolor);
-    #     g.setFont(style);
-    #     g.drawString(string, x - SimplePicture._PictureIndexOffset, y - SimplePicture._PictureIndexOffset);
-    # }
+    # def addTextWithStyle(self, acolor, x, y, string, style):
+    #     draw = PIL.ImageDraw.Draw(self.image)
+    #     # font = ImageFont.truetype(<font-file>, <font-size>)
+    #     # font = ImageFont.truetype("sans-serif.ttf", 16)
+    #     # draw.text((x, y),"Sample Text",(r,g,b))
+
+    #     draw.text((x, y), string, acolor.getRGB())
 
     def addRect(self, acolor, x, y, w, h):
         """Draw the outline of a rectangle on this picture
@@ -348,39 +380,32 @@ class Picture:
             start, end = end, start
         draw.arc(shape, start, end, fill=acolor.getRGB(), width=1)
 
-    #  Copies all the pixels from this picture to the destination picture,
-    #  starting with the specified upper-left corner.  If this picture
-    #  will not fit in the destination starting at the upper-left corner,
-    #  then only the pixels that will fit are copied.  If the specified
-    #  upper-left corner is not in the bounds of the destination picture,
-    #  no pixels are copied.
-    #  @param dest the picture which to copy into
-    #  @param upperLeftX the x-coord for the upper-left corner
-    #  @param upperLeftY the y-coord for the upper-left corner
-    # public void copyInto(Picture dest, int upperLeftX, int upperLeftY) {
-    #     #  Determine the actual dimensions to copy; might be less than
-    #     #  dimensions of this picture if there is not enough space in the
-    #     #  destination picture.
-    #     int width = this.getWidth();
-    #     int widthAvailable = dest.getWidth() - upperLeftX;
-    #     if (widthAvailable < width) {
-    #         width = widthAvailable;
-    #     }
-    #     int height = this.getHeight();
-    #     int heightAvailable = dest.getHeight() - upperLeftY;
-    #     if (heightAvailable < height) {
-    #         height = heightAvailable;
-    #     }
+    def copyInto(self, dest, upperLeftX, upperLeftY):
+        """Returns a picture with the current picture copied into it
 
-    #     #  Copy pixel values from this picture to the destination
-    #     #   (Should have been implemented with the 7-parameter
-    #     #    getRGB/setRGB methods from BufferedImage?)
-    #     for (int x = 0; x < width; x++)
-    #         for (int y = 0; y < height; y++) {
-    #             dest.setBasicPixel(upperLeftX + x, upperLeftY + y, this.getBasicPixel(x, y));
-    #         }
+        Copies the pixels in the current picture into the dest picture 
+        starting at point (upperLeftX,upperLeftY)
 
-    # }
+        Parameters
+        ----------
+        dest : Picture
+            the Picture that the current picture will be copied into
+        upperLeftX : int
+            the x-coord of the upper-left corner in dest where the current picture will be copied
+        upperLeftY : int
+            the y-coord of the upper-left corner in dest where the current picture will be copied
+
+        Returns
+        -------
+        Picture
+            the dest picture that has self copied into it
+        """
+        for x in range(upperLeftX, self.getWidth()):
+            for y in range(upperLeftY, self.getHeight()):
+                smallPix = self.getPixel(x,y)
+                dest.getPixel(x,y).setColor(smallPix.getColor())
+
+        return dest
 
     def crop(self, upperLeftX, upperLeftY, width, height):
         """Returns a cropped version of this picture
@@ -405,7 +430,7 @@ class Picture:
             the cropped copy of the original picture
         """
         croppedImage = self.image.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height))
-        #croppedImage.show()
+        # self.image = croppedImage
         pic = Picture(croppedImage)
         pic.filename = self.filename
         pic.title = self.title
@@ -453,3 +478,47 @@ class Picture:
         #p.join()
 
  # end of class Picture, put all new methods before this
+
+    # /**
+    #   * Method to create a new picture by scaling the current
+    #   * picture by the given x and y factors
+    #   * @param xFactor the amount to scale in x
+    #   * @param yFactor the amount to scale in y
+    #   * @return the resulting picture
+    #   */
+    def scale(self, xFactor, yFactor):
+        scaledImage = self.image.resize((int(self.image.width*xFactor), int(self.image.height*yFactor)))
+        pic = Picture(scaledImage)
+        print(pic.getWidth())
+        print(pic.getHeight())
+        pic.filename = self.filename
+        pic.title = self.title
+        return pic
+
+    # /**
+    #  * Method to write the contents of the picture to a file with
+    #  * the passed name without throwing exceptions
+    #  * @param fileName the name of the file to write the picture to
+    #  * @return true if success else false
+    #  */
+    def write(self, fileName):
+        try :
+            writeOrFail(fileName)
+            return True
+        except IOError:
+            print("There was an IO error trying to write " + fileName)
+            return False
+
+    # /**
+    #  * Method to write the contents of the picture to a file with
+    #  * the passed name
+    #  * @param fileName the name of the file to write the picture to
+    #  */
+    def writeOrFail(self, fileName):    
+        # // get the extension
+        # posDot = fileName.lastIndexOf('.')
+        # if (posDot >= 0):
+        #     trueFileName = fileName.substring(0, posDot)
+        #     print(trueFileName)
+        # // write the contents of the PIL image to the file as jpg
+        self.image.save(getMediaDirectory()+fileName+self.extension)

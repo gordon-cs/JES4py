@@ -3,3 +3,4 @@ Sandbox/
 jes-6.0-linux*
 *.pyc
 project1.py
+Tests/test_Scale.py
