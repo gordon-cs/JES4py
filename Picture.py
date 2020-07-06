@@ -1,6 +1,6 @@
 import wx
 from multiprocessing import Process
-import PIL.ImageDraw
+import PIL.ImageDraw, PIL.Image
 from Pixel import Pixel
 from Pixel import Color
 from FileChooser import *
@@ -381,6 +381,17 @@ class Picture:
         if start > end:
             start, end = end, start
         draw.arc(shape, start, end, fill=acolor.getRGB(), width=1)
+
+    def setAllPixelsToAColor(self, acolor):
+        """makes the image associated with the picture filled in with one color
+    
+        acolor : instance of Color class
+            the color that outlines arc
+        """
+        if not isinstance(acolor, Color):
+            print ("setAllPixelsToAColor(color): Input is not a color")
+            raise ValueError
+        self.image = PIL.Image.new("RGB", (self.getWidth(), self.getHeight()), acolor.getRGB())
 
     def copyInto(self, dest, upperLeftX, upperLeftY):
         """Returns a picture with the current picture copied into it
