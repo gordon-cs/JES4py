@@ -2,3 +2,4 @@ __pycache__/
 Sandbox/
 jes-6.0-linux*
 *.pyc
+Tests/test_Scale.py
