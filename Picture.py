@@ -382,6 +382,19 @@ class Picture:
             start, end = end, start
         draw.arc(shape, start, end, fill=acolor.getRGB(), width=1)
 
+    def copyPicture(self, sourcePicture):
+        """Copies the passed in picture to the current Picture
+
+        Parameters
+        ----------
+        sourcePicture : Picture
+            the Picture object that self will look like
+
+        """
+        im = PIL.Image.new("RGB", (self.getWidth(), self.getHeight()), (0,0,0))
+        im = sourcePicture.getImage().copy()
+        self.setImage(im)
+
     def setAllPixelsToAColor(self, acolor):
         """makes the image associated with the picture filled in with one color
     
