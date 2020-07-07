@@ -520,7 +520,7 @@ class Picture:
     #  */
     def write(self, fileName):
         try :
-            writeOrFail(fileName)
+            self.writeOrFail(fileName)
             return True
         except IOError:
             print("There was an IO error trying to write " + fileName)

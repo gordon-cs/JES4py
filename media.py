@@ -88,7 +88,7 @@ def setTestMediaFolder():
 
 
 def getMediaFolder(filename=""):
-    return str(getMediaPath(filename))
+    return str(FileChooser.getMediaDirectory(filename))
 
 
 def showMediaFolder():
