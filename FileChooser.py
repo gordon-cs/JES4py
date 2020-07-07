@@ -17,7 +17,7 @@ def pickAFile():
         the file file name of the picked file or None"""
     app = wx.App()
 
-    frame = wx.Frame(None, -1, 'filePicker.py')
+    frame = wx.Frame(None, -1, '')
     frame.SetSize(0,0,200,50)
 
     # Create open file dialog
@@ -36,7 +36,7 @@ def pickADirectory():
         the full directory path"""
     app = wx.App()
 
-    frame = wx.Frame(None, -1, 'pathPicker.py')
+    frame = wx.Frame(None, -1, '')
     frame.SetSize(0,0,200,50)
 
     # Create open file dialog
