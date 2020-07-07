@@ -129,7 +129,7 @@ class MainWindow(wx.Frame):
 
         # Static text displays RGB values of the given coordinates
         # Initialized with dummie values
-        self.rgbValue = wx.StaticText(self.panel, label=u'R: {} G: {} B: {}'.format("N/A", "N/A", "N/A"),style = wx.ALIGN_CENTER)
+        self.rgbValue = wx.StaticText(self.panel, label=u'R: {} G: {} B: {} Color at location:'.format("N/A", "N/A", "N/A"),style = wx.ALIGN_CENTER)
 
         # X and Y labels
         self.lblX = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
@@ -175,18 +175,21 @@ class MainWindow(wx.Frame):
         self.hbox1.Add(self.buttonY_R, 0, border=0)
         
         # Add the hbox1 to the main sizer
-        self.box.Add(self.hbox1, 0, flag=wx.LEFT|wx.RIGHT|wx.TOP|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
+        self.box.Add(self.hbox1, 0, flag=wx.LEFT|wx.RIGHT|
+                    wx.TOP|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
 
         # Vertical spacer
         self.box.Add((-1, 5))
         
         # Add items to the second sizer (hbox2)
-        self.hbox2.Add(self.rgbValue, 0, flag=wx.CENTER, border=5)
-        self.hbox2.Add((10, -1)) # Horizonal spacer
-        self.hbox2.Add(self.colorPreview, 0, flag=wx.CENTER, border=5) # Small image that shows the color at the selected pixel
+        self.hbox2.Add(self.rgbValue, 0, border=5)
+        self.hbox2.Add((5, -1)) # Horizonal spacer
+
+        # Small image that shows the color at the selected pixel
+        self.hbox2.Add(self.colorPreview, 0, border=5) 
         
         # Add hbox2 to the main sizer
-        self.box.Add(self.hbox2, 0, flag=wx.LEFT|wx.RIGHT|wx.TOP|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
+        self.box.Add(self.hbox2, 0, flag=wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
 
 
         self.panel.SetSizer(self.box)
@@ -259,7 +262,7 @@ class MainWindow(wx.Frame):
         r = self.image.GetRed(int(self.x), int(self.y))
         g = self.image.GetGreen(int(self.x), int(self.y))
         b = self.image.GetBlue(int(self.x), int(self.y))
-        self.rgbValue.SetLabel(label=u'R: {} G: {} B: {}'.format(r, g, b))
+        self.rgbValue.SetLabel(label=u'R: {} G: {} B: {} Color at location:'.format(r, g, b))
 
         # Sets the color of the square image on mouse click
         bmp = wx.Bitmap(20,20) # Empty bitmap image initialized
