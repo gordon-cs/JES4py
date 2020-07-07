@@ -33,7 +33,7 @@ class Pixel:
         #self.color = color
 
     def __str__(self):
-        """String for pixel
+        """Return string with pixel contents
 
         Returns
         -------
@@ -44,7 +44,7 @@ class Pixel:
         return "Pixel red={} green={} blue={}".format(rgb[0], rgb[1], rgb[2])
 
     def __repr__(self):
-        """Representation of pixel
+        """Return string representation of pixel
 
         Returns
         -------
@@ -498,7 +498,7 @@ class Color:
         Returns
         -------
         Color
-            darker version of color
+            darker version of this color
         """
         return self.scaleColor(0.8)
 
@@ -508,6 +508,6 @@ class Color:
         Returns
         -------
         Color
-            lighter version of color
+            lighter version of this color
         """
         return self.scaleColor(1.25)
