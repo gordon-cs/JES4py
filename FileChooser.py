@@ -4,8 +4,9 @@
 """
 
 import os
-import easygui as eg
 import JESConfig
+import wx
+
 
 def pickAFile():
     """Method to let the user pick a file and return the full name as
@@ -14,7 +15,20 @@ def pickAFile():
 
     Returns:
         the file file name of the picked file or None"""
-    return eg.fileopenbox(title="Pick A File")
+    app = wx.App()
+
+    frame = wx.Frame(None, -1, '')
+    frame.SetSize(0,0,200,50)
+
+    # Create open file dialog
+    openFileDialog = wx.FileDialog(frame, "Pick A File",  JESConfig.getConfigVal('CONFIG_SESSIONPATH'), "", "",wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+    if openFileDialog.ShowModal() == wx.ID_CANCEL:
+        return ""
+    else:
+        path = openFileDialog.GetPath()
+        JESConfig.setConfigVal('CONFIG_SESSIONPATH',path)
+        openFileDialog.Destroy()
+        return path
 
 def pickADirectory():
     """Method to let the user pick a directory and return the full
@@ -22,7 +36,21 @@ def pickADirectory():
 
     Returns:
         the full directory path"""
-    return eg.diropenbox(title="Pick A Folder")
+    app = wx.App()
+
+    frame = wx.Frame(None, -1, '')
+    frame.SetSize(0,0,200,50)
+
+    # Create open file dialog
+    openDirDialog = wx.DirDialog (frame, "Pick A Folder", JESConfig.getConfigVal('CONFIG_SESSIONPATH'), wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
+    if openDirDialog.ShowModal() == wx.ID_CANCEL:
+        return ""
+    else:
+        path = openDirDialog.GetPath()
+        openDirDialog.Destroy()
+        JESConfig.setConfigVal('CONFIG_SESSIONPATH',path)
+        return path
+
 
 def getMediaPath(fileName):
     """Method to get full path for the passed file name
@@ -32,8 +60,7 @@ def getMediaPath(fileName):
     Returns:
         the full path for the file
     """
-    return os.path.join(getMediaDirectory(), fileName)
-    #return os.path.join(JESConfig.CONFIG_MEDIAPATH, fileName)
+    return os.path.join(JESConfig.getConfigVal("CONFIG_MEDIAPATH"), fileName)
 
 def getMediaDirectory():
     """Method to get the directory for the media
@@ -41,7 +68,7 @@ def getMediaDirectory():
     Returns:
         the media directory
     """
-    return JESConfig.CONFIG_MEDIAPATH
+    return JESConfig.getConfigVal("CONFIG_MEDIAPATH")
 
 def setMediaPath(directory):
     """Method to set the media path by setting the directory to use
@@ -49,9 +76,8 @@ def setMediaPath(directory):
     Parameters:
         directory - the directory to use for the media path
     """
-    JESConfig.CONFIG_MEDIAPATH = directory
+    JESConfig.setConfigVal("CONFIG_MEDIAPATH", directory)
 
 def pickMediaPath():
-    """Method to pick a media path using the file chooser and set it
-    """
-    JESConfig.CONFIG_MEDIAPATH = eg.diropenbox(title="Choose Media Path")
+    path = pickADirectory()
+    JESConfig.setConfigVal("CONFIG_MEDIAPATH", path)

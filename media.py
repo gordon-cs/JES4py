@@ -30,8 +30,6 @@ import PIL.Image
 from Pixel import Pixel
 from Picture import Picture
 import wx
-from tkinter import *
-from tkinter import filedialog
 
 # from jes.tools.framesequencer import FrameSequencerTool
 
@@ -64,6 +62,8 @@ pink = Color(255, 175, 175)
 magenta = Color(255, 0, 255)
 cyan = Color(0, 255, 255)
 
+
+
 def setMediaPath(file=None):
     global mediaFolder
     if(file == None):
@@ -71,7 +71,6 @@ def setMediaPath(file=None):
     else:
         FileChooser.setMediaPath(file)
     mediaFolder = getMediaPath()
-    return mediaFolder
 
 
 def getMediaPath(filename=""):
@@ -93,7 +92,7 @@ def getMediaFolder(filename=""):
 
 def showMediaFolder():
     global mediaFolder
-    print("The media path is currently: "), mediaFolder
+    print("The media path is currently: "+ mediaFolder)
 
 
 def getShortPath(filename):
@@ -862,13 +861,13 @@ def duplicatePicture(picture):
     return picture(picture)
 
 def cropPicture(pic, upperLeftX, upperLeftY, width, height):
- if not isinstance(pic, picture):
+ if not isinstance(pic, Picture):
    print("crop(picture, upperLeftX, upperLeftY, width, height): First parameter is not a picture")
    raise ValueError
- if upperLeftX < 1 or upperLeftX > getWidth(picture):
+ if upperLeftX < 1 or upperLeftX > getWidth(Picture):
    print("crop(picture, upperLeftX, upperLeftY, width, height): upperLeftX must be within the picture")
    raise ValueError
- if upperLeftY < 1 or upperLeftY > getHeight(picture):
+ if upperLeftY < 1 or upperLeftY > getHeight(Picture):
    print("crop(picture, upperLeftX, upperLeftY, width, height): upperLeftY must be within the picture")
    raise ValueError
  return pic.crop(pic, upperLeftX-1, upperLeftY-1, width, height)
@@ -942,9 +941,7 @@ def playNote(note, duration, intensity=64):
 def pickAFile():
     # Note: this needs to be done in a threadsafe manner, see FileChooser
     # for details how this is accomplished.
-    Tk().withdraw()
-    return filedialog.askopenfilename(initialdir = "/",title = "Select file")
-
+    return FileChooser.pickAFile()
 
 def pickAFolder():
     # Note: this needs to be done in a threadsafe manner, see FileChooser
