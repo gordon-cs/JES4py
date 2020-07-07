@@ -219,19 +219,38 @@ class MainWindow(wx.Frame):
         selectedBtn = event.GetEventObject().myname # Gets the event object's name
         if selectedBtn == "XL":
             self.x = int(self.pixelTxtX.GetValue()) - 1
-            self.pixelTxtX.SetValue(str(self.x))
         elif selectedBtn == "XR":
             self.x = int(self.pixelTxtX.GetValue()) + 1
-            self.pixelTxtX.SetValue(str(self.x))
         elif selectedBtn == "YL":
             self.y = int(self.pixelTxtY.GetValue()) - 1
-            self.pixelTxtY.SetValue(str(self.y))
         elif selectedBtn == "YR":
             self.y = int(self.pixelTxtY.GetValue()) + 1
-            self.pixelTxtY.SetValue(str(self.y))
         else:
             ""
+        self.isInteger()
+
+    def isInteger(self):
+        currentX = self.x
+        currentY = self.y
+        w = int(self.ScaledW)
+        h = int(self.ScaledH)
+        if currentX < 0:
+            self.x = 0
+            self.pixelTxtX.SetValue(str(self.x))
+        elif currentX >= w:
+            self.x = w - 1
+            self.pixelTxtX.SetValue(str(self.x))
+        elif currentY < 0:
+            self.y = 0
+            self.pixelTxtY.SetValue(str(self.y))
+        elif currentY >= h:
+            self.y = h - 1
+            self.pixelTxtY.SetValue(str(self.y))
+        else:
+            self.pixelTxtX.SetValue(str(self.x))
+            self.pixelTxtY.SetValue(str(self.y))
         self.ColorInfo()
+        
 
     def ColorInfo(self):
         """ Takes the X,Y coordinates and return RGB values
@@ -301,10 +320,10 @@ class MainWindow(wx.Frame):
             NewH = self.PhotoMaxSize
             NewW = self.PhotoMaxSize * W / H
 
-        ScaledW = NewW * self.ratio
-        ScaledH = NewH * self.ratio
+        self.ScaledW = NewW * self.ratio
+        self.ScaledH = NewH * self.ratio
 
-        img = img.Scale(int(ScaledW),int(ScaledH))
+        img = img.Scale(int(self.ScaledW),int(self.ScaledH))
         self.image = img
         self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
