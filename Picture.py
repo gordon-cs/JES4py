@@ -45,7 +45,6 @@ class Picture:
         filename : str
             filename to assign to this picture
         """
-        #self.fileName = filename
         self.image.filename = filename
 
     def getTitle(self):
@@ -92,7 +91,7 @@ class Picture:
         ----------
         x, y : int
             the coordinates of the pixel
-        
+
         Returns
         -------
         Pixel
@@ -148,8 +147,6 @@ class Picture:
             the PIL Image to associate with this picture
         """
         self.image = image
-        #self.width = image.width
-        #self.height = image.height
 
     def getWxImage(self, copy_alpha=True):
         """Return a wx.Image version of this image
@@ -451,7 +448,6 @@ class Picture:
             the desired height of the cropped picture
         """
         croppedImage = self.image.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height))
-        # self.image = croppedImage
         pic = Picture(croppedImage)
         pic.filename = self.filename
         pic.title = self.title
