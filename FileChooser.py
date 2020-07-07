@@ -22,11 +22,13 @@ def pickAFile():
 
     # Create open file dialog
     openFileDialog = wx.FileDialog(frame, "Pick A File",  JESConfig.getConfigVal('CONFIG_SESSIONPATH'), "", "",wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
-    openFileDialog.ShowModal()
-    path = openFileDialog.GetPath()
-    JESConfig.setConfigVal('CONFIG_SESSIONPATH',path)
-    openFileDialog.Destroy()
-    return path
+    if openFileDialog.ShowModal() == wx.ID_CANCEL:
+        return ""
+    else:
+        path = openFileDialog.GetPath()
+        JESConfig.setConfigVal('CONFIG_SESSIONPATH',path)
+        openFileDialog.Destroy()
+        return path
 
 def pickADirectory():
     """Method to let the user pick a directory and return the full
@@ -41,11 +43,13 @@ def pickADirectory():
 
     # Create open file dialog
     openDirDialog = wx.DirDialog (frame, "Pick A Folder", JESConfig.getConfigVal('CONFIG_SESSIONPATH'), wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
-    openDirDialog.ShowModal()
-    path = openDirDialog.GetPath()
-    openDirDialog.Destroy()
-    JESConfig.setConfigVal('CONFIG_SESSIONPATH',path)
-    return path
+    if openDirDialog.ShowModal() == wx.ID_CANCEL:
+        return ""
+    else:
+        path = openDirDialog.GetPath()
+        openDirDialog.Destroy()
+        JESConfig.setConfigVal('CONFIG_SESSIONPATH',path)
+        return path
 
 
 def getMediaPath(fileName):
