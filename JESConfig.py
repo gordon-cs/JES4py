@@ -5,7 +5,8 @@ import os
 # CONFIG_MEDIAPATH = ""
 CONFIG_DICT = {
     "CONFIG_WRAPPIXELVALUES": False,
-    "CONFIG_MEDIAPATH": ""
+    "CONFIG_MEDIAPATH": "",
+    "CONFIG_SESSIONPATH": ""
     }
 CONFIG_FILENAME = ".jesconf"
 
@@ -27,7 +28,10 @@ def initDict():
     if os.path.exists(filePath):
         curDict = readDict(filePath)
         global CONFIG_DICT
-        CONFIG_DICT = curDict.copy()
+        pathDict = readDict(filePath)
+        CONFIG_DICT["CONFIG_SESSIONPATH"]=pathDict["CONFIG_MEDIAPATH"]
+        CONFIG_DICT["CONFIG_MEDIAPATH"]=pathDict["CONFIG_MEDIAPATH"]
+
 
 def readDict(filePath):
     f = open(filePath, "r")

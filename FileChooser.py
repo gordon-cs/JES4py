@@ -21,9 +21,10 @@ def pickAFile():
     frame.SetSize(0,0,200,50)
 
     # Create open file dialog
-    openFileDialog = wx.FileDialog(frame, "Pick A File",  JESConfig.getConfigVal('CONFIG_MEDIAPATH'), "", "",wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+    openFileDialog = wx.FileDialog(frame, "Pick A File",  JESConfig.getConfigVal('CONFIG_SESSIONPATH'), "", "",wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
     openFileDialog.ShowModal()
     path = openFileDialog.GetPath()
+    JESConfig.setConfigVal('CONFIG_SESSIONPATH',path)
     openFileDialog.Destroy()
     return path
 
@@ -39,10 +40,11 @@ def pickADirectory():
     frame.SetSize(0,0,200,50)
 
     # Create open file dialog
-    openDirDialog = wx.DirDialog (frame, "Pick A Folder", JESConfig.getConfigVal('CONFIG_MEDIAPATH'), wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
+    openDirDialog = wx.DirDialog (frame, "Pick A Folder", JESConfig.getConfigVal('CONFIG_SESSIONPATH'), wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
     openDirDialog.ShowModal()
     path = openDirDialog.GetPath()
     openDirDialog.Destroy()
+    JESConfig.setConfigVal('CONFIG_SESSIONPATH',path)
     return path
 
 
@@ -73,14 +75,5 @@ def setMediaPath(directory):
     JESConfig.setConfigVal("CONFIG_MEDIAPATH", directory)
 
 def pickMediaPath():
-    app = wx.App()
-
-    frame = wx.Frame(None, -1, 'pathPicker.py')
-    frame.SetSize(0,0,200,50)
-
-    # Create open file dialog
-    openDirDialog = wx.DirDialog (frame, "Choose input directory", "",wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
-    openDirDialog.ShowModal()
-    path = openDirDialog.GetPath()
-    openDirDialog.Destroy()
+    path = pickADirectory()
     JESConfig.setConfigVal("CONFIG_MEDIAPATH", path)
