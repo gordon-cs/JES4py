@@ -138,10 +138,21 @@ class MainWindow(wx.Frame):
         self.lblY.SetLabel("Y: ")
 
         # Navigation buttons (Enable after getting the colorpicker/eyedropper functional)
-        # self.buttonX1 = wx.Button(self, wx.BU_LEFT, label="<")
-        # self.buttonX2 = wx.Button(self, wx.BU_RIGHT, label=">")
-        # self.buttonY1 = wx.Button(self, wx.BU_LEFT, label="<")
-        # self.buttonY2 = wx.Button(self, wx.BU_RIGHT, label=">")
+        # Icons made by Freepik from www.flaticon.com; Modified by Gahngnin Kim
+        bmp_R = wx.Bitmap("./source/Right.png", wx.BITMAP_TYPE_ANY)
+        bmp_L = wx.Bitmap("./source/Left.png", wx.BITMAP_TYPE_ANY)
+        self.buttonX_L = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_L, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
+        self.buttonX_L.myname = "XL"
+        self.buttonX_R = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_R, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
+        self.buttonX_R.myname = "XR"
+        self.buttonY_L = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_L, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
+        self.buttonY_L.myname = "YL"
+        self.buttonY_R = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_R, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
+        self.buttonY_R.myname = "YR"
+        self.buttonX_L.Bind(wx.EVT_BUTTON, self.ImageCtrl_OnNavBtn)
+        self.buttonX_R.Bind(wx.EVT_BUTTON, self.ImageCtrl_OnNavBtn)
+        self.buttonY_L.Bind(wx.EVT_BUTTON, self.ImageCtrl_OnNavBtn)
+        self.buttonY_R.Bind(wx.EVT_BUTTON, self.ImageCtrl_OnNavBtn)
 
         # Initialize the sizers for layout
         self.box = wx.BoxSizer(wx.VERTICAL)
@@ -150,14 +161,18 @@ class MainWindow(wx.Frame):
 
         # Display Y coordinate on click
         self.hbox1.Add(self.lblX, 0, flag=wx.CENTER, border=0)
+        self.hbox1.Add(self.buttonX_L, 0, border=0)
         self.hbox1.Add(self.pixelTxtX, 0, flag=wx.CENTER, border=5) # Text Control Box
+        self.hbox1.Add(self.buttonX_R, 0, border=0)
 
         # Horizonal spacer
         self.hbox1.Add((10, -1))
 
         # Display Y coordinate on click
         self.hbox1.Add(self.lblY, 0, flag=wx.CENTER, border=0)
-        self.hbox1.Add(self.pixelTxtY, 0, flag=wx.RIGHT, border=5) # Text Control Box
+        self.hbox1.Add(self.buttonY_L, 0, border=0)
+        self.hbox1.Add(self.pixelTxtY, 0, flag=wx.CENTER, border=5) # Text Control Box
+        self.hbox1.Add(self.buttonY_R, 0, border=0)
         
         # Add the hbox1 to the main sizer
         self.box.Add(self.hbox1, 0, flag=wx.LEFT|wx.RIGHT|wx.TOP|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
@@ -198,6 +213,24 @@ class MainWindow(wx.Frame):
         """
         self.x = self.pixelTxtX.GetValue()
         self.y = self.pixelTxtY.GetValue()
+        self.ColorInfo()
+
+    def ImageCtrl_OnNavBtn(self, event):
+        selectedBtn = event.GetEventObject().myname # Gets the event object's name
+        if selectedBtn == "XL":
+            self.x = int(self.pixelTxtX.GetValue()) - 1
+            self.pixelTxtX.SetValue(str(self.x))
+        elif selectedBtn == "XR":
+            self.x = int(self.pixelTxtX.GetValue()) + 1
+            self.pixelTxtX.SetValue(str(self.x))
+        elif selectedBtn == "YL":
+            self.y = int(self.pixelTxtY.GetValue()) - 1
+            self.pixelTxtY.SetValue(str(self.y))
+        elif selectedBtn == "YR":
+            self.y = int(self.pixelTxtY.GetValue()) + 1
+            self.pixelTxtY.SetValue(str(self.y))
+        else:
+            ""
         self.ColorInfo()
 
     def ColorInfo(self):
