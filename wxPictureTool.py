@@ -1,10 +1,10 @@
-# Simple picture tool
+# Simple picture tool to replace JES picture tool
 # CS Summer Practicum 2020
 # Author: Gahngnin Kim
 
 import os, sys
 import wx
-import wx.lib.inspection
+# import wx.lib.inspection
 
 """
 class PictureTool(pil_img):
@@ -26,68 +26,61 @@ class MainWindow(wx.Frame):
     def __init__(self, parent, title):
         MainFrame = wx.Frame.__init__(self, parent, title=title, size=(660,500))
         self.panel = wx.Panel(self)        
-        wx.lib.inspection.InspectionTool().Show()
+        # wx.lib.inspection.InspectionTool().Show() # Inspection tool for debugging
         
-        # Maximum horizontal dimension
+        # Maximum horizontal dimension. Needs to be removed later.
         self.PhotoMaxSize = 600
 
-        # Color Eyedropper
-        self.ColorPicker()
-
-        # Image viewer
-        self.viewingWindow()
-
-        # A Statusbar in the bottom of the window
-        self.CreateStatusBar()
+        self.ColorPicker() # Color Eyedropper
+        self.viewingWindow() # Image viewer
+        self.CreateStatusBar() # A Statusbar in the bottom of the window
 
         # Setting up the menu bar
-        filemenu = wx.Menu()
+        self.filemenu = wx.Menu()
 
         # Setting up the menu items
-        # wx.ID_ABOUT and wx.ID_EXIT are standard IDs provided by wxWidgets.
-        menuOpen = filemenu.Append(wx.ID_OPEN, "&Open", "Browse images to open")
-        filemenu.AppendSeparator()
-        menuZoom25 = filemenu.Append(wx.ID_ANY, "&25%","Zoom by 25%")
-        menuZoom50 = filemenu.Append(wx.ID_ANY, "&50%","Zoom by 50%")
-        menuZoom75 = filemenu.Append(wx.ID_ANY, "&75%","Zoom by 75%")
-        menuZoom100 = filemenu.Append(wx.ID_ZOOM_100, "&100%","Zoom by 100% (original size)")
-        menuZoom150 = filemenu.Append(wx.ID_ANY, "&150%","Zoom by 150%")
-        menuZoom200 = filemenu.Append(wx.ID_ANY, "&200%","Zoom by 200%")
-        menuZoom500 = filemenu.Append(wx.ID_ANY, "&500%","Zoom by 500%")
-        filemenu.AppendSeparator()
-        menuAbout = filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
-        filemenu.AppendSeparator()
-        menuExit = filemenu.Append(wx.ID_EXIT,"E&xit"," Terminate the program")
+        # Standard ID given to each item are provided by wxWidgets.
+        menuOpen = self.filemenu.Append(wx.ID_OPEN, "&Open", "Browse images to open")
+        self.filemenu.AppendSeparator()
+        menuZoom25 = self.filemenu.Append(wx.ID_ANY, "&25%","Zoom by 25%")
+        menuZoom50 = self.filemenu.Append(wx.ID_ANY, "&50%","Zoom by 50%")
+        menuZoom75 = self.filemenu.Append(wx.ID_ANY, "&75%","Zoom by 75%")
+        menuZoom100 = self.filemenu.Append(wx.ID_ZOOM_100, "&100%","Zoom by 100% (original size)")
+        menuZoom150 = self.filemenu.Append(wx.ID_ANY, "&150%","Zoom by 150%")
+        menuZoom200 = self.filemenu.Append(wx.ID_ANY, "&200%","Zoom by 200%")
+        menuZoom500 = self.filemenu.Append(wx.ID_ANY, "&500%","Zoom by 500%")
+        self.filemenu.AppendSeparator()
+        menuAbout = self.filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
+        self.filemenu.AppendSeparator()
+        menuExit = self.filemenu.Append(wx.ID_EXIT,"E&xit"," Terminate the program")
         
 
         # Set events
         self.Bind(wx.EVT_MENU, self.onOpen, menuOpen)
-        self.Bind(wx.EVT_MENU, self.onZoom25, menuZoom25)
-        self.Bind(wx.EVT_MENU, self.onZoom50, menuZoom50)
-        self.Bind(wx.EVT_MENU, self.onZoom75, menuZoom75)
-        self.Bind(wx.EVT_MENU, self.onZoom100, menuZoom100)
-        self.Bind(wx.EVT_MENU, self.onZoom150, menuZoom150)
-        self.Bind(wx.EVT_MENU, self.onZoom200, menuZoom200)
-        self.Bind(wx.EVT_MENU, self.onZoom500, menuZoom500)
-
+        self.Bind(wx.EVT_MENU, self.onZoom, menuZoom25)
+        self.Bind(wx.EVT_MENU, self.onZoom, menuZoom50)
+        self.Bind(wx.EVT_MENU, self.onZoom, menuZoom75)
+        self.Bind(wx.EVT_MENU, self.onZoom, menuZoom100)
+        self.Bind(wx.EVT_MENU, self.onZoom, menuZoom150)
+        self.Bind(wx.EVT_MENU, self.onZoom, menuZoom200)
+        self.Bind(wx.EVT_MENU, self.onZoom, menuZoom500)
         self.Bind(wx.EVT_MENU, self.onAbout, menuAbout)
         self.Bind(wx.EVT_MENU, self.onExit, menuExit)
 
-
         # Creating the menubar.
         menuBar = wx.MenuBar()
-        menuBar.Append(filemenu,"&Zoom") # Adds the "filemenu" to the MenuBar
+        menuBar.Append(self.filemenu,"&Zoom") # Adds the "filemenu" to the MenuBar
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
         self.Show(True)
 
-    # Main image viewing window
     def viewingWindow(self):
+        """ Main image viewing window
+        """
         # initialize an empty image
         wxImg = wx.Image(600,360) # wx.Image(width, height, clear)
 
         # Convert the image into a bitmap image
         self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.Bitmap(wxImg))
-
 
         # Event handler - Gets X, Y coordinates on mouse click
         self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
@@ -96,23 +89,33 @@ class MainWindow(wx.Frame):
         self.photoTxt = wx.TextCtrl(self.panel, size=(200,-1))
         self.photoTxt.Show(False)
         
-        self.mainSizer = wx.BoxSizer(wx.VERTICAL)
-        self.hSizer1 = wx.BoxSizer(wx.HORIZONTAL)
+        #########LAYOUT SETUP###########
+        # Initialize vertical and horizontal boxsizers
+        self.mainSizer = wx.BoxSizer(wx.VERTICAL) # Main vertical boxsizer
+        self.hSizer = wx.BoxSizer(wx.HORIZONTAL)
 
+        # Vertical spacer
         self.mainSizer.Add((-1, 50))
 
+        # Draws a horizontal line
         self.mainSizer.Add(wx.StaticLine(self.panel, wx.ID_ANY),
                            0, wx.ALL|wx.EXPAND, 5)
         
+        # Places components to the sizers
         self.mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 5)
-        self.hSizer1.Add(self.photoTxt, 0, wx.ALL, 5)
-        self.mainSizer.Add(self.hSizer1, 0, wx.ALL, 5)
+        self.hSizer.Add(self.photoTxt, 0, wx.ALL, 5)
+        self.mainSizer.Add(self.hSizer, 0, wx.ALL, 5)
 
+        # Set the main sizer to fit the top level panel
         self.panel.SetSizer(self.mainSizer)
         self.mainSizer.Fit(self.panel)
-        #self.panel.Layout()
     
     def ColorPicker(self):
+        """ Reads color information from the selected pixel.
+            Displays X and Y coordinates, RGB values, and the color of the pixel.
+            The user can select the pixel by directly clicking on it OR
+            by typing a specific coordinate.
+        """
         # initialize an empty bitmap
         self.bmp = wx.Bitmap(20,20)
         self.colorPreview = wx.StaticBitmap(self.panel, wx.ID_ANY, self.bmp)
@@ -135,10 +138,21 @@ class MainWindow(wx.Frame):
         self.lblY.SetLabel("Y: ")
 
         # Navigation buttons (Enable after getting the colorpicker/eyedropper functional)
-        # self.buttonX1 = wx.Button(self, wx.BU_LEFT, label="<")
-        # self.buttonX2 = wx.Button(self, wx.BU_RIGHT, label=">")
-        # self.buttonY1 = wx.Button(self, wx.BU_LEFT, label="<")
-        # self.buttonY2 = wx.Button(self, wx.BU_RIGHT, label=">")
+        # Icons made by Freepik from www.flaticon.com; Modified by Gahngnin Kim
+        bmp_R = wx.Bitmap("./source/Right.png", wx.BITMAP_TYPE_ANY)
+        bmp_L = wx.Bitmap("./source/Left.png", wx.BITMAP_TYPE_ANY)
+        self.buttonX_L = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_L, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
+        self.buttonX_L.myname = "XL"
+        self.buttonX_R = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_R, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
+        self.buttonX_R.myname = "XR"
+        self.buttonY_L = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_L, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
+        self.buttonY_L.myname = "YL"
+        self.buttonY_R = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_R, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
+        self.buttonY_R.myname = "YR"
+        self.buttonX_L.Bind(wx.EVT_BUTTON, self.ImageCtrl_OnNavBtn)
+        self.buttonX_R.Bind(wx.EVT_BUTTON, self.ImageCtrl_OnNavBtn)
+        self.buttonY_L.Bind(wx.EVT_BUTTON, self.ImageCtrl_OnNavBtn)
+        self.buttonY_R.Bind(wx.EVT_BUTTON, self.ImageCtrl_OnNavBtn)
 
         # Initialize the sizers for layout
         self.box = wx.BoxSizer(wx.VERTICAL)
@@ -147,16 +161,18 @@ class MainWindow(wx.Frame):
 
         # Display Y coordinate on click
         self.hbox1.Add(self.lblX, 0, flag=wx.CENTER, border=0)
-        #self.hbox1.Add(self.buttonX1, -1, flag=wx.CENTER, border=0)
+        self.hbox1.Add(self.buttonX_L, 0, border=0)
         self.hbox1.Add(self.pixelTxtX, 0, flag=wx.CENTER, border=5) # Text Control Box
-        #self.hbox1.Add(self.buttonX2, -1, flag=wx.CENTER, border=0)
+        self.hbox1.Add(self.buttonX_R, 0, border=0)
 
         # Horizonal spacer
         self.hbox1.Add((10, -1))
 
         # Display Y coordinate on click
         self.hbox1.Add(self.lblY, 0, flag=wx.CENTER, border=0)
-        self.hbox1.Add(self.pixelTxtY, 0, flag=wx.RIGHT, border=5) # Text Control Box
+        self.hbox1.Add(self.buttonY_L, 0, border=0)
+        self.hbox1.Add(self.pixelTxtY, 0, flag=wx.CENTER, border=5) # Text Control Box
+        self.hbox1.Add(self.buttonY_R, 0, border=0)
         
         # Add the hbox1 to the main sizer
         self.box.Add(self.hbox1, 0, flag=wx.LEFT|wx.RIGHT|wx.TOP|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
@@ -179,6 +195,10 @@ class MainWindow(wx.Frame):
         self.Show()
 
     def ImageCtrl_OnMouseClick(self, event):
+        """ Gets X and Y coordinates of the selected pixel
+            and displays the values on the text control boxes (pixelTxtX & pixelTxtY).
+            Then, passes those positions to ColorInfo() to get RGB values
+        """
         # Returns X, Y coordinates on mouse click
         ctrl_pos = event.GetPosition()
         self.x = ctrl_pos.x
@@ -188,18 +208,38 @@ class MainWindow(wx.Frame):
         self.ColorInfo()
 
     def ImageCtrl_OnEnter(self, event):
+        """ Gets X and Y coordinates from the user input
+            Passes those coordinates onto ColorInfo() to get RGB values
+        """
         self.x = self.pixelTxtX.GetValue()
         self.y = self.pixelTxtY.GetValue()
-        # if self.x.isEmpty():
-        #     print ("No coordinates entered. Both X and Y must be entered.")
-        # else:
+        self.ColorInfo()
+
+    def ImageCtrl_OnNavBtn(self, event):
+        selectedBtn = event.GetEventObject().myname # Gets the event object's name
+        if selectedBtn == "XL":
+            self.x = int(self.pixelTxtX.GetValue()) - 1
+            self.pixelTxtX.SetValue(str(self.x))
+        elif selectedBtn == "XR":
+            self.x = int(self.pixelTxtX.GetValue()) + 1
+            self.pixelTxtX.SetValue(str(self.x))
+        elif selectedBtn == "YL":
+            self.y = int(self.pixelTxtY.GetValue()) - 1
+            self.pixelTxtY.SetValue(str(self.y))
+        elif selectedBtn == "YR":
+            self.y = int(self.pixelTxtY.GetValue()) + 1
+            self.pixelTxtY.SetValue(str(self.y))
+        else:
+            ""
         self.ColorInfo()
 
     def ColorInfo(self):
+        """ Takes the X,Y coordinates and return RGB values
+            Creates a small color square that shows the color of the selected pixel
+        """
         r = self.image.GetRed(int(self.x), int(self.y))
         g = self.image.GetGreen(int(self.x), int(self.y))
         b = self.image.GetBlue(int(self.x), int(self.y))
-        # print ("R: {} G: {} B: {}".format(r,g,b))
         self.rgbValue.SetLabel(label=u'R: {} G: {} B: {}'.format(r, g, b))
 
         # Sets the color of the square image on mouse click
@@ -210,13 +250,11 @@ class MainWindow(wx.Frame):
         dc.Clear()
         del dc
 
-        # Replace the bitmap with the new one
-        self.colorPreview.SetBitmap(bmp)
-
+        self.colorPreview.SetBitmap(bmp) # Replace the bitmap with the new one
         self.Refresh() # Updates the static bitmap
 
     def onOpen(self,e):
-        # Browse for file
+        """Browse for file"""
         
         wildcard = "JPEG files (*.jpg)|*.jpg"
         dialog = wx.FileDialog(None, "Choose a file",
@@ -224,7 +262,30 @@ class MainWindow(wx.Frame):
                                style=wx.ID_OPEN)
         if dialog.ShowModal() == wx.ID_OK:
             self.photoTxt.SetValue(dialog.GetPath())
-        dialog.Destroy() 
+        dialog.Destroy()
+        self.ratio = 1.0  # Scale factor
+        self.onView()
+
+    def onZoom(self,event):
+        """ Scale the image by changing the scale factor
+        """
+        id_selected = event.GetId() # Gets the event id of the selected menu item
+        obj = event.GetEventObject() # Gets the event object
+        menuitem = obj.GetLabelText(id_selected) # Gets the label text of the menu item
+        if menuitem == "25%":
+            self.ratio = 0.25
+        elif menuitem == "50%":
+            self.ratio = 0.50
+        elif menuitem == "75%":
+            self.ratio = 0.75
+        elif menuitem == "100%":
+            self.ratio = 1.00
+        elif menuitem == "150%":
+            self.ratio = 1.50
+        elif menuitem == "200%":
+            self.ratio = 2.00
+        else:
+            self.ratio = 5.00
         self.onView()
     
     def onView(self):
@@ -239,145 +300,12 @@ class MainWindow(wx.Frame):
         else:
             NewH = self.PhotoMaxSize
             NewW = self.PhotoMaxSize * W / H
-        img = img.Scale(int(NewW),int(NewH))
+
+        ScaledW = NewW * self.ratio
+        ScaledH = NewH * self.ratio
+
+        img = img.Scale(int(ScaledW),int(ScaledH))
         self.image = img
-        self.imageCtrl.SetBitmap(wx.Bitmap(img))
-        self.panel.Refresh()
-
-    # Zoom the image by 25%
-    def onZoom25(self,e):
-        filepath = self.photoTxt.GetValue()
-        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
-         # scale the image, preserving the aspect ratio
-        W = img.GetWidth()
-        H = img.GetHeight()
-        if W > H:
-            NewW = self.PhotoMaxSize
-            NewH = self.PhotoMaxSize * H / W
-        else:
-            NewH = self.PhotoMaxSize
-            NewW = self.PhotoMaxSize * W / H
-        ScaledW = NewW * 0.25
-        ScaledH = NewH * 0.25
-
-        img = img.Scale(int(ScaledW),int(ScaledH))
-        self.imageCtrl.SetBitmap(wx.Bitmap(img))
-        self.panel.Refresh()
-
-    # Zoom the image by 50%
-    def onZoom50(self,e):
-        filepath = self.photoTxt.GetValue()
-        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
-         # scale the image, preserving the aspect ratio
-        W = img.GetWidth()
-        H = img.GetHeight()
-        if W > H:
-            NewW = self.PhotoMaxSize
-            NewH = self.PhotoMaxSize * H / W
-        else:
-            NewH = self.PhotoMaxSize
-            NewW = self.PhotoMaxSize * W / H
-        ScaledW = NewW * 0.50
-        ScaledH = NewH * 0.50
-
-        img = img.Scale(int(ScaledW),int(ScaledH))
-        self.imageCtrl.SetBitmap(wx.Bitmap(img))
-        self.panel.Refresh()
-
-    # Zoom the image by 75%
-    def onZoom75(self,e):
-        filepath = self.photoTxt.GetValue()
-        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
-         # scale the image, preserving the aspect ratio
-        W = img.GetWidth()
-        H = img.GetHeight()
-        if W > H:
-            NewW = self.PhotoMaxSize
-            NewH = self.PhotoMaxSize * H / W
-        else:
-            NewH = self.PhotoMaxSize
-            NewW = self.PhotoMaxSize * W / H
-        ScaledW = NewW * 0.75
-        ScaledH = NewH * 0.75
-
-        img = img.Scale(int(ScaledW),int(ScaledH))
-        self.imageCtrl.SetBitmap(wx.Bitmap(img))
-        self.panel.Refresh()
-
-    # Zoom the image by 100%
-    def onZoom100(self,e):
-        filepath = self.photoTxt.GetValue()
-        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
-         # scale the image, preserving the aspect ratio
-        W = img.GetWidth()
-        H = img.GetHeight()
-        if W > H:
-            NewW = self.PhotoMaxSize
-            NewH = self.PhotoMaxSize * H / W
-        else:
-            NewH = self.PhotoMaxSize
-            NewW = self.PhotoMaxSize * W / H
-        img = img.Scale(int(NewW),int(NewH))
-        self.imageCtrl.SetBitmap(wx.Bitmap(img))
-        self.panel.Refresh()
-
-    # Zoom the image by 150%
-    def onZoom150(self,e):
-        filepath = self.photoTxt.GetValue()
-        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
-         # scale the image, preserving the aspect ratio
-        W = img.GetWidth()
-        H = img.GetHeight()
-        if W > H:
-            NewW = self.PhotoMaxSize
-            NewH = self.PhotoMaxSize * H / W
-        else:
-            NewH = self.PhotoMaxSize
-            NewW = self.PhotoMaxSize * W / H
-        ScaledW = NewW * 1.50
-        ScaledH = NewH * 1.50
-
-        img = img.Scale(int(ScaledW),int(ScaledH))
-        self.imageCtrl.SetBitmap(wx.Bitmap(img))
-        self.panel.Refresh()
-
-    # Zoom the image by 200%
-    def onZoom200(self,e):
-        filepath = self.photoTxt.GetValue()
-        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
-         # scale the image, preserving the aspect ratio
-        W = img.GetWidth()
-        H = img.GetHeight()
-        if W > H:
-            NewW = self.PhotoMaxSize
-            NewH = self.PhotoMaxSize * H / W
-        else:
-            NewH = self.PhotoMaxSize
-            NewW = self.PhotoMaxSize * W / H
-        ScaledW = NewW * 2.0
-        ScaledH = NewH * 2.0
-
-        img = img.Scale(int(ScaledW),int(ScaledH))
-        self.imageCtrl.SetBitmap(wx.Bitmap(img))
-        self.panel.Refresh()
-    
-    # Zoom the image by 500%
-    def onZoom500(self,e):
-        filepath = self.photoTxt.GetValue()
-        img = wx.Image(filepath, wx.BITMAP_TYPE_ANY)
-         # scale the image, preserving the aspect ratio
-        W = img.GetWidth()
-        H = img.GetHeight()
-        if W > H:
-            NewW = self.PhotoMaxSize
-            NewH = self.PhotoMaxSize * H / W
-        else:
-            NewH = self.PhotoMaxSize
-            NewW = self.PhotoMaxSize * W / H
-        ScaledW = NewW * 5.0
-        ScaledH = NewH * 5.0
-
-        img = img.Scale(int(ScaledW),int(ScaledH))
         self.imageCtrl.SetBitmap(wx.Bitmap(img))
         self.panel.Refresh()
 
