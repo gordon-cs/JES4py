@@ -538,7 +538,7 @@ def repaint(pic):
 
 ## adding graphics to your pictures! ##
 
-def pickAColor(self):
+def pickAColor():
     # Dorn 5/8/2009:  Edited to be thread safe since this code is executed from an
     # interpreter JESThread and will result in an update to the main JES GUI due to
     # it being a modal dialog.
