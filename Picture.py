@@ -1,64 +1,165 @@
-#from PIL import Image, ImageDraw
+import wx
+from multiprocessing import Process
 import PIL.ImageDraw
 from Pixel import Pixel
 
 class Picture:
 
     def __init__(self, image):
-        self.title = image.filename
-        self.fileName = image.filename
-        self.width = image.width
-        self.height = image.height
         self.image = image
-        #print("in constructor: ", image.__dict__.keys())
-        #print("in constructor: filename = ", image.filename)
-        #self.fileName = image.filename
+        try:
+            self.filename = self.title = image.filename
+        except AttributeError:
+            self.filename = self.title = ''
 
-    #  * Method to return a string with information about this picture.
-    #  * @return a string with information about the picture such as fileName,
-    #  * height and width.
-    #  */
     def __str__(self):
-        output = "Picture, filename {} height {} width {}".format(self.fileName, self.height, self.width)
+        """Return string representation of this picture
+
+        Returns
+        -------
+        str
+            representation of this picture
+        """
+        output = "Picture, filename {} height {} width {}".format(
+            self.image.filename, self.image.height, self.image.width)
         return output
 
     def getFileName(self):
-        return self.fileName
+        """Return picture file name
 
-    def setFileName(self, name):
-        self.fileName = name
+        Returns
+        -------
+        str
+            name of file containing picture data
+        """
+        return self.image.filename
+
+    def setFileName(self, filename):
+        """Set picture file name
+
+        Parameters
+        ----------
+        filename : str
+            filename to assign to this picture
+        """
+        self.image.filename = filename
 
     def getTitle(self):
+        """Return picture title
+
+        Returns
+        -------
+        str
+            picture title
+        """
         return self.title
         
-    def setTitle(self, name):
-        self.title = name
+    def setTitle(self, title):
+        """Set picture title
+
+        Parameters
+        ----------
+        title : str
+            title to assign to this picture
+        """
+        self.title = title
 
     def getPixels(self):
-        size = self.width*self.height
-        pixList = list()
-        for y in range(0, self.height):
-            for x in range(0, self.width):
-                pixList.append(Pixel(self.image,x,y))
-        return pixList
+        """Return list of pixels contained in picture
 
-    def getPixel(self, x, y): 
-        #pix = self.image.getpixel((x,y))
+        Returns a list of all pixels in this picture as a flattened array.
+        Pixels are listed row-by-row.
+
+        Returns
+        -------
+        list of Pixel
+            list of pixels in this picture
+        """
+        pixels = list()
+        for y in range(self.image.height):
+            for x in range(self.image.width):
+                pixels.append(Pixel(self.image, x, y))
+        return pixels
+
+    def getPixel(self, x, y):
+        """Return the pixel at specified coordinates
+
+        Parameters
+        ----------
+        x, y : int
+            the coordinates of the pixel
+
+        Returns
+        -------
+        Pixel
+            the pixel at (x,y) in this picture
+        """
         pix = Pixel(self.image, x, y)
         return pix
 
     def getImage(self):
+        """Return the PIL Image associated with this picture
+
+        Returns
+        -------
+        PIL.Image
+            the PIL Image associated with this picture
+        """
         return self.image
 
     def setImage(self, image):
+        """Sets the PIL Image associated with this picture
+
+        Parameters
+        ----------
+        image : PIL.Image
+            the PIL Image to associate with this picture
+        """
         self.image = image
-        self.width = image.width
-        self.height = image.height
+
+    def getWxImage(self, copy_alpha=True):
+        """Return a wx.Image version of this image
+
+        Parameters
+        ----------
+        copy_alpha : boolean
+            if True and image has alpha values, then convert them too
+
+        Returns
+        -------
+        wx.Image
+            the converted image
+        """
+        orig_width, orig_height = self.image.size
+        wx_img = wx.Image(orig_width, orig_height)
+        wx_img.SetData(self.image.convert('RGB').tobytes())
+
+        if copy_alpha and (self.image.mode[-1] == 'A'):
+            alpha = self.image.getchannel("A").tobytes()
+            wx_img.InitAlpha()
+            for i in range(orig_width):
+                for j in range(orig_height):
+                    wx_img.SetAlpha(i, j, alpha[i + j * orig_width])
+        return wx_img
 
     def getWidth(self):
+        """Return the width of this image in this picture
+
+        Returns
+        -------
+        int
+            number of pixels in a row of this image
+        """
         return self.image.width
 
     def getHeight(self):
+        """Return the height of the image in this picture
+
+        Returns
+        -------
+        int
+            number of pixels in a column of this image
+        """
         return self.image.height
 
     #////////////////////// methods ///////////////////////////////////////
@@ -76,9 +177,9 @@ class Picture:
     #/* adding graphics to pictures, for use in JES. (added by alexr, Oct 2006) */
 
     def addLine(self, acolor, x1, y1, x2, y2):
-        """Method to draw a line on a picture.
+        """Draw a line on this picture
     
-        acolor : instance of Color class
+        acolor : Color
             the color of the line
         x1 : int
             the x-coordinate of the first point
@@ -118,7 +219,7 @@ class Picture:
     # }
 
     def addRect(self, acolor, x, y, w, h):
-        """Method to draw the outline of a rectangle on a picture.
+        """Draw the outline of a rectangle on this picture
     
         acolor : instance of Color class
             the color of the rectangle border
@@ -136,9 +237,11 @@ class Picture:
         draw.rectangle(shape, fill = None, outline = acolor.getRGB()) 
 
     def addRectFilled(self, acolor, x, y, w, h):
-        """Method to draw a filled rectangle on a picture.
+        """Draw a filled rectangle on this picture
     
-        acolor : instance of Color class
+        Parameters
+        ----------
+        acolor : Color
             the color that the rectangle is filled
         x : int
             the x-coordinate of the upper-left corner of the rectangle
@@ -155,10 +258,12 @@ class Picture:
         draw.rectangle(shape, fill = color, outline = color) 
 
     def addOvalFilled(self, acolor, x, y, w, h):
-        """Method to draw a filled oval on a picture.
+        """Draw a filled oval on this picture
     
-        acolor : instance of Color class
-            the color that the oval is filled with.
+        Parameters
+        ----------
+        acolor : Color
+            the color that the oval is filled with
         x : int
             the x-coordinate of the upper-left corner of the boundary rectangle for the oval
         y : int
@@ -171,12 +276,14 @@ class Picture:
         draw = PIL.ImageDraw.Draw(self.image)
         shape = [x, y, x+w, y+h]
         color = acolor.getRGB()
-        draw.ellipse(shape, fill = color, outline = color, width=1)
+        draw.ellipse(shape, fill=color, outline=color, width=1)
 
     def addOval(self, acolor, x, y, w, h):
-        """Method to draw the outline of an oval on a picture.
+        """Draw the outline of an oval on this picture
     
-        acolor : instance of Color class
+        Parameters
+        ----------
+        acolor : Color
             the color of the oval border
         x : int
             the x-coordinate of the upper-left corner of the boundary rectangle for the oval
@@ -189,12 +296,14 @@ class Picture:
         """
         draw = PIL.ImageDraw.Draw(self.image)
         shape = [x, y, x+w, y+h]
-        draw.ellipse(shape, fill = None, outline = acolor.getRGB(), width = 1)
+        draw.ellipse(shape, fill=None, outline=acolor.getRGB(), width=1)
 
     def addArcFilled(self, acolor, x, y, w, h, start, angle):
-        """Method to draw a filled in arc on a picture.
+        """Draw a filled in arc on this picture
     
-        acolor : instance of Color class
+        Parameters
+        ----------
+        acolor : Color
             the color that the arc is filled with
         x : int
             the x-coordinate of the center of the arc
@@ -216,12 +325,14 @@ class Picture:
         if start > end:
             start, end = end, start
         color = acolor.getRGB()
-        draw.pieslice(shape, start, end, fill = color, outline = color, width = 1)
+        draw.pieslice(shape, start, end, fill=color, outline=color, width=1)
 
     def addArc(self, acolor, x, y, w, h, start, angle):
-        """Method to draw the outline of an arc on a picture.
+        """Draw the outline of an arc on this picture
     
-        acolor : instance of Color class
+        Parameters
+        ----------
+        acolor : Color
             the color that outlines arc
         x : int
             the x-coordinate of the center of the arc
@@ -242,7 +353,7 @@ class Picture:
         start = -(start+angle) % 360
         if start > end:
             start, end = end, start
-        draw.arc(shape, start, end, fill = acolor.getRGB(), width = 1)
+        draw.arc(shape, start, end, fill=acolor.getRGB(), width=1)
 
     #  Copies all the pixels from this picture to the destination picture,
     #  starting with the specified upper-left corner.  If this picture
@@ -279,8 +390,13 @@ class Picture:
     # }
 
     def crop(self, upperLeftX, upperLeftY, width, height):
-        """Method to draw the outline of an arc on a picture.
-    
+        """Returns a cropped version of this picture
+
+        Copies the pixels in it starting at the specified upper-left corner
+        and taking as many pixels as specified by width and height
+
+        Parameters
+        ----------
         upperLeftX : int
             the x-coord of the upper-left corner new cropped image
         upperLeftY : int
@@ -290,8 +406,51 @@ class Picture:
         height : int
             the desired height of the cropped picture
         """
-        pic = self
-        pic.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height))
+        croppedImage = self.image.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height))
+        pic = Picture(croppedImage)
+        pic.filename = self.filename
+        pic.title = self.title
         return pic
+
+    def show(self):
+        """Display a PIL Image using a WX App"""
+
+        class mainWindow(wx.Frame):
+            """Frame class that display an image"""
+            def __init__(self, image, parent=None, id=-1,
+                    pos=wx.DefaultPosition, title=None):
+                """Create a frame instance and display image"""
+                temp = image.ConvertToBitmap()
+                size = temp.GetWidth(), temp.GetHeight()
+                wx.Frame.__init__(self, parent, id, title, pos, size)
+                self.bmp = wx.StaticBitmap(parent=self, bitmap=temp)
+                self.SetClientSize(size)
+
+        class ShowImage(wx.App):
+            """Application class"""
+            def __init__(self, image=None, title=None, *args, **kwargs):
+                self.image = image
+                self.title = title
+                wx.App.__init__(self, *args, **kwargs)
+
+            def OnInit(self):
+                self.frame = mainWindow(image=self.image, title=self.title)
+                self.frame.Show()
+                return True
+
+        def doShow():
+            """Run the wx app to show the image"""
+            wxImage = self.getWxImage()
+            app = ShowImage(image=wxImage, title=self.title)
+            app.MainLoop()
+            #exit(0)
+
+        # We want control to return immediately to the command prompt or
+        # calling script but wx will block because of wx.MainLoop().  To
+        # get around this we start a new process to run the wx GUI.
+
+        p = Process(target=doShow, args=())
+        p.start()
+        #p.join()
 
  # end of class Picture, put all new methods before this
