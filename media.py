@@ -520,13 +520,14 @@ def getHeight(pic):
     return pic.getImage().height
 
 
-def show(pic, title=None):
-    pic.setTitle(title)
-    if not isinstance(pic, Picture):
+def show(picture, title=None):
+    # pic.setTitle(title)
+    if not isinstance(picture, Picture):
         print("show(picture): Input is not a picture")
         raise ValueError
-    im = pic.getImage()
-    im.show()
+    #im = pic.getImage()
+    #im.show()
+    picture.show()
 
 
 def repaint(pic):
