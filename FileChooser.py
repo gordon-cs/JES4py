@@ -4,10 +4,6 @@
 """
 
 import os
-<<<<<<< HEAD
-# import easygui as eg
-=======
->>>>>>> master
 import JESConfig
 import wx
 
