@@ -15,7 +15,7 @@ class MainWindow(wx.Frame):
         # Maximum horizontal dimension. Needs to be removed later.
         self.PhotoMaxSize = 600
 
-        # Initialize a variable to be used to store a copy of image
+        # Initialize a buffer image
         self.image = None
 
         self.ColorPicker() # Color Eyedropper
@@ -200,8 +200,9 @@ class MainWindow(wx.Frame):
                 self.pixelTxtX.SetValue(str(self.x))
                 self.pixelTxtY.SetValue(str(self.y))
                 self.ColorInfo()
+                # self.imageCtrl.Bind(wx.EVT_PAINT, self.CursorOnImage)
             else:
-                "" # Do nothing if mouse left click is currently not down
+                "" # Do nothing if mouse left button is not pressed and hold
         else:
             "" # Do nothing if self.image is None
 
@@ -269,6 +270,12 @@ class MainWindow(wx.Frame):
 
         self.colorPreview.SetBitmap(bmp) # Replace the bitmap with the new one
         self.Refresh() # Updates the static bitmap
+    
+    # def CursorOnImage(self, event):
+    #     dc = wx.PaintDC(self)
+    #     dc.Clear()
+    #     dc.SetPen(wx.Pen(wx.Black, 4))
+    #     dc.DrawLine((self.x-5),self.y, (self.x+5), self.y)
 
     def onOpen(self,e):
         """Browse for file"""
