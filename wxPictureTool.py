@@ -201,18 +201,9 @@ class MainWindow(wx.Frame):
                 self.pixelTxtY.SetValue(str(self.y))
                 self.ColorInfo()
             else:
-                ""
-        # Do nothing if self.image is None
+                "" # Do nothing if mouse left click is currently not down
         else:
-            ""
-    
-    # def ImageCtrl_OnMouseDrag(self, event):
-    #     ctrl_pos = event.GetPosition()
-    #     self.x = ctrl_pos.x
-    #     self.y = ctrl_pos.y
-    #     self.pixelTxtX.SetValue(str(self.x))
-    #     self.pixelTxtY.SetValue(str(self.y))
-    #     self.ColorInfo()
+            "" # Do nothing if self.image is None
 
     def ImageCtrl_OnEnter(self, event):
         """ Gets X and Y coordinates from the user input
