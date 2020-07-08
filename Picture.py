@@ -233,6 +233,17 @@ class Picture:
     #  *    @param y the y-coordinate of the bottom left corner of the text
     #  *    @param string the text to be added to the picture
     def addText(self, acolor, x, y, string):
+        """Adds text to the image
+    
+        acolor : Color
+            the color of the text
+        x : int
+            the x-coordinate of the top left corner of the text
+        y : int
+            the y-coordinate of the top left corner of the text
+        string : string
+            the text that will be drawn on the picture
+        """
         draw = PIL.ImageDraw.Draw(self.image)
         # font = ImageFont.truetype(<font-file>, <font-size>)
         # font = ImageFont.truetype("sans-serif.ttf", 16)
@@ -581,7 +592,7 @@ class Picture:
         result = load(fileName)
 
         # // show the picture in a picture frame
-        self.show()
+        self.showOld()
 
         return result
 
@@ -593,7 +604,7 @@ class Picture:
     # #  */
     def loadImage(self, fileName):
         """Loads a PIL image from a fileName"""
-        return PIL.Image.open(fileName)
+        return self.load(fileName)
 
     def writeOrFail(self, fileName):
         """Write the contents of the picture to a file
@@ -699,6 +710,11 @@ class Picture:
             self.loadOrFail(fileName)
             return True
         except:
+            mode = "RGB"
+            size = (600, 200)
+            tup = (255,255,255)
+            self.image = PIL.Image.new(mode,size,tup)
+            self.addMessage("Couldn't load " + fileName, 5, 100)
             print("There was an error trying to open " + fileName)
             return False
 
@@ -719,3 +735,30 @@ class Picture:
             True if success else False
         """    
         return self.load(fileName)
+
+    def addMessage(self, message, xPos, yPos):
+        """Adds text to the image
+    
+        message : string
+            the message that will be drawn on the picture
+        x : int
+            the x-coordinate of the top left corner of the text
+        y : int
+            the y-coordinate of the top left corner of the text
+        """
+        # get a graphics context to use to draw on the buffered image
+        col = Color(0,0,0)
+        self.addText(col, xPos, yPos, message)
+
+    def drawString(self, text, xPos, yPos):
+        """Adds text to the image
+    
+        text : string
+            the text that will be drawn on the picture
+        x : int
+            the x-coordinate of the top left corner of the text
+        y : int
+            the y-coordinate of the top left corner of the text
+        """
+        # get a graphics context to use to draw on the buffered image
+        self.addMessage(text, xPos, yPos)
