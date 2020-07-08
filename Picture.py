@@ -566,6 +566,58 @@ class Picture:
         result = self.scale(xFactor, xFactor)
         return result
 
+    # /**
+    #  * Method to load a picture from a file name and show it in a picture frame
+    #  * @param fileName the file name to load the picture from
+    #  * @return true if success else false
+    #  */
+    def loadPictureAndShowIt(self, fileName):
+        result = True
+
+        # // try to load the picture into the buffered image from the file name
+        result = load(fileName)
+
+        # // show the picture in a picture frame
+        self.show()
+
+        return result
+
+    # /**
+    #  * Method to load the picture from the passed file name
+    #  * this just calls load(fileName) and is for name compatibility
+    #  * @param fileName the file name to use to load the picture from
+    #  * @return true if success else false
+    #  */
+    def loadImage(self, fileName):
+        """Loads a PIL image from a fileName
+
+        Parameters
+        ----------
+        fileName : string
+            The name of the file that the image is being read from
+        Returns
+        -------
+        Image
+            The an image based on the file from the passed in fileName
+        """
+        return PIL.Image.open(fileName)
+
+    # /**
+    #  * Method to load the contents of the picture to a file without throwing exceptions
+    #  * @param fileName the name of the file to load the picture from
+    #  * @return true if success else false
+    #  */
+    def load(self, fileName):
+        try:
+            self.loadOrFail(fileName)
+            return True
+        except BaseException:
+            print("There was an error trying to open " + fileName)
+            mode = "RGB"
+            size = (600, 200)
+            self.image = PIL.Image.new(mode, size, (255,255,255))
+            # self.addMessage("Couldn't load " + fileName, 5, 100)
+
     def write(self, fileName):
         """Writes this picture to a file with the name fileName
 
