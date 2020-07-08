@@ -4,6 +4,8 @@ import PIL.ImageDraw, PIL.Image
 from Pixel import Pixel
 from Pixel import Color
 from FileChooser import *
+from pathlib import Path
+import os
 
 class Picture:
 
@@ -446,6 +448,11 @@ class Picture:
             the desired width of the cropped picture
         height : int
             the desired height of the cropped picture
+
+        Returns
+        -------
+        Picture
+            a cropped version of the picture
         """
         croppedImage = self.image.crop((upperLeftX, upperLeftY, upperLeftX+width, upperLeftY+height))
         pic = Picture(croppedImage)
@@ -496,14 +503,23 @@ class Picture:
 
  # end of class Picture, put all new methods before this
 
-    # /**
-    #   * Method to create a new picture by scaling the current
-    #   * picture by the given x and y factors
-    #   * @param xFactor the amount to scale in x
-    #   * @param yFactor the amount to scale in y
-    #   * @return the resulting picture
-    #   */
     def scale(self, xFactor, yFactor):
+        """Returns a scaled version of this picture
+
+        Scales the picture this is called ons width by xFactor and height by yFactor
+
+        Parameters
+        ----------
+        xFactor : int
+            The scale factor used for the the width of the new image
+        xFactor : int
+            The scale factor used for the the height of the new image
+
+        Returns
+        -------
+        Picture
+            a scaled version of the picture
+        """
         scaledImage = self.image.resize((int(self.image.width*xFactor), int(self.image.height*yFactor)))
         pic = Picture(scaledImage)
         print(pic.getWidth())
@@ -512,13 +528,18 @@ class Picture:
         pic.title = self.title
         return pic
 
-    # /**
-    #  * Method to write the contents of the picture to a file with
-    #  * the passed name without throwing exceptions
-    #  * @param fileName the name of the file to write the picture to
-    #  * @return true if success else false
-    #  */
     def write(self, fileName):
+        """Writes this picture to a file with the name fileName
+
+        Parameters
+        ----------
+        fileName : string
+            The name of the file that this picture will be written to
+        Returns
+        -------
+        Boolean
+            True if the file is written False if an IO error occurs
+        """
         try :
             self.writeOrFail(fileName)
             return True
@@ -526,16 +547,33 @@ class Picture:
             print("There was an IO error trying to write " + fileName)
             return False
 
-    # /**
-    #  * Method to write the contents of the picture to a file with
-    #  * the passed name
-    #  * @param fileName the name of the file to write the picture to
-    #  */
-    def writeOrFail(self, fileName):    
-        # // get the extension
-        # posDot = fileName.lastIndexOf('.')
-        # if (posDot >= 0):
-        #     trueFileName = fileName.substring(0, posDot)
-        #     print(trueFileName)
-        # // write the contents of the PIL image to the file as jpg
-        self.image.save(getMediaDirectory()+fileName+self.extension)
+    def writeOrFail(self, fileName): 
+        """Writes this picture to a file with the name fileName
+
+        Parameters
+        ----------
+        fileName : string
+            The name of the file that this picture will be written to
+        """   
+        # create the path object
+        file = Path(os.path.join(getMediaDirectory(), fileName))
+        fileLoc = file.parent
+
+        # // checks if 
+        if (None != fileLoc and not os.access(fileLoc, os.W_OK)):
+            # // System.err.println("can't write the file but trying anyway? ...")
+            raise IOError(fileName +" could not be opened. Check to see if you can write to the directory.1")
+        posSlash = fileName.rfind('\\')
+        if (posSlash >= 0):
+            locName = fileName[posSlash+1:]
+
+        for File in os.listdir("."):
+            if File.find(locName) >= 0:
+                raise IOError(fileName +" could not be opened. There is already a file with this name in the current directory")
+
+        posDot = fileName.rfind('.')
+        if (posDot >= 0):
+            trueFileName = fileName[0, posDot]
+            self.image.save(trueFileName+self.extension)
+        else:
+            self.image.save(fileName+self.extension)
