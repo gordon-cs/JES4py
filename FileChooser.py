@@ -4,9 +4,8 @@
 """
 
 import os
-import JESConfig
 import wx
-
+import JESConfig
 
 def pickAFile():
     """Method to let the user pick a file and return the full name as
@@ -17,16 +16,18 @@ def pickAFile():
         the file file name of the picked file or None"""
     app = wx.App()
 
-    frame = wx.Frame(None, -1, '')
+    frame = wx.Frame(None, -1, 'PickAFile')
     frame.SetSize(0,0,200,50)
 
     # Create open file dialog
-    openFileDialog = wx.FileDialog(frame, "Pick A File",  JESConfig.getConfigVal('CONFIG_SESSIONPATH'), "", "",wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
+    directory = JESConfig.getConfigVal('CONFIG_SESSIONPATH')
+    openFileDialog = wx.FileDialog(frame, "Pick A File", directory, "", "", 
+        wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
     if openFileDialog.ShowModal() == wx.ID_CANCEL:
         return ""
     else:
         path = openFileDialog.GetPath()
-        JESConfig.setConfigVal('CONFIG_SESSIONPATH',path)
+        JESConfig.setConfigVal('CONFIG_SESSIONPATH',os.path.dirname(path))
         openFileDialog.Destroy()
         return path
 
@@ -38,11 +39,13 @@ def pickADirectory():
         the full directory path"""
     app = wx.App()
 
-    frame = wx.Frame(None, -1, '')
+    frame = wx.Frame(None, -1, 'pickADirectory')
     frame.SetSize(0,0,200,50)
 
     # Create open file dialog
-    openDirDialog = wx.DirDialog (frame, "Pick A Folder", JESConfig.getConfigVal('CONFIG_SESSIONPATH'), wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
+    directory = JESConfig.getConfigVal('CONFIG_SESSIONPATH')
+    openDirDialog = wx.DirDialog(frame, "Pick A Folder", directory,
+        wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
     if openDirDialog.ShowModal() == wx.ID_CANCEL:
         return ""
     else:
@@ -50,7 +53,6 @@ def pickADirectory():
         openDirDialog.Destroy()
         JESConfig.setConfigVal('CONFIG_SESSIONPATH',path)
         return path
-
 
 def getMediaPath(fileName):
     """Method to get full path for the passed file name
