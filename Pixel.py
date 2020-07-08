@@ -26,7 +26,7 @@ class Pixel:
         y : int
             row of the pixel
         """
-        self.wrapLevels = JESConfig.CONFIG_WRAPPIXELVALUES != '0'
+        self.wrapLevels = JESConfig.getConfigVal("CONFIG_WRAPPIXELVALUES")
         self.image = image
         self.x = x
         self.y = y
