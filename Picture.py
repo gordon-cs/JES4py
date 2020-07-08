@@ -522,11 +522,49 @@ class Picture:
         """
         scaledImage = self.image.resize((int(self.image.width*xFactor), int(self.image.height*yFactor)))
         pic = Picture(scaledImage)
-        print(pic.getWidth())
-        print(pic.getHeight())
         pic.filename = self.filename
         pic.title = self.title
         return pic
+
+    def getPictureWithHeight(self, height):
+        """Returns a scaled version of this picture
+
+        Scales the picture so that the height is equal to height while keeping the same ratio
+
+        Parameters
+        ----------
+        height : int
+            The height of the returned picture
+
+        Returns
+        -------
+        Picture
+            a scaled version of the picture with height of (height)
+        """
+        # // set up the scale tranform
+        yFactor = height / self.getHeight()
+        result = self.scale(yFactor, yFactor)
+        return result
+        
+    def getPictureWithWidth(self, width):
+        """Returns a scaled version of this picture
+
+        Scales the picture so that the width is equal to width while keeping the same ratio
+
+        Parameters
+        ----------
+        width : int
+            The width of the returned picture
+
+        Returns
+        -------
+        Picture
+            a scaled version of the picture with width of (width)
+        """
+        # // set up the scale tranform
+        xFactor = width / self.getWidth()
+        result = self.scale(xFactor, xFactor)
+        return result
 
     def write(self, fileName):
         """Writes this picture to a file with the name fileName
