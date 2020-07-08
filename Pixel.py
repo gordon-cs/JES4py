@@ -330,7 +330,7 @@ class Color:
         str
             string of color contents
         """
-        return self.__str__()
+        return "Color({}, {}, {})".format(self.color[0], self.color[1], self.color[2])
     
     def __eq__(self, otherColor):
         """Test for equality between two color objects
