@@ -9,7 +9,7 @@ import os
 
 class Picture:
 
-    def __init__(self, image, extension=".jpg"):
+    def __init__(self, image=None, extension=".jpg"):
         self.image = image
         self.extension = extension
         try:
@@ -109,7 +109,7 @@ class Picture:
         ----------
         x, y : int
             the coordinates of the pixel
-        
+
         Returns
         -------
         Tuple
@@ -395,8 +395,10 @@ class Picture:
         self.setImage(im)
 
     def setAllPixelsToAColor(self, acolor):
-        """makes the image associated with the picture filled in with one color
-    
+        """Makes the image associated with the picture filled in with one color
+
+        Parameters
+        ----------
         acolor : instance of Color class
             the color that outlines arc
         """
@@ -408,7 +410,7 @@ class Picture:
     def copyInto(self, dest, upperLeftX, upperLeftY):
         """Returns a picture with the current picture copied into it
 
-        Copies the pixels in the current picture into the dest picture 
+        Copies the pixels in the current picture into the dest picture
         starting at point (upperLeftX,upperLeftY)
 
         Parameters
@@ -460,7 +462,7 @@ class Picture:
         pic.title = self.title
         return pic
 
-    def show(self):
+    def showOld(self):
         """Display a PIL Image using a WX App"""
 
         class mainWindow(wx.Frame):
@@ -518,12 +520,13 @@ class Picture:
         Returns
         -------
         Picture
+
             a scaled version of the picture
         """
         scaledImage = self.image.resize((int(self.image.width*xFactor), int(self.image.height*yFactor)))
         pic = Picture(scaledImage)
         pic.filename = self.filename
-        pic.title = self.title
+        pic.title = None
         return pic
 
     def getPictureWithHeight(self, height):
@@ -582,15 +585,19 @@ class Picture:
 
         return result
 
-    # /**
-    #  * Method to load the picture from the passed file name
-    #  * this just calls load(fileName) and is for name compatibility
-    #  * @param fileName the file name to use to load the picture from
-    #  * @return true if success else false
-    #  */
+    # # /**
+    # #  * Method to load the picture from the passed file name
+    # #  * this just calls load(fileName) and is for name compatibility
+    # #  * @param fileName the file name to use to load the picture from
+    # #  * @return true if success else false
+    # #  */
     def loadImage(self, fileName):
-        """Loads a PIL image from a fileName
+        """Loads a PIL image from a fileName"""
+        return PIL.Image.open(fileName)
 
+    def writeOrFail(self, fileName):
+        """Write the contents of the picture to a file
+        
         Parameters
         ----------
         fileName : string
@@ -600,7 +607,6 @@ class Picture:
         Image
             The an image based on the file from the passed in fileName
         """
-        return PIL.Image.open(fileName)
 
     # /**
     #  * Method to load the contents of the picture to a file without throwing exceptions
@@ -618,6 +624,14 @@ class Picture:
             self.image = PIL.Image.new(mode, size, (255,255,255))
             # self.addMessage("Couldn't load " + fileName, 5, 100)
 
+    def loadOrFail(self, fileName):
+        """Load a picture from a file
+            the name of the file to load the picture from
+        """
+        self.image = PIL.Image.open(fileName)
+        self.filename = self.title = fileName
+
+
     def write(self, fileName):
         """Writes this picture to a file with the name fileName
 
@@ -633,8 +647,8 @@ class Picture:
         try :
             self.writeOrFail(fileName)
             return True
-        except IOError:
-            print("There was an IO error trying to write " + fileName)
+        except:
+            print("There was an error trying to write " + fileName)
             return False
 
     def writeOrFail(self, fileName): 
@@ -667,3 +681,41 @@ class Picture:
             self.image.save(trueFileName+self.extension)
         else:
             self.image.save(fileName+self.extension)
+
+    def load(self, fileName):
+        """Load picture from a file without throwing exceptions
+
+        Parameters
+        ----------
+        fileName : string
+            the name of the file to load the picture from
+
+        Returns
+        -------
+        Boolean
+            True if success else False
+        """
+        try:
+            self.loadOrFail(fileName)
+            return True
+        except:
+            print("There was an error trying to open " + fileName)
+            return False
+
+    def loadImage(self, fileName):
+        """Load picture from a file without throwing exceptions
+
+        This just calls load(fileName) and is included for compatibility
+        with JES.
+
+        Parameters
+        ----------
+        fileName : string
+            the name of the file to load the picture from
+
+        Returns
+        -------
+        Boolean
+            True if success else False
+        """    
+        return load(fileName)
