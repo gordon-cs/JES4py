@@ -718,4 +718,4 @@ class Picture:
         Boolean
             True if success else False
         """    
-        return load(fileName)
+        return self.load(fileName)
