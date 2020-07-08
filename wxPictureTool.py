@@ -71,6 +71,7 @@ class MainWindow(wx.Frame):
 
         # Event handler - Gets X, Y coordinates on mouse click
         self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
+        self.imageCtrl.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick)
 
         # Stores the filepath of the image
         self.photoTxt = wx.TextCtrl(self.panel, size=(200,-1))
@@ -189,14 +190,19 @@ class MainWindow(wx.Frame):
             and displays the values on the text control boxes (pixelTxtX & pixelTxtY).
             Then, passes those positions to ColorInfo() to get RGB values
         """
-        # Returns X, Y coordinates on mouse click
+        # Checks if the image exists before executing the next function
         if self.image is not None:
-            ctrl_pos = event.GetPosition()
-            self.x = ctrl_pos.x
-            self.y = ctrl_pos.y
-            self.pixelTxtX.SetValue(str(self.x))
-            self.pixelTxtY.SetValue(str(self.y))
-            self.ColorInfo()
+            # Check if the mouse is dragged
+            if event.LeftIsDown():
+                ctrl_pos = event.GetPosition()
+                self.x = ctrl_pos.x
+                self.y = ctrl_pos.y
+                self.pixelTxtX.SetValue(str(self.x))
+                self.pixelTxtY.SetValue(str(self.y))
+                self.ColorInfo()
+            else:
+                ""
+        # Do nothing if self.image is None
         else:
             ""
     
