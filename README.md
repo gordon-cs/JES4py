@@ -29,6 +29,6 @@ python3 -m pip install --upgrade Pillow
 Users should include the following line at a Python 3.x command prompt
 or in a Python 3.x script to make use of JES functions
 ```
-from mediaJESReplacement import *
+from JESemu import *
 ```
 (NOTE: we need to decide on the name of this function - I suggest `JESmedia.py`.  We can then similarly name any other updated versions of the JES Python files that we decide to include.)
