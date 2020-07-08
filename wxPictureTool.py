@@ -6,22 +6,6 @@ import os, sys
 import wx
 # import wx.lib.inspection
 
-"""
-class PictureTool(pil_img):
-    def pil_image_to_wx_image(self, pil_img, copy_alpha=True):
-        # Image conversion from a Pillow Image to a wx.Image.
-        orig_width, orig_height = pil_img.size
-        wx_img = wx.Image(orig_width, orig_height)
-        wx_img.SetData(pil_img.convert('RGB').tobytes())
-        if copy_alpha and (pil_img.mode[-1] == 'A'):
-            alpha = pil_img.getchannel("A").tobytes()
-            wx_img.InitAlpha()
-            for i in range(orig_width):
-                for j in range(orig_height):
-                    wx_img.SetAlpha(i, j, alpha[i + j * orig_width])
-        return wx_img
-"""
-
 class MainWindow(wx.Frame):
     def __init__(self, parent, title):
         MainFrame = wx.Frame.__init__(self, parent, title=title, size=(660,500))
@@ -30,6 +14,9 @@ class MainWindow(wx.Frame):
         
         # Maximum horizontal dimension. Needs to be removed later.
         self.PhotoMaxSize = 600
+
+        # Initialize a variable to be used to store a copy of image
+        self.image = None
 
         self.ColorPicker() # Color Eyedropper
         self.viewingWindow() # Image viewer
@@ -203,12 +190,23 @@ class MainWindow(wx.Frame):
             Then, passes those positions to ColorInfo() to get RGB values
         """
         # Returns X, Y coordinates on mouse click
-        ctrl_pos = event.GetPosition()
-        self.x = ctrl_pos.x
-        self.y = ctrl_pos.y
-        self.pixelTxtX.SetValue(str(self.x))
-        self.pixelTxtY.SetValue(str(self.y))
-        self.ColorInfo()
+        if self.image is not None:
+            ctrl_pos = event.GetPosition()
+            self.x = ctrl_pos.x
+            self.y = ctrl_pos.y
+            self.pixelTxtX.SetValue(str(self.x))
+            self.pixelTxtY.SetValue(str(self.y))
+            self.ColorInfo()
+        else:
+            ""
+    
+    # def ImageCtrl_OnMouseDrag(self, event):
+    #     ctrl_pos = event.GetPosition()
+    #     self.x = ctrl_pos.x
+    #     self.y = ctrl_pos.y
+    #     self.pixelTxtX.SetValue(str(self.x))
+    #     self.pixelTxtY.SetValue(str(self.y))
+    #     self.ColorInfo()
 
     def ImageCtrl_OnEnter(self, event):
         """ Gets X and Y coordinates from the user input
