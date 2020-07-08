@@ -456,21 +456,18 @@ def pixelsToPicture(pixels, defaultColor=white, maxX=100, maxY=100):
     return newpic
 
 
-def makePicture(filepath, defaultColor=white):
+def makePicture(filename, defaultColor=white):
     global mediaFolder
-    if not isinstance(filepath, str):
-        return pixelsToPicture(filepath, defaultColor=defaultColor)
-    if not os.path.isabs(filepath):
-        filepath = mediaFolder + filepath
-    if not os.path.isfile(filepath):
-        print("makePicture(filePath): There is no file at " + filepath)
+    if not isinstance(filename, str):
+        return pixelsToPicture(filename, defaultColor=defaultColor)
+    if not os.path.isabs(filename):
+        filename = mediaFolder + filename
+    if not os.path.isfile(filename):
+        print("makePicture(filename): There is no file at " + filename)
         raise ValueError
-    im = PIL.Image.open(filepath)
-    if not isinstance(im, PIL.Image.Image):
-        print("{} is not a file type that could not be opened as an image".format(filepath))
-        raise ValueError
-    pic = Picture(im)
-    return pic
+    picture = Picture()
+    picture.loadOrFail(filename)
+    return picture
 
 # MMO (1 Dec 2005): Capped width/height to max 10000 and min 1
 # alexr (6 Sep 2006): fixed to work without the Python classes.

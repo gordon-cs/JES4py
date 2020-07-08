@@ -7,7 +7,7 @@ from FileChooser import *
 
 class Picture:
 
-    def __init__(self, image, extension=".jpg"):
+    def __init__(self, image=None, extension=".jpg"):
         self.image = image
         self.extension = extension
         try:
@@ -107,7 +107,7 @@ class Picture:
         ----------
         x, y : int
             the coordinates of the pixel
-        
+
         Returns
         -------
         Tuple
@@ -393,8 +393,10 @@ class Picture:
         self.setImage(im)
 
     def setAllPixelsToAColor(self, acolor):
-        """makes the image associated with the picture filled in with one color
-    
+        """Makes the image associated with the picture filled in with one color
+
+        Parameters
+        ----------
         acolor : instance of Color class
             the color that outlines arc
         """
@@ -406,7 +408,7 @@ class Picture:
     def copyInto(self, dest, upperLeftX, upperLeftY):
         """Returns a picture with the current picture copied into it
 
-        Copies the pixels in the current picture into the dest picture 
+        Copies the pixels in the current picture into the dest picture
         starting at point (upperLeftX,upperLeftY)
 
         Parameters
@@ -453,7 +455,7 @@ class Picture:
         pic.title = self.title
         return pic
 
-    def show(self):
+    def showOld(self):
         """Display a PIL Image using a WX App"""
 
         class mainWindow(wx.Frame):
@@ -496,46 +498,118 @@ class Picture:
 
  # end of class Picture, put all new methods before this
 
-    # /**
-    #   * Method to create a new picture by scaling the current
-    #   * picture by the given x and y factors
-    #   * @param xFactor the amount to scale in x
-    #   * @param yFactor the amount to scale in y
-    #   * @return the resulting picture
-    #   */
     def scale(self, xFactor, yFactor):
-        scaledImage = self.image.resize((int(self.image.width*xFactor), int(self.image.height*yFactor)))
-        pic = Picture(scaledImage)
-        print(pic.getWidth())
-        print(pic.getHeight())
+        """Create new scaled picture
+
+        Method to create a new picture by scaling the current picture by
+        the given x and y factors
+
+        Parameters
+        ----------
+        xFactor : float
+            the amount to scale in x
+        yFactor : float
+            the amount to scale in y
+
+        Returns
+        -------
+        Picture
+          the resulting picture
+        """
+        newWidth = round(self.image.width * xFactor)
+        newHeight = round(self.image.height * yFactor)
+        pic = Picture(self.image.resize((newWidth, newHeight)))
         pic.filename = self.filename
-        pic.title = self.title
+        pic.title = None
         return pic
 
-    # /**
-    #  * Method to write the contents of the picture to a file with
-    #  * the passed name without throwing exceptions
-    #  * @param fileName the name of the file to write the picture to
-    #  * @return true if success else false
-    #  */
+    def writeOrFail(self, fileName):
+        """Write the contents of the picture to a file
+
+        Parameters
+        ----------
+        fileName : string
+            the name of the file to write the picture to
+        """
+        # get name and extension
+        name, ext = os.path.splitext(fileName)
+        imageType = None
+
+        # if no extension, use JES default
+        if ext == '':
+            imageType = self.extension.replace('.', '')
+            if imageType.lower() == 'jpg':
+                imageType = 'jpeg'
+            print('imageType = {}'.format(imageType))
+
+        # write file
+        self.image.save(fileName, format=imageType)
+
     def write(self, fileName):
+        """Write picture to a file without throwing exceptions
+        
+         Parameters
+         ----------
+         fileName : string
+             the name of the file to write the picture to
+
+        Returns
+        -------
+        boolean
+            True if success else False
+        """
         try :
             self.writeOrFail(fileName)
             return True
-        except IOError:
-            print("There was an IO error trying to write " + fileName)
+        except:
+            print("There was an error trying to write " + fileName)
             return False
 
-    # /**
-    #  * Method to write the contents of the picture to a file with
-    #  * the passed name
-    #  * @param fileName the name of the file to write the picture to
-    #  */
-    def writeOrFail(self, fileName):    
-        # // get the extension
-        # posDot = fileName.lastIndexOf('.')
-        # if (posDot >= 0):
-        #     trueFileName = fileName.substring(0, posDot)
-        #     print(trueFileName)
-        # // write the contents of the PIL image to the file as jpg
-        self.image.save(getMediaDirectory()+fileName+self.extension)
+    def loadOrFail(self, fileName):
+        """Load a picture from a file
+
+        Parameters
+        ----------
+        fileName : string
+            the name of the file to load the picture from
+        """
+        self.image = PIL.Image.open(fileName)
+        self.filename = self.title = fileName
+
+    def load(self, fileName):
+        """Load picture from a file without throwing exceptions
+
+        Parameters
+        ----------
+        fileName : string
+            the name of the file to load the picture from
+
+        Returns
+        -------
+        Boolean
+            True if success else False
+        """
+        try:
+            self.loadOrFail(fileName)
+            return True
+        except:
+            print("There was an error trying to open " + fileName)
+            return False
+
+    def loadImage(self, fileName):
+        """Load picture from a file without throwing exceptions
+
+        This just calls load(fileName) and is included for compatibility
+        with JES.
+
+        Parameters
+        ----------
+        fileName : string
+            the name of the file to load the picture from
+
+        Returns
+        -------
+        Boolean
+            True if success else False
+        """    
+        return load(fileName)
