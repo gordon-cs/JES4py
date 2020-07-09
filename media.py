@@ -973,7 +973,8 @@ def openSoundTool(sound):
 
 def explore(someMedia):
     if isinstance(someMedia, Picture):
-        openPictureTool(someMedia)
+        #openPictureTool(someMedia)
+        someMedia.pictureTool()
     elif isinstance(someMedia, Sound):
         openSoundTool(someMedia)
     elif isinstance(someMedia, Movie):

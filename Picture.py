@@ -1,11 +1,12 @@
+import os, sys
 import wx
-from multiprocessing import Process
+import subprocess, tempfile
 import PIL.ImageDraw, PIL.Image
+import JESConfig
 from Pixel import Pixel
 from Pixel import Color
 from FileChooser import *
 from pathlib import Path
-import os
 
 class Picture:
 
@@ -473,60 +474,50 @@ class Picture:
         pic.title = self.title
         return pic
 
-    def showOld(self):
-        """Display a PIL Image using a WX App"""
+    def __saveInTempFile(self):
+        """Create temporary image file
 
-        class mainWindow(wx.Frame):
-            """Frame class that display an image"""
-            def __init__(self, image, parent=None, id=-1,
-                    pos=wx.DefaultPosition, title=None):
-                """Create a frame instance and display image"""
-                temp = image.ConvertToBitmap()
-                size = temp.GetWidth(), temp.GetHeight()
-                wx.Frame.__init__(self, parent, id, title, pos, size)
-                self.bmp = wx.StaticBitmap(parent=self, bitmap=temp)
-                self.SetClientSize(size)
+        Returns
+        -------
+        string
+            path to temporary image file
+        """
+        filename = os.path.join(tempfile.gettempdir(),
+            "jes_" + next(tempfile._get_candidate_names()) + self.extension)
+        self.write(filename)
+        return filename
 
-        class ShowImage(wx.App):
-            """Application class"""
-            def __init__(self, image=None, title=None, *args, **kwargs):
-                self.image = image
-                self.title = title
-                wx.App.__init__(self, *args, **kwargs)
+        # Run show script
+    def __runScript(self, script, *argv):
+        scriptpath = os.path.join(JESConfig.getConfigVal("CONFIG_JESPATH"), script)
+        subprocess.Popen([sys.executable, scriptpath] + list(argv))
 
-            def OnInit(self):
-                self.frame = mainWindow(image=self.image, title=self.title)
-                self.frame.Show()
-                return True
+    def show(self):
+        #script = os.path.join(JESConfig.getConfigVal("CONFIG_JESPATH"), 'show.py')
+        filename = self.__saveInTempFile()
+        self.__runScript('show.py', filename, self.title)
+        #subprocess.Popen([sys.executable, script, filename, self.title])
 
-        def doShow():
-            """Run the wx app to show the image"""
-            wxImage = self.getWxImage()
-            app = ShowImage(image=wxImage, title=self.title)
-            app.MainLoop()
-            #exit(0)
+        #os.remove(filename)
 
-        # We want control to return immediately to the command prompt or
-        # calling script but wx will block because of wx.MainLoop().  To
-        # get around this we start a new process to run the wx GUI.
+    def pictureTool(self):
+        filename = self.__saveInTempFile()
+        self.__runScript('pictureTool.py', filename, self.title)
 
-        p = Process(target=doShow, args=())
-        p.start()
-        #p.join()
-
- # end of class Picture, put all new methods before this
+        #os.remove(filename)
 
     def scale(self, xFactor, yFactor):
-        """Returns a scaled version of this picture
+        """Create new scaled picture
 
-        Scales the picture this is called ons width by xFactor and height by yFactor
+        Method to create a new picture by scaling the current picture by
+        the given x and y factors
 
         Parameters
         ----------
-        xFactor : int
-            The scale factor used for the the width of the new image
-        xFactor : int
-            The scale factor used for the the height of the new image
+        xFactor : float
+            the amount to scale in x
+        yFactor : float
+            the amount to scale in y
 
         Returns
         -------
@@ -605,19 +596,6 @@ class Picture:
     def loadImage(self, fileName):
         """Loads a PIL image from a fileName"""
         return self.load(fileName)
-
-    def writeOrFail(self, fileName):
-        """Write the contents of the picture to a file
-        
-        Parameters
-        ----------
-        fileName : string
-            The name of the file that the image is being read from
-        Returns
-        -------
-        Image
-            The an image based on the file from the passed in fileName
-        """
 
     # /**
     #  * Method to load the contents of the picture to a file without throwing exceptions
@@ -762,3 +740,4 @@ class Picture:
         """
         # get a graphics context to use to draw on the buffered image
         self.addMessage(text, xPos, yPos)
+   
