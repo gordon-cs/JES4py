@@ -126,15 +126,17 @@ class MainWindow(wx.Frame):
         self.rgbValue = wx.StaticText(self.panel, label=u'R: {} G: {} B: {} Color at location:'.format("N/A", "N/A", "N/A"),style = wx.ALIGN_CENTER)
 
         # X and Y labels
-        self.lblX = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
-        self.lblY = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
+        self.lblX = wx.StaticText(self.panel, 0, style=wx.ALIGN_CENTER)
+        self.lblY = wx.StaticText(self.panel, 0, style=wx.ALIGN_CENTER)
         self.lblX.SetLabel("X: ")
         self.lblY.SetLabel("Y: ")
 
         # Navigation buttons (Enable after getting the colorpicker/eyedropper functional)
         # Icons made by Freepik from www.flaticon.com; Modified by Gahngnin Kim
-        bmp_R = wx.Bitmap("./images/Right.png", wx.BITMAP_TYPE_ANY)
-        bmp_L = wx.Bitmap("./images/Left.png", wx.BITMAP_TYPE_ANY)
+        rightImage = os.path.join(sys.path[0], 'images', 'Right.png')
+        leftImage = os.path.join(sys.path[0], 'images', 'Left.png')
+        bmp_R = wx.Bitmap(rightImage, wx.BITMAP_TYPE_ANY)
+        bmp_L = wx.Bitmap(leftImage, wx.BITMAP_TYPE_ANY)
         self.buttonX_L = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_L, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
         self.buttonX_L.myname = "XL"
         self.buttonX_R = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_R, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
