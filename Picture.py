@@ -644,36 +644,27 @@ class Picture:
             print("There was an error trying to write " + fileName)
             return False
 
-    def writeOrFail(self, fileName): 
-        """Writes this picture to a file with the name fileName
-
+    def writeOrFail(self, fileName):
+        """Write the contents of the picture to a file
+ 
         Parameters
         ----------
         fileName : string
-            The name of the file that this picture will be written to
-        """   
-        # create the path object
-        file = Path(os.path.join(getMediaDirectory(), fileName))
-        fileLoc = file.parent
-
-        # // checks if 
-        if (None != fileLoc and not os.access(fileLoc, os.W_OK)):
-            # // System.err.println("can't write the file but trying anyway? ...")
-            raise IOError(fileName +" could not be opened. Check to see if you can write to the directory.1")
-        posSlash = fileName.rfind('\\')
-        if (posSlash >= 0):
-            locName = fileName[posSlash+1:]
-
-        for File in os.listdir("."):
-            if File.find(locName) >= 0:
-                raise IOError(fileName +" could not be opened. There is already a file with this name in the current directory")
-
-        posDot = fileName.rfind('.')
-        if (posDot >= 0):
-            trueFileName = fileName[0, posDot]
-            self.image.save(trueFileName+self.extension)
-        else:
-            self.image.save(fileName+self.extension)
+            the name of the file to write the picture to
+        """
+        # get name and extension
+        name, ext = os.path.splitext(fileName)
+        imageType = None
+ 
+        # if no extension, use JES default
+        if ext == '':
+            imageType = self.extension.replace('.', '')
+            if imageType.lower() == 'jpg':
+                imageType = 'jpeg'
+            print('imageType = {}'.format(imageType))
+ 
+        # write file
+        self.image.save(fileName, format=imageType)
 
     def loadImage(self, fileName):
         """Load picture from a file without throwing exceptions
