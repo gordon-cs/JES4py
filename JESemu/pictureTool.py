@@ -8,9 +8,14 @@ import wx
 
 class MainWindow(wx.Frame):
     def __init__(self, filename, parent=None, id=-1, pos=wx.DefaultPosition, title=None):
+        MIN_WIDTH = 255
         self.origImage = wx.Image(filename, wx.BITMAP_TYPE_ANY)
         self.ratio = 1.0  # Scale factor
-        self.size = (self.origImage.GetWidth(), self.origImage.GetHeight())
+        if self.origImage.GetWidth() < MIN_WIDTH:
+            Ratio = MIN_WIDTH / self.origImage.GetWidth()
+            self.size = (int(self.origImage.GetWidth()*Ratio), int(self.origImage.GetHeight()*Ratio))
+        else:
+            self.size = (self.origImage.GetWidth(), self.origImage.GetHeight())
         MainFrame = wx.Frame.__init__(self, parent, title=title, size=self.size)
         self.panel = wx.Panel(self)        
         # wx.lib.inspection.InspectionTool().Show() # Inspection tool for debugging
@@ -89,7 +94,7 @@ class MainWindow(wx.Frame):
         self.hSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         # Vertical spacer
-        self.mainSizer.Add((-1, 50))
+        self.mainSizer.Add((-1, 55))
 
         # Draws a horizontal line
         self.mainSizer.Add(wx.StaticLine(self.panel, wx.ID_ANY),
