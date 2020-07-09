@@ -249,7 +249,6 @@ class Picture:
         # font = ImageFont.truetype(<font-file>, <font-size>)
         # font = ImageFont.truetype("sans-serif.ttf", 16)
         # draw.text((x, y),"Sample Text",(r,g,b))
-
         draw.text((x, y), string, acolor.getRGB())
 
     #  * Method to add text to a picture withe a particular font style
@@ -571,38 +570,42 @@ class Picture:
         result = self.scale(xFactor, xFactor)
         return result
 
-    # /**
-    #  * Method to load a picture from a file name and show it in a picture frame
-    #  * @param fileName the file name to load the picture from
-    #  * @return true if success else false
-    #  */
     def loadPictureAndShowIt(self, fileName):
+        """Load picture from a file and show it
+
+        Parameters
+        ----------
+        fileName : string
+            the name of the file to load the picture from
+
+        Returns
+        -------
+        Boolean
+            True if success else False
+        """
         result = True
 
         # // try to load the picture into the buffered image from the file name
         result = load(fileName)
 
         # // show the picture in a picture frame
-        self.showOld()
+        self.show()
 
         return result
 
-    # # /**
-    # #  * Method to load the picture from the passed file name
-    # #  * this just calls load(fileName) and is for name compatibility
-    # #  * @param fileName the file name to use to load the picture from
-    # #  * @return true if success else false
-    # #  */
-    def loadImage(self, fileName):
-        """Loads a PIL image from a fileName"""
-        return self.load(fileName)
-
-    # /**
-    #  * Method to load the contents of the picture to a file without throwing exceptions
-    #  * @param fileName the name of the file to load the picture from
-    #  * @return true if success else false
-    #  */
     def load(self, fileName):
+        """Load picture from a file without throwing exceptions
+
+        Parameters
+        ----------
+        fileName : string
+            the name of the file to load the picture from
+
+        Returns
+        -------
+        Boolean
+            True if success else False
+        """
         try:
             self.loadOrFail(fileName)
             return True
@@ -611,7 +614,8 @@ class Picture:
             mode = "RGB"
             size = (600, 200)
             self.image = PIL.Image.new(mode, size, (255,255,255))
-            # self.addMessage("Couldn't load " + fileName, 5, 100)
+            self.addMessage("Couldn't load " + fileName, 5, 100)
+            return False
 
     def loadOrFail(self, fileName):
         """Load a picture from a file
@@ -670,31 +674,6 @@ class Picture:
             self.image.save(trueFileName+self.extension)
         else:
             self.image.save(fileName+self.extension)
-
-    def load(self, fileName):
-        """Load picture from a file without throwing exceptions
-
-        Parameters
-        ----------
-        fileName : string
-            the name of the file to load the picture from
-
-        Returns
-        -------
-        Boolean
-            True if success else False
-        """
-        try:
-            self.loadOrFail(fileName)
-            return True
-        except:
-            mode = "RGB"
-            size = (600, 200)
-            tup = (255,255,255)
-            self.image = PIL.Image.new(mode,size,tup)
-            self.addMessage("Couldn't load " + fileName, 5, 100)
-            print("There was an error trying to open " + fileName)
-            return False
 
     def loadImage(self, fileName):
         """Load picture from a file without throwing exceptions
