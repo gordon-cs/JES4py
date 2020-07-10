@@ -241,8 +241,9 @@ class Pixel:
         int
             corrected color level
         """
+        level = round(level)
         if cls.wrapLevels:
-            return round(level) % 256
+            return level % 256
         elif level < 0:
             return 0
         elif level > 255:
