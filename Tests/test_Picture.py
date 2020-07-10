@@ -30,6 +30,42 @@ def makeReferenceImage(filename='refimage.jpg'):
 
 # Testing functions
 
+def test_init():
+    picture = openPicture()
+    pilImage = picture.getImage()
+
+    # create empty Picture
+    p1 = Picture()
+    assert isinstance(p1, Picture)
+    assert p1.getFileName() == ''
+    assert p1.getTitle() == ''
+    assert p1.getExtension() == '.jpg'
+
+    # create Picture from PIL Image
+    p2 = Picture(pilImage)
+    assert isinstance(p2, Picture)
+    assert isinstance(p2.getImage(), PIL.Image.Image)
+    assert p2.getFileName() == p2.getImage().filename
+    assert p2.getTitle() == p2.getImage().filename
+    assert p2.getExtension() == '.jpg'
+
+    # create Picture from existing Picture
+    p3 = Picture(picture)
+    assert isinstance(p3, Picture)
+    assert isinstance(p3.getImage(), PIL.Image.Image)
+    assert p3.getFileName() == picture.getFileName()
+    assert p3.getTitle() == picture.getTitle()
+    assert p3.getExtension() == picture.getExtension()
+
+    # create Picture from string
+    s = "This is a test"
+    p4 = Picture(s)
+    assert isinstance(p4, Picture)
+    assert isinstance(p4.getImage(), PIL.Image.Image)
+    assert p4.getFileName() == ''
+    assert p4.getTitle() == s
+    assert p4.getExtension() == '.jpg'
+
 def test_makePicture():
     picture = openPicture()
     assert isinstance(picture, Picture)

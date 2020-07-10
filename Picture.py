@@ -10,12 +10,33 @@ from pathlib import Path
 
 class Picture:
 
-    def __init__(self, image=None, extension=".jpg"):
-        self.image = image
-        self.extension = extension
-        try:
-            self.filename = self.title = image.filename
-        except AttributeError:
+    def __init__(self, arg=None, extension=".jpg"):
+        if isinstance(arg, Picture):
+            # arg is a Picture
+            self.image = arg.image.copy()
+            self.extension = arg.extension
+            self.filename = arg.filename
+            self.title = arg.title
+        elif isinstance(arg, PIL.Image.Image):
+            # arg is a PIL image
+            self.image = arg
+            self.extension = extension
+            try:
+                self.filename = self.title = arg.filename
+            except AttributeError:
+                self.filename = self.title = ''
+        elif isinstance(arg, str):
+            # arg is a string, do what JES does and make picture of string
+            self.image = PIL.Image.new("RGB", (600, 200))
+            self.extension = extension
+            self.title = arg
+            self.filename = ''
+            draw = PIL.ImageDraw.Draw(self.image)
+            draw.text((0, 100), arg)
+        else:
+            # arg is not None or not recogized; create empty Picture
+            self.image = None
+            self.extension = extension
             self.filename = self.title = ''
 
     def __str__(self):
@@ -27,7 +48,7 @@ class Picture:
             representation of this picture
         """
         output = "Picture, filename {} height {} width {}".format(
-            self.image.filename, self.image.height, self.image.width)
+            self.filename, self.image.height, self.image.width)
         return output
 
     def getFileName(self):
@@ -38,7 +59,7 @@ class Picture:
         str
             name of file containing picture data
         """
-        return self.image.filename
+        return self.filename
 
     def setFileName(self, filename):
         """Set picture file name
@@ -48,7 +69,7 @@ class Picture:
         filename : str
             filename to assign to this picture
         """
-        self.image.filename = filename
+        self.filename = filename
 
     def getTitle(self):
         """Return picture title
@@ -113,7 +134,7 @@ class Picture:
 
         Returns
         -------
-        Tuple
+        tuple of int
             the color of the pixel at position (x,y) as a tuple
         """
         return self.getPixel(x,y).getColor().getRGB()
@@ -125,7 +146,7 @@ class Picture:
         ----------
         x, y : int
             the coordinates of the pixel
-        rgb : tuple
+        rgb : tuple of int
             the color the pixel will be set to
         """
         col = Color(rgb[0], rgb[1], rgb[2])
@@ -136,7 +157,7 @@ class Picture:
 
         Returns
         -------
-        PIL.Image
+        PIL.Image.Image
             the PIL Image associated with this picture
         """
         return self.image
@@ -146,7 +167,7 @@ class Picture:
 
         Parameters
         ----------
-        image : PIL.Image
+        image : PIL.Image.Image
             the PIL Image to associate with this picture
         """
         self.image = image
@@ -156,7 +177,7 @@ class Picture:
 
         Parameters
         ----------
-        copy_alpha : boolean
+        copy_alpha : bool
             if True and image has alpha values, then convert them too
 
         Returns
@@ -195,6 +216,16 @@ class Picture:
             number of pixels in a column of this image
         """
         return self.image.height
+
+    def getExtension(self):
+        """Return the filename extension
+
+        Returns
+        -------
+        str
+            the filename extension (indicates image file format)
+        """
+        return self.extension
 
     #////////////////////// methods ///////////////////////////////////////
 
@@ -242,7 +273,7 @@ class Picture:
             the x-coordinate of the top left corner of the text
         y : int
             the y-coordinate of the top left corner of the text
-        string : string
+        string : str
             the text that will be drawn on the picture
         """
         draw = PIL.ImageDraw.Draw(self.image)
@@ -268,7 +299,7 @@ class Picture:
     def addRect(self, acolor, x, y, w, h):
         """Draw the outline of a rectangle on this picture
     
-        acolor : instance of Color class
+        acolor : Color
             the color of the rectangle border
         x : int
             the x-coordinate of the upper-left corner of the rectangle
@@ -286,7 +317,7 @@ class Picture:
     def addRectFilled(self, acolor, x, y, w, h):
         """Draw a filled rectangle on this picture
     
-        acolor : instance of Color class
+        acolor : Color
             the color that the rectangle is filled
         x : int
             the x-coordinate of the upper-left corner of the rectangle
@@ -305,7 +336,7 @@ class Picture:
     def addOvalFilled(self, acolor, x, y, w, h):
         """Draw a filled oval on this picture
     
-        acolor : instance of Color class
+        acolor : Color
             the color that the oval is filled with.
         x : int
             the x-coordinate of the upper-left corner of the boundary rectangle for the oval
@@ -324,7 +355,7 @@ class Picture:
     def addOval(self, acolor, x, y, w, h):
         """Draw the outline of an oval on this picture
     
-        acolor : instance of Color class
+        acolor : Color
             the color of the oval border
         x : int
             the x-coordinate of the upper-left corner of the boundary rectangle for the oval
@@ -342,7 +373,7 @@ class Picture:
     def addArcFilled(self, acolor, x, y, w, h, start, angle):
         """Draw a filled in arc on this picture
     
-        acolor : instance of Color class
+        acolor : Color
             the color that the arc is filled with
         x : int
             the x-coordinate of the center of the arc
@@ -369,7 +400,7 @@ class Picture:
     def addArc(self, acolor, x, y, w, h, start, angle):
         """Draw the outline of an arc on this picture
     
-        acolor : instance of Color class
+        acolor : Color
             the color that outlines arc
         x : int
             the x-coordinate of the center of the arc
@@ -410,7 +441,7 @@ class Picture:
 
         Parameters
         ----------
-        acolor : instance of Color class
+        acolor : Color
             the color that outlines arc
         """
         if not isinstance(acolor, Color):
@@ -575,12 +606,12 @@ class Picture:
 
         Parameters
         ----------
-        fileName : string
+        fileName : str
             the name of the file to load the picture from
 
         Returns
         -------
-        Boolean
+        bool
             True if success else False
         """
         result = True
@@ -598,12 +629,12 @@ class Picture:
 
         Parameters
         ----------
-        fileName : string
+        fileName : str
             the name of the file to load the picture from
 
         Returns
         -------
-        Boolean
+        bool
             True if success else False
         """
         try:
@@ -619,9 +650,13 @@ class Picture:
 
     def loadOrFail(self, fileName):
         """Load a picture from a file
+
+        Parameters
+        ----------
+        fileName : str
             the name of the file to load the picture from
         """
-        self.image = PIL.Image.open(fileName)
+        self.image = PIL.Image.open(fileName) #.convert('RGB')
         self.filename = self.title = fileName
 
 
@@ -630,11 +665,12 @@ class Picture:
 
         Parameters
         ----------
-        fileName : string
+        fileName : str
             The name of the file that this picture will be written to
+
         Returns
         -------
-        Boolean
+        bool
             True if the file is written False if an IO error occurs
         """
         try :
@@ -649,7 +685,7 @@ class Picture:
  
         Parameters
         ----------
-        fileName : string
+        fileName : str
             the name of the file to write the picture to
         """
         # get name and extension
@@ -674,12 +710,12 @@ class Picture:
 
         Parameters
         ----------
-        fileName : string
+        fileName : str
             the name of the file to load the picture from
 
         Returns
         -------
-        Boolean
+        bool
             True if success else False
         """    
         return self.load(fileName)
@@ -687,7 +723,7 @@ class Picture:
     def addMessage(self, message, xPos, yPos):
         """Adds text to the image
     
-        message : string
+        message : str
             the message that will be drawn on the picture
         x : int
             the x-coordinate of the top left corner of the text
@@ -701,7 +737,7 @@ class Picture:
     def drawString(self, text, xPos, yPos):
         """Adds text to the image
     
-        text : string
+        text : str
             the text that will be drawn on the picture
         x : int
             the x-coordinate of the top left corner of the text
