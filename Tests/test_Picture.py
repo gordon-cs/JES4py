@@ -1,6 +1,7 @@
 from JESemu import *
 from random import randint
 import PIL.Image
+import os
 
 # Supporting functions
 def openPicture(mediaPath='', filename='nico.jpg'):
@@ -139,9 +140,12 @@ def test_drawing():
 #    picture.show()
 
 def test_write():
+    goodFileName = 'test_picture.jpg'
+    badFileName = os.path.join('nonexistantpath', goodFileName)
     picture = openPicture()
-    assert picture.write('test_picture.jpg')
-    assert not picture.write('/nonexistant-folder/test_picture.jpg')
+    assert picture.write(goodFileName)
+    assert not picture.write(badFileName)
+    os.remove(goodFileName)
 
 # Can be run as script to create or recreate refimage.jpg if needed
 if __name__ == "__main__":
