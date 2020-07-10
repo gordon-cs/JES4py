@@ -526,16 +526,16 @@ def show(picture, title=None):
     if not isinstance(picture, Picture):
         print("show(picture): Input is not a picture")
         raise ValueError
-    im = picture.getImage()
-    im.show()
-    # picture.show()
+    picture.show()
 
-
-def repaint(pic):
-    if not (isinstance(pic, World) or isinstance(pic, Picture)):
-        print("repaint(picture): Input is not a picture or a world")
+def repaint(picture):
+    #if not (isinstance(picture, World) or isinstance(picture, Picture)):
+    #    print("repaint(picture): Input is not a picture or a world")
+    #    raise ValueError
+    if not isinstance(picture, Picture):
+        print("repaint(picture): Input is not a picture")
         raise ValueError
-    pic.repaint()
+    picture.repaint()
 
 ## adding graphics to your pictures! ##
 

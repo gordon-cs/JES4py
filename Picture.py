@@ -10,12 +10,33 @@ from pathlib import Path
 
 class Picture:
 
-    def __init__(self, image=None, extension=".jpg"):
-        self.image = image
-        self.extension = extension
-        try:
-            self.filename = self.title = image.filename
-        except AttributeError:
+    def __init__(self, arg=None, extension=".jpg"):
+        if isinstance(arg, Picture):
+            # arg is a Picture
+            self.image = arg.image.copy()
+            self.extension = arg.extension
+            self.filename = arg.filename
+            self.title = arg.title
+        elif isinstance(arg, PIL.Image.Image):
+            # arg is a PIL image
+            self.image = arg
+            self.extension = extension
+            try:
+                self.filename = self.title = arg.filename
+            except AttributeError:
+                self.filename = self.title = ''
+        elif isinstance(arg, str):
+            # arg is a string, do what JES does and make picture of string
+            self.image = PIL.Image.new("RGB", (600, 200))
+            self.extension = extension
+            self.title = arg
+            self.filename = ''
+            draw = PIL.ImageDraw.Draw(self.image)
+            draw.text((0, 100), arg)
+        else:
+            # arg is not None or not recogized; create empty Picture
+            self.image = None
+            self.extension = extension
             self.filename = self.title = ''
 
     def __str__(self):
@@ -27,16 +48,16 @@ class Picture:
             representation of this picture
         """
         output = "Picture, filename {} height {} width {}".format(
-            self.image.filename, self.image.height, self.image.width)
+            self.filename, self.image.height, self.image.width)
         return output
 
     def getExtension(self):
-        """Return the extension for this picture
+        """Return the filename extension for this picture
 
         Returns
         -------
-        String
-            the extension for the picture
+        str
+            the file extension for the picture (indicates the image file format)
         """
         return self.extension
 
@@ -53,20 +74,18 @@ class Picture:
         im = sourcePicture.getImage().copy()
         self.setImage(im)
 
-
     def setAllPixelsToAColor(self, acolor):
         """Makes the image associated with the picture filled in with one color
 
         Parameters
         ----------
-        acolor : instance of Color class
+        acolor : Color
             the color that outlines arc
         """
         if not isinstance(acolor, Color):
             print ("setAllPixelsToAColor(color): Input is not a color")
             raise ValueError
         self.image = PIL.Image.new("RGB", (self.getWidth(), self.getHeight()), acolor.getRGB())
-
 
     def getFileName(self):
         """Return picture file name
@@ -76,7 +95,7 @@ class Picture:
         string
             name of file containing picture data
         """
-        return self.image.filename
+        return self.filename
 
     def setFileName(self, filename):
         """Set picture file name
@@ -86,7 +105,7 @@ class Picture:
         filename : string
             filename to assign to this picture
         """
-        self.image.filename = filename
+        self.filename = filename
 
     def getTitle(self):
         """Return picture title
@@ -128,13 +147,12 @@ class Picture:
         """
         return self.image.height
 
-
     def getImage(self):
         """Return the PIL Image associated with this picture
 
         Returns
         -------
-        PIL.Image
+        PIL.Image.Image
             the PIL Image associated with this picture
         """
         return self.image
@@ -144,7 +162,7 @@ class Picture:
 
         Parameters
         ----------
-        image : PIL.Image
+        image : PIL.Image.Image
             the PIL Image to associate with this picture
         """
         self.image = image
@@ -159,19 +177,19 @@ class Picture:
 
         Returns
         -------
-        Tuple
+        tuple of int
             the color of the pixel at position (x,y) as a tuple
         """
         return self.getPixel(x,y).getColor().getRGB()
 
     def setBasicPixel(self, x, y, rgb):
-        """Sets the pixel at specified coordinates to a color based on rgb(Tuple)
+        """Sets the pixel at specified coordinates to a color based on rgb(tuple)
 
         Parameters
         ----------
         x, y : int
             the coordinates of the pixel
-        rgb : tuple
+        rgb : tuple of int
             the color the pixel will be set to
         """
         col = Color(rgb[0], rgb[1], rgb[2])
@@ -210,77 +228,6 @@ class Picture:
                 pixels.append(Pixel(self.image, x, y))
         return pixels
 
-    def load(self, fileName):
-        """Load picture from a file without throwing exceptions
-
-        Parameters
-        ----------
-        fileName : string
-            the name of the file to load the picture from
-
-        Returns
-        -------
-        Boolean
-            True if success else False
-        """
-        try:
-            self.loadOrFail(fileName)
-            return True
-        except BaseException:
-            print("There was an error trying to open " + fileName)
-            mode = "RGB"
-            size = (600, 200)
-            self.image = PIL.Image.new(mode, size, (255,255,255))
-            self.addMessage("Couldn't load " + fileName, 5, 100)
-            return False
-
-    def show(self):
-        #script = os.path.join(JESConfig.getConfigVal("CONFIG_JESPATH"), 'show.py')
-        filename = self.__saveInTempFile()
-        self.__runScript('show.py', filename, self.title)
-        #subprocess.Popen([sys.executable, script, filename, self.title])
-
-        #os.remove(filename)
-
-    def getWxImage(self, copy_alpha=True):
-        """Return a wx.Image version of this image
-
-        Parameters
-        ----------
-        copy_alpha : boolean
-            if True and image has alpha values, then convert them too
-
-        Returns
-        -------
-        wx.Image
-            the converted image
-        """
-        orig_width, orig_height = self.image.size
-        wx_img = wx.Image(orig_width, orig_height)
-        wx_img.SetData(self.image.convert('RGB').tobytes())
-
-        if copy_alpha and (self.image.mode[-1] == 'A'):
-            alpha = self.image.getchannel("A").tobytes()
-            wx_img.InitAlpha()
-            for i in range(orig_width):
-                for j in range(orig_height):
-                    wx_img.SetAlpha(i, j, alpha[i + j * orig_width])
-        return wx_img
-
-    #////////////////////// methods ///////////////////////////////////////
-
-    #  Method to return a string with information about this picture.
-    #  @return a string with information about the picture such as fileName,
-    #  height and width.
-    # public String toString() {
-    #     String output = "Picture, filename " + getFileName() +
-    #                     " height " + getHeight()
-    #                     + " width " + getWidth();
-    #     return output;
-    # }
-
-    #/* adding graphics to pictures, for use in JES. (added by alexr, Oct 2006) */
-
     def addLine(self, acolor, x1, y1, x2, y2):
         """Draw a line on this picture
     
@@ -299,21 +246,18 @@ class Picture:
         shape = [x1, y1, x2, y2]
         draw.line(shape, fill=acolor.getRGB())
 
-    #  * Method to add a line of text to a picture
-    #  *    @param acolor the color of the text
-    #  *    @param x the x-coordinate of the bottom left corner of the text
-    #  *    @param y the y-coordinate of the bottom left corner of the text
-    #  *    @param string the text to be added to the picture
     def addText(self, acolor, x, y, string):
-        """Adds text to the image
+        """Add a line of text to the picture
     
+        Parameters
+        ----------
         acolor : Color
             the color of the text
         x : int
             the x-coordinate of the top left corner of the text
         y : int
             the y-coordinate of the top left corner of the text
-        string : string
+        string : str
             the text that will be drawn on the picture
         """
         draw = PIL.ImageDraw.Draw(self.image)
@@ -322,24 +266,33 @@ class Picture:
         # draw.text((x, y),"Sample Text",(r,g,b))
         draw.text((x, y), string, acolor.getRGB())
 
-    #  * Method to add text to a picture withe a particular font style
-    #  *    @param acolor the color of the text
-    #  *    @param x the x-coordinate of the bottom left corner of the text
-    #  *    @param y the y-coordinate of the bottom left corner of the text
-    #  *    @param string the text to be added to the picture
-    #  *    @param style the font style to be used
-    # def addTextWithStyle(self, acolor, x, y, string, style):
-    #     draw = PIL.ImageDraw.Draw(self.image)
-    #     # font = ImageFont.truetype(<font-file>, <font-size>)
-    #     # font = ImageFont.truetype("sans-serif.ttf", 16)
-    #     # draw.text((x, y),"Sample Text",(r,g,b))
+    def addTextWithStyle(self, acolor, x, y, string, style):
+        """Add text to a picture withe a particular font style
 
-    #     draw.text((x, y), string, acolor.getRGB())
+        Parameters
+        ----------
+        acolor : Color
+            the color of the text
+        x : int
+            the x-coordinate of the top left corner of the text
+        y : int
+            the y-coordinate of the top left corner of the text
+        string : str
+            the text that will be drawn on the picture
+        style : ???
+            the font style to be used
+        """
+    #    draw = PIL.ImageDraw.Draw(self.image)
+    #    # font = ImageFont.truetype(<font-file>, <font-size>)
+    #    # font = ImageFont.truetype("sans-serif.ttf", 16)
+    #    # draw.text((x, y),"Sample Text",(r,g,b))
+    #    draw.text((x, y), string, acolor.getRGB())
+        print("This function is not yet implemented.")
 
     def addRect(self, acolor, x, y, w, h):
         """Draw the outline of a rectangle on this picture
     
-        acolor : instance of Color class
+        acolor : Color
             the color of the rectangle border
         x : int
             the x-coordinate of the upper-left corner of the rectangle
@@ -357,7 +310,7 @@ class Picture:
     def addRectFilled(self, acolor, x, y, w, h):
         """Draw a filled rectangle on this picture
     
-        acolor : instance of Color class
+        acolor : Color
             the color that the rectangle is filled
         x : int
             the x-coordinate of the upper-left corner of the rectangle
@@ -376,7 +329,7 @@ class Picture:
     def addOvalFilled(self, acolor, x, y, w, h):
         """Draw a filled oval on this picture
     
-        acolor : instance of Color class
+        acolor : Color
             the color that the oval is filled with.
         x : int
             the x-coordinate of the upper-left corner of the boundary rectangle for the oval
@@ -395,7 +348,7 @@ class Picture:
     def addOval(self, acolor, x, y, w, h):
         """Draw the outline of an oval on this picture
     
-        acolor : instance of Color class
+        acolor : Color
             the color of the oval border
         x : int
             the x-coordinate of the upper-left corner of the boundary rectangle for the oval
@@ -413,7 +366,7 @@ class Picture:
     def addArcFilled(self, acolor, x, y, w, h, start, angle):
         """Draw a filled in arc on this picture
     
-        acolor : instance of Color class
+        acolor : Color
             the color that the arc is filled with
         x : int
             the x-coordinate of the center of the arc
@@ -440,7 +393,7 @@ class Picture:
     def addArc(self, acolor, x, y, w, h, start, angle):
         """Draw the outline of an arc on this picture
     
-        acolor : instance of Color class
+        acolor : Color
             the color that outlines arc
         x : int
             the x-coordinate of the center of the arc
@@ -518,30 +471,6 @@ class Picture:
         pic.title = self.title
         return pic
 
-    def __saveInTempFile(self):
-        """Create temporary image file
-
-        Returns
-        -------
-        string
-            path to temporary image file
-        """
-        filename = os.path.join(tempfile.gettempdir(),
-            "jes_" + next(tempfile._get_candidate_names()) + self.extension)
-        self.write(filename)
-        return filename
-
-        # Run show script
-    def __runScript(self, script, *argv):
-        scriptpath = os.path.join(JESConfig.getConfigVal("CONFIG_JESPATH"), script)
-        subprocess.Popen([sys.executable, scriptpath] + list(argv))
-
-    def pictureTool(self):
-        filename = self.__saveInTempFile()
-        self.__runScript('pictureTool.py', filename, self.title)
-
-        #os.remove(filename)
-
     def scale(self, xFactor, yFactor):
         """Create new scaled picture
 
@@ -612,29 +541,57 @@ class Picture:
 
         Parameters
         ----------
-        fileName : string
+        fileName : str
             the name of the file to load the picture from
 
         Returns
         -------
-        Boolean
+        bool
             True if success else False
         """
         result = True
 
-        # // try to load the picture into the buffered image from the file name
+        # try to load the picture into the buffered image from the file name
         result = load(fileName)
 
-        # // show the picture in a picture frame
+        # show the picture in a picture frame
         self.show()
 
         return result
 
+    def load(self, fileName):
+        """Load picture from a file without throwing exceptions
+
+        Parameters
+        ----------
+        fileName : str
+            the name of the file to load the picture from
+
+        Returns
+        -------
+        bool
+            True if success else False
+        """
+        try:
+            self.loadOrFail(fileName)
+            return True
+        except BaseException:
+            print("There was an error trying to open " + fileName)
+            mode = "RGB"
+            size = (600, 200)
+            self.image = PIL.Image.new(mode, size, (255,255,255))
+            self.addMessage("Couldn't load " + fileName, 5, 100)
+            return False
+
     def loadOrFail(self, fileName):
         """Load a picture from a file
+
+        Parameters
+        ----------
+        fileName : str
             the name of the file to load the picture from
         """
-        self.image = PIL.Image.open(fileName)
+        self.image = PIL.Image.open(fileName) #.convert('RGB')
         self.filename = self.title = fileName
 
 
@@ -643,11 +600,12 @@ class Picture:
 
         Parameters
         ----------
-        fileName : string
+        fileName : str
             The name of the file that this picture will be written to
+
         Returns
         -------
-        Boolean
+        bool
             True if the file is written False if an IO error occurs
         """
         try :
@@ -662,7 +620,7 @@ class Picture:
  
         Parameters
         ----------
-        fileName : string
+        fileName : str
             the name of the file to write the picture to
         """
         # get name and extension
@@ -679,16 +637,12 @@ class Picture:
         # write file
         self.image.save(fileName, format=imageType)
 
-    # /**
-    #  * Method to set the media path by setting the directory to use
-    #  * @param directory the directory to use for the media path
-    #  */
     def setMediaPath(self, directory):
         """Method to set the directory for the media
 
         Parameters
         ----------
-        directory : string
+        directory : str
             the directory to use for the media path
 
         """
@@ -699,14 +653,13 @@ class Picture:
 
         Parameters
         ----------
-        fileName : string
+        fileName : str
             the fileName the base file name to use
 
         Returns
         -------
-        String
-            return the full path name by appending
-            the file name to the media directory
+        str
+            the full path name by appending the file name to the media directory
         """
         return FileChooser.getMediaPath(fileName)
 
@@ -718,12 +671,12 @@ class Picture:
 
         Parameters
         ----------
-        fileName : string
+        fileName : str
             the name of the file to load the picture from
 
         Returns
         -------
-        Boolean
+        bool
             True if success else False
         """    
         return self.load(fileName)
@@ -731,7 +684,7 @@ class Picture:
     def addMessage(self, message, xPos, yPos):
         """Adds text to the image
     
-        message : string
+        message : str
             the message that will be drawn on the picture
         x : int
             the x-coordinate of the top left corner of the text
@@ -745,7 +698,7 @@ class Picture:
     def drawString(self, text, xPos, yPos):
         """Adds text to the image
     
-        text : string
+        text : str
             the text that will be drawn on the picture
         x : int
             the x-coordinate of the top left corner of the text
@@ -754,4 +707,87 @@ class Picture:
         """
         # get a graphics context to use to draw on the buffered image
         self.addMessage(text, xPos, yPos)
-   
+
+#----------------------------------------------------------------------------
+# WX specific methods
+#----------------------------------------------------------------------------
+
+    def getWxImage(self, copy_alpha=True):
+        """Return a wx.Image version of this image
+
+        Parameters
+        ----------
+        copy_alpha : bool
+            if True and image has alpha values, then convert them too
+
+        Returns
+        -------
+        wx.Image
+            the converted image
+        """
+        orig_width, orig_height = self.image.size
+        wx_img = wx.Image(orig_width, orig_height)
+        wx_img.SetData(self.image.convert('RGB').tobytes())
+
+        if copy_alpha and (self.image.mode[-1] == 'A'):
+            alpha = self.image.getchannel("A").tobytes()
+            wx_img.InitAlpha()
+            for i in range(orig_width):
+                for j in range(orig_height):
+                    wx_img.SetAlpha(i, j, alpha[i + j * orig_width])
+        return wx_img
+
+    def __saveInTempFile(self):
+        """Create temporary image file
+
+        Returns
+        -------
+        string
+            path to temporary image file
+        """
+        filename = os.path.join(tempfile.gettempdir(),
+            "jes_" + next(tempfile._get_candidate_names()) + self.extension)
+        self.write(filename)
+        return filename
+
+        # Run show script
+    def __runScript(self, script, *argv):
+        """Run a Python script in a subprocess
+
+        Parameters
+        ----------
+        script : str
+            the script to run; must be in the JESemu directory
+        *argv : list
+            parameters to pass to script on command line
+
+        Returns
+        -------
+        Popen instance
+        """
+        scriptpath = os.path.join(JESConfig.getConfigVal("CONFIG_JESPATH"), script)
+        return subprocess.Popen([sys.executable, scriptpath] + list(argv))
+
+    def show(self):
+        """Show a picture using stand-alone Python script
+        """
+        filename = self.__saveInTempFile()
+        self.process = self.__runScript('show.py', filename, self.title)
+        #os.remove(filename)
+
+    def repaint(self):
+        """Reshow a picture using stand-alone Python script
+        """
+        try:
+            if self.process != None:
+                self.process.kill()
+        except AttributeError:
+            pass
+        self.show()
+
+    def pictureTool(self):
+        """Explore a picture using a stand-alone Python script
+        """
+        filename = self.__saveInTempFile()
+        self.__runScript('pictureTool.py', filename, self.title)
+        #os.remove(filename)
