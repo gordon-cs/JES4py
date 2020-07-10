@@ -752,19 +752,42 @@ class Picture:
 
         # Run show script
     def __runScript(self, script, *argv):
+        """Run a Python script in a subprocess
+
+        Parameters
+        ----------
+        script : str
+            the script to run; must be in the JESemu directory
+        *argv : list
+            parameters to pass to script on command line
+
+        Returns
+        -------
+        Popen instance
+        """
         scriptpath = os.path.join(JESConfig.getConfigVal("CONFIG_JESPATH"), script)
-        subprocess.Popen([sys.executable, scriptpath] + list(argv))
+        return subprocess.Popen([sys.executable, scriptpath] + list(argv))
 
     def show(self):
-        #script = os.path.join(JESConfig.getConfigVal("CONFIG_JESPATH"), 'show.py')
+        """Show a picture using stand-alone Python script
+        """
         filename = self.__saveInTempFile()
-        self.__runScript('show.py', filename, self.title)
-        #subprocess.Popen([sys.executable, script, filename, self.title])
-
+        self.process = self.__runScript('show.py', filename, self.title)
         #os.remove(filename)
 
+    def repaint(self):
+        """Reshow a picture using stand-alone Python script
+        """
+        try:
+            if self.process != None:
+                self.process.kill()
+        except AttributeError:
+            pass
+        self.show()
+
     def pictureTool(self):
+        """Explore a picture using a stand-alone Python script
+        """
         filename = self.__saveInTempFile()
         self.__runScript('pictureTool.py', filename, self.title)
-
         #os.remove(filename)
