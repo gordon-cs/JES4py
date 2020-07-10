@@ -5,7 +5,7 @@ import PIL.ImageDraw, PIL.Image
 import JESConfig
 from Pixel import Pixel
 from Pixel import Color
-from FileChooser import *
+import FileChooser
 from pathlib import Path
 
 class Picture:
@@ -678,6 +678,37 @@ class Picture:
  
         # write file
         self.image.save(fileName, format=imageType)
+
+    # /**
+    #  * Method to set the media path by setting the directory to use
+    #  * @param directory the directory to use for the media path
+    #  */
+    def setMediaPath(self, directory):
+        """Method to set the directory for the media
+
+        Parameters
+        ----------
+        directory : string
+            the directory to use for the media path
+
+        """
+        FileChooser.setMediaPath(directory)
+
+    def getMediaPath(self, fileName):
+        """Method to get the directory for the media
+
+        Parameters
+        ----------
+        fileName : string
+            the fileName the base file name to use
+
+        Returns
+        -------
+        String
+            return the full path name by appending
+            the file name to the media directory
+        """
+        return FileChooser.getMediaPath(fileName)
 
     def loadImage(self, fileName):
         """Load picture from a file without throwing exceptions
