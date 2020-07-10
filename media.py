@@ -30,6 +30,8 @@ import PIL.Image
 from Pixel import Pixel
 from Picture import Picture
 import wx
+import simpleaudio as sa
+import wave
 
 # from jes.tools.framesequencer import FrameSequencerTool
 
@@ -143,7 +145,10 @@ def makeSound(filename, maxIndex=100):
     if not os.path.isfile(filename):
         print("There is no file at ") + filename
         raise ValueError
-    return Sound(filename)
+    # return Sound(filename)
+    waveR = wave.open(filename, 'rb')
+    wave_obj = sa.WaveObject.from_wave_read(waveR)
+    return wave_obj
 
 # MMO (1 Dec 2005): capped size of sound to 600
 # Brian O (29 Apr 2008): changed first argument to be number of samples,
@@ -190,7 +195,7 @@ def getSamples(sound):
 
 
 def play(sound):
-    if not isinstance(sound, Sound):
+    if not isinstance(sound, sa.WaveObject):
         print("play(sound): Input is not a sound")
         raise ValueError
     sound.play()
