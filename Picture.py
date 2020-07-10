@@ -92,7 +92,7 @@ class Picture:
 
         Returns
         -------
-        str
+        string
             name of file containing picture data
         """
         return self.filename
@@ -102,7 +102,7 @@ class Picture:
 
         Parameters
         ----------
-        filename : str
+        filename : string
             filename to assign to this picture
         """
         self.filename = filename
@@ -768,4 +768,3 @@ class Picture:
         self.__runScript('pictureTool.py', filename, self.title)
 
         #os.remove(filename)
-   
