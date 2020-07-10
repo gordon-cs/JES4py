@@ -98,9 +98,14 @@ def test_drawing():
     refImagePix = openPicture('','refimage.jpg').getPixels()
     assert len(testImagePix) == len(refImagePix)
 
-def test_show():
+#def test_show():
+#    picture = openPicture()
+#    picture.show()
+
+def test_write():
     picture = openPicture()
-    picture.show()
+    assert picture.write('test_picture.jpg')
+    assert not picture.write('/nonexistant-folder/test_picture.jpg')
 
 # Can be run as script to create or recreate refimage.jpg if needed
 if __name__ == "__main__":

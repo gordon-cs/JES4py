@@ -8,9 +8,14 @@ import wx
 
 class MainWindow(wx.Frame):
     def __init__(self, filename, parent=None, id=-1, pos=wx.DefaultPosition, title=None):
+        MIN_WIDTH = 255
         self.origImage = wx.Image(filename, wx.BITMAP_TYPE_ANY)
         self.ratio = 1.0  # Scale factor
-        self.size = (self.origImage.GetWidth(), self.origImage.GetHeight())
+        if self.origImage.GetWidth() < MIN_WIDTH:
+            Ratio = MIN_WIDTH / self.origImage.GetWidth()
+            self.size = (int(self.origImage.GetWidth()*Ratio), int(self.origImage.GetHeight()*Ratio))
+        else:
+            self.size = (self.origImage.GetWidth(), self.origImage.GetHeight())
         MainFrame = wx.Frame.__init__(self, parent, title=title, size=self.size)
         self.panel = wx.Panel(self)        
         # wx.lib.inspection.InspectionTool().Show() # Inspection tool for debugging
@@ -89,7 +94,7 @@ class MainWindow(wx.Frame):
         self.hSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         # Vertical spacer
-        self.mainSizer.Add((-1, 50))
+        self.mainSizer.Add((-1, 55))
 
         # Draws a horizontal line
         self.mainSizer.Add(wx.StaticLine(self.panel, wx.ID_ANY),
@@ -126,15 +131,17 @@ class MainWindow(wx.Frame):
         self.rgbValue = wx.StaticText(self.panel, label=u'R: {} G: {} B: {} Color at location:'.format("N/A", "N/A", "N/A"),style = wx.ALIGN_CENTER)
 
         # X and Y labels
-        self.lblX = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
-        self.lblY = wx.StaticText(self.panel,0,style = wx.ALIGN_CENTER)
+        self.lblX = wx.StaticText(self.panel, 0, style=wx.ALIGN_CENTER)
+        self.lblY = wx.StaticText(self.panel, 0, style=wx.ALIGN_CENTER)
         self.lblX.SetLabel("X: ")
         self.lblY.SetLabel("Y: ")
 
         # Navigation buttons (Enable after getting the colorpicker/eyedropper functional)
         # Icons made by Freepik from www.flaticon.com; Modified by Gahngnin Kim
-        bmp_R = wx.Bitmap("./images/Right.png", wx.BITMAP_TYPE_ANY)
-        bmp_L = wx.Bitmap("./images/Left.png", wx.BITMAP_TYPE_ANY)
+        rightImage = os.path.join(sys.path[0], 'images', 'Right.png')
+        leftImage = os.path.join(sys.path[0], 'images', 'Left.png')
+        bmp_R = wx.Bitmap(rightImage, wx.BITMAP_TYPE_ANY)
+        bmp_L = wx.Bitmap(leftImage, wx.BITMAP_TYPE_ANY)
         self.buttonX_L = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_L, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
         self.buttonX_L.myname = "XL"
         self.buttonX_R = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_R, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
