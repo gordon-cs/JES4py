@@ -4,15 +4,23 @@
 
 import os, sys
 import wx
+import wx.lib.scrolledpanel as scrolled
 # import wx.lib.inspection
 
 class MainWindow(wx.Frame):
     def __init__(self, filename, parent=None, id=-1, pos=wx.DefaultPosition, title=None):
+        #First retrieve the screen size of the device
+        screenSize = wx.DisplaySize()
+        screenWidth = screenSize[0]
+        screenHeight = screenSize[1]
+
         self.origImage = wx.Image(filename, wx.BITMAP_TYPE_ANY)
         self.ratio = 1.0  # Scale factor
         self.size = (self.origImage.GetWidth(), self.origImage.GetHeight())
         MainFrame = wx.Frame.__init__(self, parent, title=title, size=self.size)
-        self.panel = wx.Panel(self)        
+        self.panel1 = wx.Panel(self,size=(self.size[0],100), pos=(0,0), style=wx.SIMPLE_BORDER)
+        self.panel2 = scrolled.ScrolledPanel(self,-1, size=(self.size[0],400), pos=(0,55), style=wx.SIMPLE_BORDER)
+        self.panel2.SetupScrolling()
         # wx.lib.inspection.InspectionTool().Show() # Inspection tool for debugging
         
         # Maximum horizontal dimension. Needs to be removed later.
@@ -24,7 +32,7 @@ class MainWindow(wx.Frame):
         self.ColorPicker() # Color Eyedropper
         self.viewingWindow() # Image viewer
         self.CreateStatusBar() # A Statusbar in the bottom of the window
-        self.SetClientSize(self.size)
+        #self.SetClientSize(self.size)
 
         # Setting up the menu bar
         self.filemenu = wx.Menu()
@@ -73,36 +81,36 @@ class MainWindow(wx.Frame):
         wxImg = self.origImage #wx.Image(self.size[0], self.size[1]) # wx.Image(width, height, clear)
 
         # Convert the image into a bitmap image
-        self.imageCtrl = wx.StaticBitmap(self.panel, wx.ID_ANY, wx.Bitmap(wxImg))
+        self.imageCtrl = wx.StaticBitmap(self.panel2, wx.ID_ANY, wx.Bitmap(wxImg))
 
         # Event handler - Gets X, Y coordinates on mouse click
         self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
         self.imageCtrl.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick)
 
         # Stores the filepath of the image
-        self.photoTxt = wx.TextCtrl(self.panel, size=(200,-1))
+        self.photoTxt = wx.TextCtrl(self.panel2, size=(200,-1))
         self.photoTxt.Show(False)
         
         #########LAYOUT SETUP###########
         # Initialize vertical and horizontal boxsizers
-        self.mainSizer = wx.BoxSizer(wx.VERTICAL) # Main vertical boxsizer
-        self.hSizer = wx.BoxSizer(wx.HORIZONTAL)
+        mainSizer = wx.BoxSizer(wx.VERTICAL) # Main vertical boxsizer
+        hSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         # Vertical spacer
-        self.mainSizer.Add((-1, 50))
+        mainSizer.Add((-1, 50))
 
         # Draws a horizontal line
-        self.mainSizer.Add(wx.StaticLine(self.panel, wx.ID_ANY),
+        mainSizer.Add(wx.StaticLine(self.panel2, wx.ID_ANY),
                            0, wx.ALL|wx.EXPAND, 5)
         
         # Places components to the sizers
-        self.mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 5)
-        self.hSizer.Add(self.photoTxt, 0, wx.ALL, 5)
-        self.mainSizer.Add(self.hSizer, 0, wx.ALL, 5)
+        mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 5)
+        hSizer.Add(self.photoTxt, 0, wx.ALL, 5)
+        mainSizer.Add(hSizer, 0, wx.ALL, 5)
 
         # Set the main sizer to fit the top level panel
-        self.panel.SetSizer(self.mainSizer)
-        self.mainSizer.Fit(self.panel)
+        #self.panel.SetSizer(mainSizer)
+        mainSizer.Fit(self.panel2)
     
     def ColorPicker(self):
         """ Reads color information from the selected pixel.
@@ -112,22 +120,22 @@ class MainWindow(wx.Frame):
         """
         # initialize an empty bitmap
         self.bmp = wx.Bitmap(20,20)
-        self.colorPreview = wx.StaticBitmap(self.panel, wx.ID_ANY, self.bmp)
+        self.colorPreview = wx.StaticBitmap(self.panel1, wx.ID_ANY, self.bmp)
         self.colorPreview.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
 
         # Textboxes to display X and Y coordinates on click
-        self.pixelTxtX = wx.TextCtrl(self.panel, wx.ALIGN_CENTER, style=wx.TE_PROCESS_ENTER, size=(50,-1))
-        self.pixelTxtY = wx.TextCtrl(self.panel, wx.ALIGN_CENTER, style=wx.TE_PROCESS_ENTER, size=(50,-1))
+        self.pixelTxtX = wx.TextCtrl(self.panel1, wx.ALIGN_CENTER, style=wx.TE_PROCESS_ENTER, size=(50,-1))
+        self.pixelTxtY = wx.TextCtrl(self.panel1, wx.ALIGN_CENTER, style=wx.TE_PROCESS_ENTER, size=(50,-1))
         self.pixelTxtX.Bind(wx.EVT_TEXT_ENTER, self.ImageCtrl_OnEnter)
         self.pixelTxtY.Bind(wx.EVT_TEXT_ENTER, self.ImageCtrl_OnEnter)
 
         # Static text displays RGB values of the given coordinates
         # Initialized with dummie values
-        self.rgbValue = wx.StaticText(self.panel, label=u'R: {} G: {} B: {} Color at location:'.format("N/A", "N/A", "N/A"),style = wx.ALIGN_CENTER)
+        self.rgbValue = wx.StaticText(self.panel1, label=u'R: {} G: {} B: {} Color at location:'.format("N/A", "N/A", "N/A"),style = wx.ALIGN_CENTER)
 
         # X and Y labels
-        self.lblX = wx.StaticText(self.panel, 0, style=wx.ALIGN_CENTER)
-        self.lblY = wx.StaticText(self.panel, 0, style=wx.ALIGN_CENTER)
+        self.lblX = wx.StaticText(self.panel1, 0, style=wx.ALIGN_CENTER)
+        self.lblY = wx.StaticText(self.panel1, 0, style=wx.ALIGN_CENTER)
         self.lblX.SetLabel("X: ")
         self.lblY.SetLabel("Y: ")
 
@@ -137,13 +145,13 @@ class MainWindow(wx.Frame):
         leftImage = os.path.join(sys.path[0], 'images', 'Left.png')
         bmp_R = wx.Bitmap(rightImage, wx.BITMAP_TYPE_ANY)
         bmp_L = wx.Bitmap(leftImage, wx.BITMAP_TYPE_ANY)
-        self.buttonX_L = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_L, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
+        self.buttonX_L = wx.BitmapButton(self.panel1, wx.ID_ANY, bitmap=bmp_L, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
         self.buttonX_L.myname = "XL"
-        self.buttonX_R = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_R, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
+        self.buttonX_R = wx.BitmapButton(self.panel1, wx.ID_ANY, bitmap=bmp_R, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
         self.buttonX_R.myname = "XR"
-        self.buttonY_L = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_L, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
+        self.buttonY_L = wx.BitmapButton(self.panel1, wx.ID_ANY, bitmap=bmp_L, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
         self.buttonY_L.myname = "YL"
-        self.buttonY_R = wx.BitmapButton(self.panel, wx.ID_ANY, bitmap=bmp_R, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
+        self.buttonY_R = wx.BitmapButton(self.panel1, wx.ID_ANY, bitmap=bmp_R, size=(bmp_L.GetWidth()+5,bmp_L.GetHeight()+5))
         self.buttonY_R.myname = "YR"
         self.buttonX_L.Bind(wx.EVT_BUTTON, self.ImageCtrl_OnNavBtn)
         self.buttonX_R.Bind(wx.EVT_BUTTON, self.ImageCtrl_OnNavBtn)
@@ -188,9 +196,9 @@ class MainWindow(wx.Frame):
         self.box.Add(self.hbox2, 0, flag=wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
 
 
-        self.panel.SetSizer(self.box)
-        self.box.Fit(self.panel)
-        self.panel.Layout()
+        self.panel1.SetSizer(self.box)
+        self.box.Fit(self.panel1)
+        self.panel1.Layout()
         self.Show()
 
     def ImageCtrl_OnMouseClick(self, event):
@@ -326,7 +334,7 @@ class MainWindow(wx.Frame):
 
         self.image = self.origImage.Scale(int(self.ScaledW),int(self.ScaledH))
         self.imageCtrl.SetBitmap(wx.Bitmap(self.image))
-        self.panel.Refresh()
+        self.panel1.Refresh()
 
     def onAbout(self,e):
         # A message dialog box with an OK button. wx.OK is a standard ID in wxWidgets.
