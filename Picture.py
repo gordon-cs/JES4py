@@ -30,12 +30,50 @@ class Picture:
             self.image.filename, self.image.height, self.image.width)
         return output
 
+    def getExtension(self):
+        """Return the extension for this picture
+
+        Returns
+        -------
+        String
+            the extension for the picture
+        """
+        return self.extension
+
+    def copyPicture(self, sourcePicture):
+        """Copies the passed in picture to the current Picture
+
+        Parameters
+        ----------
+        sourcePicture : Picture
+            the Picture object that self will look like
+
+        """
+        im = PIL.Image.new("RGB", (self.getWidth(), self.getHeight()), (0,0,0))
+        im = sourcePicture.getImage().copy()
+        self.setImage(im)
+
+
+    def setAllPixelsToAColor(self, acolor):
+        """Makes the image associated with the picture filled in with one color
+
+        Parameters
+        ----------
+        acolor : instance of Color class
+            the color that outlines arc
+        """
+        if not isinstance(acolor, Color):
+            print ("setAllPixelsToAColor(color): Input is not a color")
+            raise ValueError
+        self.image = PIL.Image.new("RGB", (self.getWidth(), self.getHeight()), acolor.getRGB())
+
+
     def getFileName(self):
         """Return picture file name
 
         Returns
         -------
-        str
+        string
             name of file containing picture data
         """
         return self.image.filename
@@ -45,7 +83,7 @@ class Picture:
 
         Parameters
         ----------
-        filename : str
+        filename : string
             filename to assign to this picture
         """
         self.image.filename = filename
@@ -70,38 +108,46 @@ class Picture:
         """
         self.title = title
 
-    def getPixels(self):
-        """Return list of pixels contained in picture
-
-        Returns a list of all pixels in this picture as a flattened array.
-        Pixels are listed row-by-row.
+    def getWidth(self):
+        """Return the width of this image in this picture
 
         Returns
         -------
-        list of Pixel
-            list of pixels in this picture
+        int
+            number of pixels in a row of this image
         """
-        pixels = list()
-        for y in range(self.image.height):
-            for x in range(self.image.width):
-                pixels.append(Pixel(self.image, x, y))
-        return pixels
+        return self.image.width
 
-    def getPixel(self, x, y):
-        """Return the pixel at specified coordinates
+    def getHeight(self):
+        """Return the height of the image in this picture
+
+        Returns
+        -------
+        int
+            number of pixels in a column of this image
+        """
+        return self.image.height
+
+
+    def getImage(self):
+        """Return the PIL Image associated with this picture
+
+        Returns
+        -------
+        PIL.Image
+            the PIL Image associated with this picture
+        """
+        return self.image
+
+    def setImage(self, image):
+        """Sets the PIL Image associated with this picture
 
         Parameters
         ----------
-        x, y : int
-            the coordinates of the pixel
-
-        Returns
-        -------
-        Pixel
-            the pixel at (x,y) in this picture
+        image : PIL.Image
+            the PIL Image to associate with this picture
         """
-        pix = Pixel(self.image, x, y)
-        return pix
+        self.image = image
 
     def getBasicPixel(self, x, y):
         """Return the pixel at specified coordinates as a tuple.
@@ -131,25 +177,70 @@ class Picture:
         col = Color(rgb[0], rgb[1], rgb[2])
         self.getPixel(x,y).setColor(col)
 
-    def getImage(self):
-        """Return the PIL Image associated with this picture
-
-        Returns
-        -------
-        PIL.Image
-            the PIL Image associated with this picture
-        """
-        return self.image
-
-    def setImage(self, image):
-        """Sets the PIL Image associated with this picture
+    def getPixel(self, x, y):
+        """Return the pixel at specified coordinates
 
         Parameters
         ----------
-        image : PIL.Image
-            the PIL Image to associate with this picture
+        x, y : int
+            the coordinates of the pixel
+
+        Returns
+        -------
+        Pixel
+            the pixel at (x,y) in this picture
         """
-        self.image = image
+        pix = Pixel(self.image, x, y)
+        return pix
+
+    def getPixels(self):
+        """Return list of pixels contained in picture
+
+        Returns a list of all pixels in this picture as a flattened array.
+        Pixels are listed row-by-row.
+
+        Returns
+        -------
+        list of Pixel
+            list of pixels in this picture
+        """
+        pixels = list()
+        for y in range(self.image.height):
+            for x in range(self.image.width):
+                pixels.append(Pixel(self.image, x, y))
+        return pixels
+
+    def load(self, fileName):
+        """Load picture from a file without throwing exceptions
+
+        Parameters
+        ----------
+        fileName : string
+            the name of the file to load the picture from
+
+        Returns
+        -------
+        Boolean
+            True if success else False
+        """
+        try:
+            self.loadOrFail(fileName)
+            return True
+        except BaseException:
+            print("There was an error trying to open " + fileName)
+            mode = "RGB"
+            size = (600, 200)
+            self.image = PIL.Image.new(mode, size, (255,255,255))
+            self.addMessage("Couldn't load " + fileName, 5, 100)
+            return False
+
+    def show(self):
+        #script = os.path.join(JESConfig.getConfigVal("CONFIG_JESPATH"), 'show.py')
+        filename = self.__saveInTempFile()
+        self.__runScript('show.py', filename, self.title)
+        #subprocess.Popen([sys.executable, script, filename, self.title])
+
+        #os.remove(filename)
 
     def getWxImage(self, copy_alpha=True):
         """Return a wx.Image version of this image
@@ -175,26 +266,6 @@ class Picture:
                 for j in range(orig_height):
                     wx_img.SetAlpha(i, j, alpha[i + j * orig_width])
         return wx_img
-
-    def getWidth(self):
-        """Return the width of this image in this picture
-
-        Returns
-        -------
-        int
-            number of pixels in a row of this image
-        """
-        return self.image.width
-
-    def getHeight(self):
-        """Return the height of the image in this picture
-
-        Returns
-        -------
-        int
-            number of pixels in a column of this image
-        """
-        return self.image.height
 
     #////////////////////// methods ///////////////////////////////////////
 
@@ -392,32 +463,6 @@ class Picture:
             start, end = end, start
         draw.arc(shape, start, end, fill=acolor.getRGB(), width=1)
 
-    def copyPicture(self, sourcePicture):
-        """Copies the passed in picture to the current Picture
-
-        Parameters
-        ----------
-        sourcePicture : Picture
-            the Picture object that self will look like
-
-        """
-        im = PIL.Image.new("RGB", (self.getWidth(), self.getHeight()), (0,0,0))
-        im = sourcePicture.getImage().copy()
-        self.setImage(im)
-
-    def setAllPixelsToAColor(self, acolor):
-        """Makes the image associated with the picture filled in with one color
-
-        Parameters
-        ----------
-        acolor : instance of Color class
-            the color that outlines arc
-        """
-        if not isinstance(acolor, Color):
-            print ("setAllPixelsToAColor(color): Input is not a color")
-            raise ValueError
-        self.image = PIL.Image.new("RGB", (self.getWidth(), self.getHeight()), acolor.getRGB())
-
     def copyInto(self, dest, upperLeftX, upperLeftY):
         """Returns a picture with the current picture copied into it
 
@@ -490,14 +535,6 @@ class Picture:
     def __runScript(self, script, *argv):
         scriptpath = os.path.join(JESConfig.getConfigVal("CONFIG_JESPATH"), script)
         subprocess.Popen([sys.executable, scriptpath] + list(argv))
-
-    def show(self):
-        #script = os.path.join(JESConfig.getConfigVal("CONFIG_JESPATH"), 'show.py')
-        filename = self.__saveInTempFile()
-        self.__runScript('show.py', filename, self.title)
-        #subprocess.Popen([sys.executable, script, filename, self.title])
-
-        #os.remove(filename)
 
     def pictureTool(self):
         filename = self.__saveInTempFile()
@@ -592,30 +629,6 @@ class Picture:
         self.show()
 
         return result
-
-    def load(self, fileName):
-        """Load picture from a file without throwing exceptions
-
-        Parameters
-        ----------
-        fileName : string
-            the name of the file to load the picture from
-
-        Returns
-        -------
-        Boolean
-            True if success else False
-        """
-        try:
-            self.loadOrFail(fileName)
-            return True
-        except BaseException:
-            print("There was an error trying to open " + fileName)
-            mode = "RGB"
-            size = (600, 200)
-            self.image = PIL.Image.new(mode, size, (255,255,255))
-            self.addMessage("Couldn't load " + fileName, 5, 100)
-            return False
 
     def loadOrFail(self, fileName):
         """Load a picture from a file
