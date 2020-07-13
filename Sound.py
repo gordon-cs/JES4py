@@ -1,10 +1,9 @@
 #import os, sys
 import simpleaudio as sa
-import numpy as np
+# import numpy as np
 import wave
 import JESConfig
 from SoundSample import SoundSample
-import os
 #import FileChooser
 
 class Sound:
