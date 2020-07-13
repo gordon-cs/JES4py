@@ -87,7 +87,7 @@ def setTestMediaFolder():
 
 
 def getMediaFolder(filename=""):
-    return str(getMediaPath(filename))
+    return str(FileChooser.getMediaDirectory(filename))
 
 
 def showMediaFolder():
@@ -456,21 +456,18 @@ def pixelsToPicture(pixels, defaultColor=white, maxX=100, maxY=100):
     return newpic
 
 
-def makePicture(filepath, defaultColor=white):
+def makePicture(filename, defaultColor=white):
     global mediaFolder
-    if not isinstance(filepath, str):
-        return pixelsToPicture(filepath, defaultColor=defaultColor)
-    if not os.path.isabs(filepath):
-        filepath = mediaFolder + filepath
-    if not os.path.isfile(filepath):
-        print("makePicture(filePath): There is no file at " + filepath)
+    if not isinstance(filename, str):
+        return pixelsToPicture(filename, defaultColor=defaultColor)
+    if not os.path.isabs(filename):
+        filename = mediaFolder + filename
+    if not os.path.isfile(filename):
+        print("makePicture(filename): There is no file at " + filename)
         raise ValueError
-    im = PIL.Image.open(filepath)
-    if not isinstance(im, PIL.Image.Image):
-        print("{} is not a file type that could not be opened as an image".format(filepath))
-        raise ValueError
-    pic = Picture(im)
-    return pic
+    picture = Picture()
+    picture.loadOrFail(filename)
+    return picture
 
 # MMO (1 Dec 2005): Capped width/height to max 10000 and min 1
 # alexr (6 Sep 2006): fixed to work without the Python classes.
@@ -524,16 +521,16 @@ def show(picture, title=None):
     if not isinstance(picture, Picture):
         print("show(picture): Input is not a picture")
         raise ValueError
-    #im = pic.getImage()
-    #im.show()
     picture.show()
 
-
-def repaint(pic):
-    if not (isinstance(pic, World) or isinstance(pic, Picture)):
-        print("repaint(picture): Input is not a picture or a world")
+def repaint(picture):
+    #if not (isinstance(picture, World) or isinstance(picture, Picture)):
+    #    print("repaint(picture): Input is not a picture or a world")
+    #    raise ValueError
+    if not isinstance(picture, Picture):
+        print("repaint(picture): Input is not a picture")
         raise ValueError
-    pic.repaint()
+    picture.repaint()
 
 ## adding graphics to your pictures! ##
 
@@ -572,21 +569,21 @@ def addText(pic, x, y, string, acolor=black):
         print("addText(picture, x, y, string[, color]): Last input is not a color")
         raise ValueError
     #g = picture.getBufferedImage().getGraphics()
-    # g.setColor(acolor.color)
+    #g.setColor(acolor.color)
     #g.drawString(string, x - 1, y - 1)
     pic.addText(acolor, x, y, string)
 
-def addTextWithStyle(pic, x, y, string, style, acolor=black):
-    if not isinstance(pic, Picture):
-        print("addTextWithStyle(picture, x, y, string, style[, color]): First input is not a picture")
-        raise ValueError
-    if not isinstance(style, awt.Font):
-        print("addTextWithStyle(picture, x, y, string, style[, color]): Input is not a style (see makeStyle)")
-        raise ValueError
-    if not isinstance(acolor, Color):
-        print("addTextWithStyle(picture, x, y, string, style[, color]): Last input is not a color")
-        raise ValueError
-    pic.addTextWithStyle(acolor, x, y, string, style)
+# def addTextWithStyle(pic, x, y, text, style, acolor=black):
+#     if not isinstance(pic, Picture):
+#         print("addTextWithStyle(picture, x, y, string, style[, color]): First input is not a picture")
+#         raise ValueError
+#     if not isinstance(style, String):
+#         print("addTextWithStyle(picture, x, y, string, style[, color]): Input is not a style (see makeStyle)")
+#         raise ValueError
+#     if not isinstance(acolor, Color):
+#         print("addTextWithStyle(picture, x, y, string, style[, color]): Last input is not a color")
+#         raise ValueError
+#     pic.addTextWithStyle(acolor, x, y, text, style)
 
 # - JRS -- 2020-06-23 -- START OF MODIFICATIONS
 
@@ -806,51 +803,41 @@ def setAllPixelsToAColor(picture, color):
     picture.setAllPixelsToAColor(color.color)
 
 
-def copyInto(smallPicture, bigPicture, startX, startY):
-    # like copyInto(butterfly, jungle, 20,20)
-    if not smallPicture.__class__ == Picture:
-        print("copyInto(smallPicture, bigPicture, startX, startY): smallPicture must be a picture")
-        raise ValueError
-    if not bigPicture.__class__ == Picture:
-        print("copyInto(smallPicture, bigPicture, startX, startY): bigPicture must be a picture")
-        raise ValueError
-    if (startX < Picture._PictureIndexOffset) or (startX > getWidth(bigPicture) - 1 + Picture._PictureIndexOffset):
-        print("copyInto(smallPicture, bigPicture, startX, startY): startX must be within the bigPicture")
-        raise ValueError
-    if (startY < Picture._PictureIndexOffset) or (startY > getHeight(bigPicture) - 1 + Picture._PictureIndexOffset):
-        print("copyInto(smallPicture, bigPicture, startX, startY): startY must be within the bigPicture")
-        raise ValueError
-    if (startX + getWidth(smallPicture) - 1) > (getWidth(bigPicture) - 1 + Picture._PictureIndexOffset) or \
-            (startY + getHeight(smallPicture) - 1) > (getHeight(bigPicture) - 1 + Picture._PictureIndexOffset):
-        print("copyInto(smallPicture, bigPicture, startX, startY): smallPicture won't fit into bigPicture")
-        raise ValueError
+# def copyInto(smallPicture, bigPicture, startX, startY):
+#     # like copyInto(butterfly, jungle, 20,20)
+#     if not isinstance(smallPicture, Picture):
+#         print("copyInto(smallPicture, bigPicture, startX, startY): smallPicture must be a picture")
+#         raise ValueError
+#     if not isinstance(bigPicture,Picture):
+#         print("copyInto(smallPicture, bigPicture, startX, startY): bigPicture must be a picture")
+#         raise ValueError
+#     if (startX < 0) or (startX > getWidth(bigPicture) - 1):
+#         print("copyInto(smallPicture, bigPicture, startX, startY): startX must be within the bigPicture")
+#         raise ValueError
+#     if (startY < 0) or (startY > getHeight(bigPicture) - 1):
+#         print("copyInto(smallPicture, bigPicture, startX, startY): startY must be within the bigPicture")
+#         raise ValueError
+#     if ((startX + getWidth(smallPicture) - 1) > (getWidth(bigPicture) - 1) or (startY + getHeight(smallPicture) - 1) > (getHeight(bigPicture) - 1)):
+#         print("copyInto(smallPicture, bigPicture, startX, startY): smallPicture won't fit into bigPicture")
+#         raise ValueError
 
-    xOffset = startX - Picture._PictureIndexOffset
-    yOffset = startY - Picture._PictureIndexOffset
-
-    for x in range(0, getWidth(smallPicture)):
-        for y in range(0, getHeight(smallPicture)):
-            bigPicture.setBasicPixel(
-                x + xOffset, y + yOffset, smallPicture.getBasicPixel(x, y))
-
-    return bigPicture
 
 # Alyce Brady's version of copyInto, with additional error-checking on the upper-left corner
 # Will copy as much of the original picture into the destination picture as will fit.
-# def copyInto(origPict, destPict, upperLeftX, upperLeftY):
-#  if not isinstance(origPict, Picture):
-#    print "copyInto(origPict, destPict, upperLeftX, upperLeftY): First parameter is not a picture"
-#    raise ValueError
-#  if not isinstance(destPict, Picture):
-#    print "copyInto(origPict, destPict, upperLeftX, upperLeftY): Second parameter is not a picture"
-#    raise ValueError
-#  if upperLeftX < 1 or upperLeftX > getWidth(destPict):
-#    print "copyInto(origPict, destPict, upperLeftX, upperLeftY): upperLeftX must be within the destPict"
-#    raise ValueError
-#  if upperLeftY < 1 or upperLeftY > getHeight(destPict):
-#    print "copyInto(origPict, destPict, upperLeftX, upperLeftY): upperLeftY must be within the destPict"
-#    raise ValueError
-#  return origPict.copyInto(destPict, upperLeftX-1, upperLeftY-1)
+def copyInto(origPict, destPict, upperLeftX, upperLeftY):
+ if not isinstance(origPict, Picture):
+   print("copyInto(origPict, destPict, upperLeftX, upperLeftY): First parameter is not a picture")
+   raise ValueError
+ if not isinstance(destPict, Picture):
+   print("copyInto(origPict, destPict, upperLeftX, upperLeftY): Second parameter is not a picture")
+   raise ValueError
+ if upperLeftX < 1 or upperLeftX > getWidth(destPict):
+   print("copyInto(origPict, destPict, upperLeftX, upperLeftY): upperLeftX must be within the destPict")
+   raise ValueError
+ if upperLeftY < 1 or upperLeftY > getHeight(destPict):
+   print("copyInto(origPict, destPict, upperLeftX, upperLeftY): upperLeftY must be within the destPict")
+   raise ValueError
+ return origPict.copyInto(destPict, upperLeftX-1, upperLeftY-1)
 
 
 def duplicatePicture(picture):
@@ -864,13 +851,13 @@ def cropPicture(pic, upperLeftX, upperLeftY, width, height):
  if not isinstance(pic, Picture):
    print("crop(picture, upperLeftX, upperLeftY, width, height): First parameter is not a picture")
    raise ValueError
- if upperLeftX < 1 or upperLeftX > getWidth(Picture):
+ if upperLeftX < 1 or upperLeftX > getWidth(pic):
    print("crop(picture, upperLeftX, upperLeftY, width, height): upperLeftX must be within the picture")
    raise ValueError
- if upperLeftY < 1 or upperLeftY > getHeight(Picture):
+ if upperLeftY < 1 or upperLeftY > getHeight(pic):
    print("crop(picture, upperLeftX, upperLeftY, width, height): upperLeftY must be within the picture")
    raise ValueError
- return pic.crop(pic, upperLeftX-1, upperLeftY-1, width, height)
+ return pic.crop(upperLeftX-1, upperLeftY-1, width, height)
 
 ##
 # Input and Output interfaces
