@@ -31,7 +31,7 @@ class Sample:
         int
             the sample's value
         """
-        return self.sound.getSampleValueAt(self.index);
+        return self.sound.getSampleValueAt(self.index)
 
     def setValue(self, newValue):
         """Method to set the sample value

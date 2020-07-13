@@ -4,6 +4,7 @@ import numpy as np
 import wave
 import JESConfig
 from SoundSample import SoundSample
+import scipy.io as scio
 #import FileChooser
 
 class Sound:
@@ -13,7 +14,7 @@ class Sound:
     NUM_BITS_PER_SAMPLE = 16
     _SoundIndexOffset = 0
 
-    def __init__(self, sound, sampleRate=22050):
+    def __init__(self, sound=None, sampleRate=22050):
         """Construct new sound object
         
         If first passed parameter is the name of a WAV file, then read
@@ -45,14 +46,17 @@ class Sound:
         sampleRate : int
             the frame rate for the sound
         """
+        if isinstance(sound, None):
+            sound = SAMPLE_RATE*3
         if isinstance(sound, str):
             self.filename = sound
-            self.waveRead = wave.open(self.filename, 'rb')
-            self.numFrames = self.waveRead.getnframes()
-            self.numChannels = self.waveRead.getnchannels()
-            self.sampleWidth = self.waveRead.getsampwidth()
-            self.sampleRate = self.waveRead.getframerate()
-            self.buffer = bytearray(self.waveRead.readframes(self.numFrames))
+            waveRead = wave.open(self.filename, 'rb')
+            # self.waveWrite = wave.open(self.filename, 'wb')
+            self.numFrames = waveRead.getnframes()
+            self.numChannels = waveRead.getnchannels()
+            self.sampleWidth = waveRead.getsampwidth()
+            self.sampleRate = waveRead.getframerate()
+            self.buffer = bytearray(waveRead.readframes(self.numFrames))
         elif isinstance(sound, int):
             self.filename = ''
             self.numFrames = sound
@@ -110,7 +114,10 @@ class Sound:
     # ----------------------- modifiers --------------------------------------
 
     def setBuffer(self, newBuffer):
-        buffer = newBuffer.copy() #maybe not a copy?
+        if isinstance(newBuffer, int):
+            buffer = bytearray(newBuffer)
+        elif isinstance(newBuffer, bytearray):
+            buffer = newBuffer.copy() #maybe not a copy?
 
     # def setAudioFileFormat(self, audioFileFormat):
     #     self.audioFileFormat = audioFileFormat
@@ -128,7 +135,7 @@ class Sound:
         bool
             True if stereo else False
         """
-        return self.numChannels == 2
+        return self.numChannels != 1
 
     def play(self):
         """Play a sound - nonblocking
@@ -148,6 +155,19 @@ class Sound:
         while len(self.playbacks) > 0:
             self.playbacks.pop().stop()
 
+    def removePlayback(self, playbackToRemove):
+        """Method to remove a playback from the list of playbacks
+        
+        Parameters
+        ----------
+        playbackToRemove : PlayObject
+            the playback that we want to remove
+
+        """
+        if (self.playbacks.contains(playbackToRemove)):
+            self.playbacks.remove(playbackToRemove)
+            playbackToRemove = None
+
     def getLengthInFrames(self):
         """Obtains number of sample frames in the audio data
 
@@ -166,7 +186,7 @@ class Sound:
         int
             the number of sample frames
         """
-        return self.getLengthInFrames();
+        return self.getLengthInFrames()
 
     def getSample(self, frameNum):
         """Create and return a SoundSample object for the given frame number
@@ -196,7 +216,7 @@ class Sound:
             samples.append(SoundSample(self, i))
         return samples
 
-    def reportIndexException(index):
+    def reportIndexException(self, index):
         """Method to report an index exception for this sound
 
         Parameters
@@ -390,3 +410,15 @@ class Sound:
             self.buffer[n:m] = value.to_bytes(self.sampleWidth,
                                               byteorder='little',
                                               signed=True)
+
+    # ------------------------ File I/O ---------------------------------------
+
+    # /**
+    #  * Method to write this sound to a file
+    #  * @param fileName the name of the file to write to
+    #  */
+    def write(self, fileName):
+        try:
+            writeToFile(fileName)
+        except IOError:
+            print("Couldn't write file to " + fileName)
