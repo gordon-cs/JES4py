@@ -5,7 +5,7 @@
 
 import os, sys
 import wx
-import wx.lib.scrolledpanel as scrolled
+import wx.lib.scrolledpanel
 # import wx.lib.inspection
 
 class MainWindow(wx.Frame):
@@ -21,15 +21,24 @@ class MainWindow(wx.Frame):
         self.ratio = 1.0  # Scale factor
         self.size = (self.origImage.GetWidth(), self.origImage.GetHeight())
         # if self.origImage.GetWidth() > self.viewableArea[0]:
-            
+        
+        # Top level wxframe -- Everything is contained here
         MainFrame = wx.Frame.__init__(self, parent, title=title, size=self.size)
+        
+        # Initialize the top level panel under the MainFrame
+        # This will include sublevel panels
+        topPanel = wx.Panel(self)
+
+        # Boxsizer to contain sublevel panels
         sizer = wx.BoxSizer(wx.VERTICAL)
-        self.panel1 = wx.Panel(self, size=(-1,55), pos=(0, 0), style=wx.SIMPLE_BORDER)
+        self.panel1 = wx.Panel(topPanel, size=(-1,55), style=wx.EXPAND, id=-1)
         print (int(self.size[0]/2),self.size[0])
         print (self.screenHeight, self.screenWidth)
-        self.panel2 = wx.Panel(self, -1, size=(self.size[0],400), pos=(0,55), style=wx.SIMPLE_BORDER)
-        sizer.Add(self.panel1)
-        sizer.Add(self.panel2)
+        # self.panel2 = wx.Panel(self, -1, size=(self.size[0],400), pos=(0,55), style=wx.SIMPLE_BORDER)
+        self.panel2 = scrolled_panel = wx.lib.scrolledpanel.ScrolledPanel(parent=topPanel, pos=(-1,56), id=-1)
+        scrolled_panel.SetupScrolling()
+        sizer.Add(self.panel1,0,wx.EXPAND|wx.ALL,border=10)
+        sizer.Add(self.panel2,0,wx.EXPAND|wx.ALL,border=10)
         
         #self.panel2.SetupScrolling(scroll_x=True, scroll_y=True, rate_x=20, rate_y=20, scrollToTop=True, scrollIntoView=True)
         # wx.lib.inspection.InspectionTool().Show() # Inspection tool for debugging
@@ -81,11 +90,17 @@ class MainWindow(wx.Frame):
         menuBar = wx.MenuBar()
         menuBar.Append(self.filemenu,"&Zoom") # Adds the "filemenu" to the MenuBar
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
-        self.SetSizer(sizer)
-        self.Show(True)
+        # self.SetSizer(sizer)
+        self.Show()
+
+        self.panel2.SetFocus()
+        scrolled_panel.Bind(wx.EVT_SET_FOCUS, self.onFocus)
         self.onView()
         self.isInteger()
         #self.Refresh()
+    
+    def onFocus(self, event):
+        self.panel2.SetFocus()
 
     def viewingWindow(self):
         """ Main image viewing window
@@ -94,19 +109,22 @@ class MainWindow(wx.Frame):
         wxImg = self.origImage #wx.Image(self.size[0], self.size[1]) # wx.Image(width, height, clear)
 
         # Convert the image into a bitmap image
-        self.imageCtrl = wx.StaticBitmap(self.panel2, wx.ID_ANY, wx.Bitmap(wxImg))
+        self.imageCtrl = wx.StaticBitmap(self.panel2, -1, wx.Bitmap(wxImg))
+        # self.imageCtrl = wx.StaticBitmap(self.scrolled_panel, wx.ID_ANY, wx.Bitmap(wxImg))
 
         # Event handler - Gets X, Y coordinates on mouse click
         self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
         self.imageCtrl.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick)
 
         # Stores the filepath of the image
-        self.photoTxt = wx.TextCtrl(self.panel2, size=(200,-1))
+        self.photoTxt = wx.TextCtrl(self.panel1, size=(200,-1))
+        # self.photoTxt = wx.TextCtrl(self.scrolled_panel, size=(200,-1))
         self.photoTxt.Show(False)
 
         # Add scrollbars
-        self.vScrollbar = wx.ScrollBar(self.panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SB_VERTICAL)
-        self.vScrollbar.SetScrollbar(0, self.screenHeight, self.size[1], 15)
+        # self.vScrollbar = wx.ScrollBar(self.panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SB_VERTICAL)
+        # self.vScrollbar = wx.ScrollBar(self.scrolled_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SB_VERTICAL)
+        # self.vScrollbar.SetScrollbar(0, self.screenHeight, self.size[1], 15)
         
         #########LAYOUT SETUP###########
         # Initialize vertical and horizontal boxsizers
@@ -120,11 +138,12 @@ class MainWindow(wx.Frame):
         # Places components to the sizers
         mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL,0)
         hSizer.Add(self.photoTxt, 0, wx.ALL, 5)
-        mainSizer.Add(self.vScrollbar, 0, wx.RIGHT, 0)
+        # mainSizer.Add(self.vScrollbar, 0, wx.RIGHT, 0)
         mainSizer.Add(hSizer, 0, wx.ALL, 5)
 
         # Set the main sizer to fit the top level panel
-        #self.panel2.SetSizer(mainSizer)
+        self.panel2.SetSizer(mainSizer)
+        # self.scrolled_panel.SetSizer(mainSizer)
         mainSizer.Fit(self.panel2)
     
     def ColorPicker(self):
