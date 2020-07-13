@@ -413,18 +413,27 @@ class Sound:
 
     # ------------------------ File I/O ---------------------------------------
 
-    # /**
-    #  * Method to write this sound to a file
-    #  * @param fileName the name of the file to write to
-    #  */
     def write(self, fileName):
+        """Write the sound to a wav file and throw an error if it can't be written
+ 
+        Parameters
+        ----------
+        fileName: str
+            the name of the file to write the sound to
+        """
         try:
             writeToFile(fileName)
         except IOError:
             print("Couldn't write file to " + fileName)
 
     def writeToFile(self, outFileName):
-
+        """Write the sound to a wav file
+ 
+        Parameters
+        ----------
+        outFileName : str
+            the name of the file to write the sound to
+        """
         file = wave.open(outFileName+".wav", "wb")
 
         file.setnframes(self.numFrames)
@@ -433,5 +442,3 @@ class Sound:
         file.setframerate(self.sampleRate)
         file.writeframes(self.buffer)
         file.close()
-        # except Exception:
-        #     print("Unable to write this sound to a .wav file")
