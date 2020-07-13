@@ -4,7 +4,7 @@ import numpy as np
 import wave
 import JESConfig
 from SoundSample import SoundSample
-import scipy.io as scio
+import os
 #import FileChooser
 
 class Sound:
@@ -46,7 +46,7 @@ class Sound:
         sampleRate : int
             the frame rate for the sound
         """
-        if isinstance(sound, None):
+        if (sound == None):
             sound = SAMPLE_RATE*3
         if isinstance(sound, str):
             self.filename = sound
@@ -422,3 +422,16 @@ class Sound:
             writeToFile(fileName)
         except IOError:
             print("Couldn't write file to " + fileName)
+
+    def writeToFile(self, outFileName):
+
+        file = wave.open(outFileName+".wav", "wb")
+
+        file.setnframes(self.numFrames)
+        file.setnchannels(self.numChannels)
+        file.setsampwidth(self.sampleWidth)
+        file.setframerate(self.sampleRate)
+        file.writeframes(self.buffer)
+        file.close()
+        # except Exception:
+        #     print("Unable to write this sound to a .wav file")
