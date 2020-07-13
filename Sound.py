@@ -57,6 +57,7 @@ class Sound:
             self.sampleWidth = waveRead.getsampwidth()
             self.sampleRate = waveRead.getframerate()
             self.buffer = bytearray(waveRead.readframes(self.numFrames))
+            waveRead.close()
         elif isinstance(sound, int):
             self.filename = ''
             self.numFrames = sound
