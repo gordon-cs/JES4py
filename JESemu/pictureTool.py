@@ -1,6 +1,7 @@
 # Simple picture tool to replace JES picture tool
 # CS Summer Practicum 2020
 # Author: Gahngnin Kim
+# Modified by:
 
 import os, sys
 import wx
@@ -10,17 +11,27 @@ import wx.lib.scrolledpanel as scrolled
 class MainWindow(wx.Frame):
     def __init__(self, filename, parent=None, id=-1, pos=wx.DefaultPosition, title=None):
         #First retrieve the screen size of the device
-        screenSize = wx.DisplaySize()
-        screenWidth = screenSize[0]
-        screenHeight = screenSize[1]
+        self.screenSize = wx.DisplaySize()
+        self.screenWidth = self.screenSize[0]
+        self.screenHeight = self.screenSize[1]
+        self.viewableArea = (self.screenWidth - 200), (self.screenHeight - 100)
+
 
         self.origImage = wx.Image(filename, wx.BITMAP_TYPE_ANY)
         self.ratio = 1.0  # Scale factor
         self.size = (self.origImage.GetWidth(), self.origImage.GetHeight())
+        # if self.origImage.GetWidth() > self.viewableArea[0]:
+            
         MainFrame = wx.Frame.__init__(self, parent, title=title, size=self.size)
-        self.panel1 = wx.Panel(self,size=(self.size[0],100), pos=(0,0), style=wx.SIMPLE_BORDER)
-        self.panel2 = scrolled.ScrolledPanel(self,-1, size=(self.size[0],400), pos=(0,55), style=wx.SIMPLE_BORDER)
-        self.panel2.SetupScrolling()
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        self.panel1 = wx.Panel(self, size=(-1,55), pos=(0, 0), style=wx.SIMPLE_BORDER)
+        print (int(self.size[0]/2),self.size[0])
+        print (self.screenHeight, self.screenWidth)
+        self.panel2 = wx.Panel(self, -1, size=(self.size[0],400), pos=(0,55), style=wx.SIMPLE_BORDER)
+        sizer.Add(self.panel1)
+        sizer.Add(self.panel2)
+        
+        #self.panel2.SetupScrolling(scroll_x=True, scroll_y=True, rate_x=20, rate_y=20, scrollToTop=True, scrollIntoView=True)
         # wx.lib.inspection.InspectionTool().Show() # Inspection tool for debugging
         
         # Maximum horizontal dimension. Needs to be removed later.
@@ -70,9 +81,11 @@ class MainWindow(wx.Frame):
         menuBar = wx.MenuBar()
         menuBar.Append(self.filemenu,"&Zoom") # Adds the "filemenu" to the MenuBar
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
+        self.SetSizer(sizer)
         self.Show(True)
         self.onView()
         self.isInteger()
+        #self.Refresh()
 
     def viewingWindow(self):
         """ Main image viewing window
@@ -90,26 +103,28 @@ class MainWindow(wx.Frame):
         # Stores the filepath of the image
         self.photoTxt = wx.TextCtrl(self.panel2, size=(200,-1))
         self.photoTxt.Show(False)
+
+        # Add scrollbars
+        self.vScrollbar = wx.ScrollBar(self.panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SB_VERTICAL)
+        self.vScrollbar.SetScrollbar(0, self.screenHeight, self.size[1], 15)
         
         #########LAYOUT SETUP###########
         # Initialize vertical and horizontal boxsizers
         mainSizer = wx.BoxSizer(wx.VERTICAL) # Main vertical boxsizer
         hSizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        # Vertical spacer
-        mainSizer.Add((-1, 50))
-
-        # Draws a horizontal line
-        mainSizer.Add(wx.StaticLine(self.panel2, wx.ID_ANY),
-                           0, wx.ALL|wx.EXPAND, 5)
+        # # Draws a horizontal line
+        # mainSizer.Add(wx.StaticLine(self.panel1, wx.ID_ANY),
+        #                    0, wx.ALL|wx.EXPAND, 5)
         
         # Places components to the sizers
-        mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, 5)
+        mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL,0)
         hSizer.Add(self.photoTxt, 0, wx.ALL, 5)
+        mainSizer.Add(self.vScrollbar, 0, wx.RIGHT, 0)
         mainSizer.Add(hSizer, 0, wx.ALL, 5)
 
         # Set the main sizer to fit the top level panel
-        #self.panel.SetSizer(mainSizer)
+        #self.panel2.SetSizer(mainSizer)
         mainSizer.Fit(self.panel2)
     
     def ColorPicker(self):
@@ -186,11 +201,11 @@ class MainWindow(wx.Frame):
         self.box.Add((-1, 5))
         
         # Add items to the second sizer (hbox2)
-        self.hbox2.Add(self.rgbValue, 0, border=5)
-        self.hbox2.Add((5, -1)) # Horizonal spacer
+        self.hbox2.Add(self.rgbValue, 5, flag=wx.ALIGN_CENTER, border=5)
+        self.hbox2.Add((10, -1), 0) # Horizonal spacer
 
         # Small image that shows the color at the selected pixel
-        self.hbox2.Add(self.colorPreview, 0, border=5) 
+        self.hbox2.Add(self.colorPreview, 1, flag=wx.ALIGN_CENTER, border=5) 
         
         # Add hbox2 to the main sizer
         self.box.Add(self.hbox2, 0, flag=wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
