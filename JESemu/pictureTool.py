@@ -10,6 +10,7 @@ import wx.lib.scrolledpanel
 
 class MainWindow(wx.Frame):
     def __init__(self, filename, parent=None, id=-1, pos=wx.DefaultPosition, title=None):
+        MIN_WIDTH = 255
         #First retrieve the screen size of the device
         self.screenSize = wx.DisplaySize()
         self.screenWidth = self.screenSize[0]
@@ -17,12 +18,18 @@ class MainWindow(wx.Frame):
         self.viewableArea = (self.screenWidth - int(self.screenWidth/20)), \
                             (self.screenHeight - int(self.screenHeight/40))
 
-
-        self.origImage = wx.Image(filename, wx.BITMAP_TYPE_ANY)
+        self.origImage = wx.Image(filename, wx.BITMAP_TYPE_ANY) # Imported image
         self.ratio = 1.0  # Scale factor
-        self.size = (self.origImage.GetWidth(), self.origImage.GetHeight())
-        # if self.origImage.GetWidth() > self.viewableArea[0]:
-        
+
+        # Set the minimum and maximum width on launch
+        if self.origImage.GetWidth() < MIN_WIDTH:
+            Ratio = MIN_WIDTH / self.origImage.GetWidth()
+            self.size = (int(self.origImage.GetWidth()*Ratio), int(self.origImage.GetHeight()*Ratio))
+        elif self.origImage.GetWidth() > self.viewableArea[0]:
+            self.size = (self.viewableArea[0]), self.viewableArea[1]
+        else:
+            self.size = (self.origImage.GetWidth(), self.origImage.GetHeight())
+
         # Top level wxframe -- Everything is contained here
         MainFrame = wx.Frame.__init__(self, parent, title=title, size=self.size)
         
@@ -65,11 +72,6 @@ class MainWindow(wx.Frame):
         menuZoom150 = self.filemenu.Append(wx.ID_ANY, "150%","Zoom by 150%")
         menuZoom200 = self.filemenu.Append(wx.ID_ANY, "200%","Zoom by 200%")
         menuZoom500 = self.filemenu.Append(wx.ID_ANY, "500%","Zoom by 500%")
-        #self.filemenu.AppendSeparator()
-        #menuAbout = self.filemenu.Append(wx.ID_ABOUT, "&About"," Information about this program")
-        #self.filemenu.AppendSeparator()
-        #menuExit = self.filemenu.Append(wx.ID_EXIT,"E&xit"," Terminate the program")
-        
 
         # Set events
         self.Bind(wx.EVT_MENU, self.onZoom, menuZoom25)
@@ -79,9 +81,8 @@ class MainWindow(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onZoom, menuZoom150)
         self.Bind(wx.EVT_MENU, self.onZoom, menuZoom200)
         self.Bind(wx.EVT_MENU, self.onZoom, menuZoom500)
-        #self.Bind(wx.EVT_MENU, self.onAbout, menuAbout)
-        #self.Bind(wx.EVT_MENU, self.onExit, menuExit)
 
+        # Initial X,Y coordinates
         self.x = 0
         self.y = 0
         
@@ -93,10 +94,9 @@ class MainWindow(wx.Frame):
         # self.Show()
 
         self.panel2.SetFocus()
-        self.panel2.Bind(wx.EVT_SET_FOCUS, self.onFocus)
+        self.panel2.Bind(wx.EVT_LEFT_DOWN, self.onFocus)
         self.onView()
         self.isInteger()
-        #self.Refresh()
     
     def onFocus(self, event):
         self.panel2.SetFocus()
@@ -109,7 +109,6 @@ class MainWindow(wx.Frame):
 
         # Convert the image into a bitmap image
         self.imageCtrl = wx.StaticBitmap(self.panel2, -1, wx.Bitmap(wxImg))
-        # self.imageCtrl = wx.StaticBitmap(self.scrolled_panel, wx.ID_ANY, wx.Bitmap(wxImg))
 
         # Event handler - Gets X, Y coordinates on mouse click
         self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
@@ -117,32 +116,20 @@ class MainWindow(wx.Frame):
 
         # Stores the filepath of the image
         self.photoTxt = wx.TextCtrl(self.panel1, size=(200,-1))
-        # self.photoTxt = wx.TextCtrl(self.scrolled_panel, size=(200,-1))
         self.photoTxt.Show(False)
-
-        # Add scrollbars
-        # self.vScrollbar = wx.ScrollBar(self.panel2, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SB_VERTICAL)
-        # self.vScrollbar = wx.ScrollBar(self.scrolled_panel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.SB_VERTICAL)
-        # self.vScrollbar.SetScrollbar(0, self.screenHeight, self.size[1], 15)
         
         #########LAYOUT SETUP###########
         # Initialize vertical and horizontal boxsizers
         mainSizer = wx.BoxSizer(wx.VERTICAL) # Main vertical boxsizer
         hSizer = wx.BoxSizer(wx.HORIZONTAL)
 
-        # # Draws a horizontal line
-        # mainSizer.Add(wx.StaticLine(self.panel1, wx.ID_ANY),
-        #                    0, wx.ALL|wx.EXPAND, 5)
-        
         # Places components to the sizers
         mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL,0)
         hSizer.Add(self.photoTxt, 0, wx.ALL, 5)
-        # mainSizer.Add(self.vScrollbar, 0, wx.RIGHT, 0)
         mainSizer.Add(hSizer, 0, wx.ALL, 5)
 
         # Set the main sizer to fit the top level panel
         self.panel2.SetSizer(mainSizer)
-        # self.scrolled_panel.SetSizer(mainSizer)
         mainSizer.Fit(self.panel2)
     
     def ColorPicker(self):
