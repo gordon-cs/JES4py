@@ -91,12 +91,14 @@ class MainWindow(wx.Frame):
         menuBar.Append(self.filemenu,"&Zoom") # Adds the "filemenu" to the MenuBar
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
         topPanel.SetSizer(sizer)
-        # self.Show()
+        topPanel.Layout()
+        self.Show()
 
         self.panel2.SetFocus()
         self.panel2.Bind(wx.EVT_LEFT_DOWN, self.onFocus)
         self.onView()
         self.isInteger()
+        
     
     def onFocus(self, event):
         self.panel2.SetFocus()
