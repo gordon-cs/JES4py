@@ -92,6 +92,7 @@ class MainWindow(wx.Frame):
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
         topPanel.SetSizer(sizer)
         topPanel.Layout()
+        self.panel2.Layout()
         self.Show()
 
         self.panel2.SetFocus()
