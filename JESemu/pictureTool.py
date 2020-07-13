@@ -35,10 +35,10 @@ class MainWindow(wx.Frame):
         print (int(self.size[0]/2),self.size[0])
         print (self.screenHeight, self.screenWidth)
         # self.panel2 = wx.Panel(self, -1, size=(self.size[0],400), pos=(0,55), style=wx.SIMPLE_BORDER)
-        self.panel2 = scrolled_panel = wx.lib.scrolledpanel.ScrolledPanel(parent=topPanel, pos=(-1,56), id=-1)
-        scrolled_panel.SetupScrolling()
-        sizer.Add(self.panel1,0,wx.EXPAND|wx.ALL,border=10)
-        sizer.Add(self.panel2,0,wx.EXPAND|wx.ALL,border=10)
+        self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=topPanel, pos=(0,56), size=(self.viewableArea), id=-1, style=wx.SIMPLE_BORDER)
+        self.panel2.SetupScrolling()
+        sizer.Add(self.panel1,0,wx.EXPAND|wx.ALL,border=0)
+        sizer.Add(self.panel2,0,wx.EXPAND|wx.ALL,border=0)
         
         #self.panel2.SetupScrolling(scroll_x=True, scroll_y=True, rate_x=20, rate_y=20, scrollToTop=True, scrollIntoView=True)
         # wx.lib.inspection.InspectionTool().Show() # Inspection tool for debugging
@@ -90,11 +90,11 @@ class MainWindow(wx.Frame):
         menuBar = wx.MenuBar()
         menuBar.Append(self.filemenu,"&Zoom") # Adds the "filemenu" to the MenuBar
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
-        # self.SetSizer(sizer)
-        self.Show()
+        topPanel.SetSizer(sizer)
+        # self.Show()
 
         self.panel2.SetFocus()
-        scrolled_panel.Bind(wx.EVT_SET_FOCUS, self.onFocus)
+        self.panel2.Bind(wx.EVT_SET_FOCUS, self.onFocus)
         self.onView()
         self.isInteger()
         #self.Refresh()
