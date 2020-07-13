@@ -1,121 +1,392 @@
-# /**
-#  * Class that represents a sound.  This class is used by the students
-#  * to extend the capabilities of SimpleSound.
-#  * <br>
-#  * Copyright Georgia Institute of Technology 2004
-#  * @author Barbara Ericson ericson@cc.gatech.edu
-#  *
-#  * Modified 17 July 2007 Pam Cutter Kalamazoo College
-#  *    Added a copySoundInto method which allows copying as much of
-#  *     this sound as will fit into a destination sound
-#  *    Added a cropSound method which returns a new sound which is a
-#  *     specified portion of this sound
-#  *
-#  * Kalamazoo and other additional methods merged by Buck Scharfnorth 22 May 2008
-#  */
-import Sound
+#import os, sys
+import simpleaudio as sa
+import numpy as np
+import wave
+import JESConfig
+from SoundSample import SoundSample
+#import FileChooser
 
 class Sound:
+    MAX_NEG = -32768
+    MAX_POS = 32767
+    SAMPLE_RATE = 22050
+    NUM_BITS_PER_SAMPLE = 16
+    _SoundIndexOffset = 0
 
-    # /**
-    #  * Constructor that takes a file name
-    #  * @param fileName the name of the file to read the sound from
-    #  */
-    def __init__(self, arg=None):
-        if isinstance(arg, None):
-            # arg is a Picture
-            self.image = arg.image.copy()
-            self.extension = arg.extension
-            self.filename = arg.filename
-            self.title = arg.title
-        elif isinstance(arg, PIL.Image.Image):
-            # arg is a PIL image
-            self.image = arg
-            self.extension = extension
-            try:
-                self.filename = self.title = arg.filename
-            except AttributeError:
-                self.filename = self.title = ''
-        elif isinstance(arg, str):
-            # arg is a string, do what JES does and make picture of string
-            self.image = PIL.Image.new("RGB", (600, 200))
-            self.extension = extension
-            self.title = arg
+    def __init__(self, sound, sampleRate=22050):
+        """Construct new sound object
+        
+        If first passed parameter is the name of a WAV file, then read
+        the file.
+
+        If first passed parameter is an int representing a number of
+        frames, then construct Sound object of the specified length.
+        This sound will simply consist of an empty byte array and an
+        AudioFileFormat with the following values:
+            AudioFileFormat.Type.WAVE</code>
+            22.05K sampling rate
+            16 bit sample
+            1 channel
+            signed PCM encoding
+            small-endian byte order
+        Note that no new sound file is created, we only represent the
+        sound with a buffer and the AudioFileFormat.  If a file is
+        desired, then the method writeToFile(filename) must be called
+        on this newly created sound.
+    
+        Parameters
+        ----------
+        sound : str
+            the filename of containing a sound in WAV format
+        sound : int
+            the number of samples in the sound
+        sound : Sound
+            a preexisting Sound object
+        sampleRate : int
+            the frame rate for the sound
+        """
+        if isinstance(sound, str):
+            self.filename = sound
+            self.waveRead = wave.open(self.filename, 'rb')
+            self.numFrames = self.waveRead.getnframes()
+            self.numChannels = self.waveRead.getnchannels()
+            self.sampleWidth = self.waveRead.getsampwidth()
+            self.sampleRate = self.waveRead.getframerate()
+            self.buffer = bytearray(self.waveRead.readframes(self.numFrames))
+        elif isinstance(sound, int):
             self.filename = ''
-            draw = PIL.ImageDraw.Draw(self.image)
-            draw.text((0, 100), arg)
-        else:
-            # arg is not None or not recogized; create empty Picture
-            self.image = None
-            self.extension = extension
-            self.filename = self.title = ''
+            self.numFrames = sound
+            self.numChannels = 1
+            self.sampleWidth = int(self.NUM_BITS_PER_SAMPLE / 8)
+            self.sampleRate = sampleRate
+            numBytes = self.numChannels * self.numFrames * self.sampleWidth
+            self.buffer = bytearray([0] * numBytes)
+        elif isinstance(sound, Sound):
+            self.filename = sound.filename
+            self.numFrames = sound.numFrames
+            self.numChannels = sound.numChannels
+            self.sampleWidth = sound.sampleWidth
+            self.sampleRate = sound.sampleRate
+            self.buffer = sound.buffer.copy()
+        self.playbacks = []
 
-    # ////////////////// methods ////////////////////////////////////
-
-    # /**
-    #  * Method to return the string representation of this sound
-    #  * @return a string with information about this sound
-    #  */
     def __str__(self):
-        output = "Sound"
-        fileName = getFileName()
-
-        # // if there is a file name then add that to the output
-        if (fileName != ""):
-            output = output + " file: " + fileName
-
-        # // add the length in frames
-        output = output + " number of samples: " + getLengthInFrames()
-
-        return output
-
-    def getFileName(self):
-        """Return sound file name
+        """Return string representation of this sound
 
         Returns
         -------
-        string
-            name of file containing sound data
+        str
+            representation of this sound
         """
-        return self.fileName
+        output = "Sound file: {} number of samples: {}".format(self.filename, self.numFrames)
+        return output
 
-    # /**
-    #  * Method to copy as much of this sound as will fit into
-    #  * another sound.
-    #  * @param dest the sound which gets copied into
-    #  * @param startIndex the starting index for copying
-    #  */
-    def copySoundInto(self, dest, startIndex):
-        numSamplesToCopy = Math.min(this.getLength(), dest.getLength() - startIndex)
+    def __repr__(self):
+        return self.__str__()
 
-        for (int i = 0; i < numSamplesToCopy; i++) {
-            int value = this.getSampleValueAt(i);
-            dest.setSampleValueAt(i + startIndex, value);
+    # ----------------------- accessors --------------------------------------
 
-        }
-    }
+    def getBuffer(self):
+        return self.buffer
 
-    # /**
-    #  * Method to crop out a portion of this sound and return it
-    #  * as a new sound
-    #  * @param startIndex the index at which to start cropping
-    #  * @param numSamples the number of samples to crop out
-    #  * @return the new sound derived from this sound by cropping
-    #  * @throws SoundException
-    #  */
-    public Sound cropSound(int startIndex, int numSamples) throws SoundException {
-        int numSamplesToCopy;
-        if (startIndex + numSamples < this.getLength()) {
-            numSamplesToCopy = startIndex + numSamples;
-        } else {
-            numSamplesToCopy = this.getLength() - startIndex;
-        }
-        Sound newSound = new Sound(numSamplesToCopy);
+#    def getAudioFileFormat(self):
+#        return self.audioFileFormat # not yet defined
 
-        for (int i = 0; i < numSamplesToCopy; i++) {
-            int value = this.getSampleValueAt(i + startIndex);
-            newSound.setSampleValueAt(i, value);
-        }
-        return newSound;
-    }
-} // end of class Sound, put all new methods before this
+    def getSamplingRate(self):
+        return self.sampleRate
+
+#    def getSoundExplorer(self):
+#        return self.soundExplorer # not yet defined
+
+    def asArray(self):
+        return self.getBuffer()
+
+    def getPlaybacks(self):
+        return playbacks
+
+    def getFileName(self):
+        return self.filename
+
+    # ----------------------- modifiers --------------------------------------
+
+    def setBuffer(self, newBuffer):
+        buffer = newBuffer.copy() #maybe not a copy?
+
+    # def setAudioFileFormat(self, audioFileFormat):
+    #     self.audioFileFormat = audioFileFormat
+    
+    # def setSoundExplorer(self, soundExplorer):
+    #     self.soundExplorer = soundExplorer
+
+    # ------------------------ methods ---------------------------------------
+
+    def isStereo(self):
+        """Method to check if a sound is stereo (2 channel) or not
+
+        Returns
+        -------
+        bool
+            True if stereo else False
+        """
+        return self.numChannels == 2
+
+    def play(self):
+        """Play a sound - nonblocking
+        """
+        waveObject = sa.WaveObject(self.buffer, self.numChannels, self.sampleWidth, self.sampleRate)
+        self.playbacks.append(waveObject.play())
+
+    def blockingPlay(self):
+        """Play a sound - blocking
+        """
+        self.play()
+        self.playbacks[-1].wait_done()
+
+    def stopPlaying(self):
+        """Stop playback of all currently playing sounds
+        """
+        while len(self.playbacks) > 0:
+            self.playbacks.pop().stop()
+
+    def getLengthInFrames(self):
+        """Obtains number of sample frames in the audio data
+
+        Returns
+        -------
+        int
+            the number of sample frames of audio data in the sound
+        """
+        return self.numFrames
+
+    def getNumSamples(self):
+        """Returns the number of samples in this sound
+
+        Returns
+        -------
+        int
+            the number of sample frames
+        """
+        return self.getLengthInFrames();
+
+    def getSample(self, frameNum):
+        """Create and return a SoundSample object for the given frame number
+
+        Parameters
+        ----------
+        frameNum : int
+            the frame from which to retrieve the SoundSample object
+
+        Returns
+        -------
+        SoundSample
+            a SoundSample object for this frame number
+        """
+        return SoundSample(self, frameNum)
+
+    def getSamples(self):
+        """Method to create and return an array of SoundSample objects
+
+        Returns
+        -------
+        list of SoundSample
+            the array of SoundSample objects
+        """
+        samples = []
+        for i in range(self.numFrames):
+            samples.append(SoundSample(self, i))
+        return samples
+
+    def reportIndexException(index):
+        """Method to report an index exception for this sound
+
+        Parameters
+        ----------
+        index : int
+            the index
+        """
+        print("The index {} isn't valid for this sound".format(index))
+
+    def getSampleValueAt(self, index):
+        """Get the sample at the passed index and handle any SoundExceptions
+
+        Parameters
+        ----------
+        index : int
+            the desired index
+
+        Returns
+        -------
+        int
+            the sample value
+        """
+        try:
+            value = self.getSampleValue(index)
+        except:
+            reportIndexException(index)
+        return value
+    
+    def getSampleValue(self, frameNum):
+        """Sets the value of the sample at the indicated frame
+        
+        If this is a mono sound, obtains the single sample contained
+        within this frame, else obtains the first (left) sample
+        contained in the specified frame.
+
+        Parameters
+        ----------
+        frameNum : int
+            the index of the frame to access
+
+        Returns
+        -------
+        int
+            integer representation of the bytes contained within frame
+        """
+        n = frameNum * self.sampleWidth * self.numChannels
+        m = n + self.sampleWidth
+        return int.from_bytes(self.buffer[n:m], byteorder='little', signed=True)    
+
+    def getLeftSample(self, frameNum):
+        """Obtains the left sample contained at the specified frame
+
+        Parameters
+        ----------
+        frameNum : int
+            the index of the frame to access
+
+        Returns
+        -------
+        int
+            integer representation of the bytes contained in the specified frame.
+        """
+        if not self.isStereo():
+            print("Sound is not stereo, cannot access left value")
+        return self.getSampleValue(frameNum)
+
+    def getRightSample(self, frameNum):
+        """Obtains the right sample contained at the specified frame
+
+        Parameters
+        ----------
+        frameNum : int
+            the index of the frame to access
+
+        Returns
+        -------
+        int
+            integer representation of the bytes contained in the specified frame.
+        """
+        if not self.isStereo():
+            print("Sound is not stereo, cannot access right value")
+        else:
+            n = frameNum * self.sampleWidth * self.numChannels + self.sampleWidth
+            m = n + self.sampleWidth
+            return int.from_bytes(self.buffer[n:m], byteorder='little', signed=True)    
+
+    def getLengthInBytes(self):
+        """Obtains the length of this sound in bytes
+        
+        Note, that this number is not neccessarily the same as the length of
+        this sound's file in bytes
+
+        Returns
+        -------
+        int
+            the sound length in bytes
+        """
+        return len(buffer)
+
+    def getLength(self):
+        """Return the length of the sound as the number of samples
+
+        Returns
+        -------
+        int
+            the length of the sound as the number of samples
+        """
+        return self.getNumSamples()
+
+    def setFrame(self, frameNum, frame):
+        """Changes the value of each byte of the specified frame
+
+        Parameters
+        ----------
+        frameNum : int
+            the index of the frame to change
+        frame : byte array
+            the bytes that will be copied into this sound's buffer
+        """
+        if frameNum >= self.numFrames:
+            print("The frame number {} does not exist".format(frameNum))
+            print("The last valud frame number is {}".format(self.numFrames-1))
+        else:
+            for i in range(self.sampleWidth):
+                self.buffer[frameNum * self.sampleWidth + i] = frame[i]
+
+    def setSampleValueAt(self, index, value):
+        """Method to set the sample value at the specified index
+
+        Parameters
+        ----------
+        index : int
+            the index
+        value : int or float
+            the new value
+        """
+        try:
+            self.setSampleValue(index, int(value))
+        except:
+            reportIndexException(index)
+
+    def setSampleValue(self, frameNum, value):
+        """Sets the value of the sample found at the specified frame
+        
+        If this sound has more than one channel, then we default to setting
+        only the first (left) sample.
+    
+        Parameters
+        ----------
+        frameNum : int
+            the index of the frame where the sample should be changed
+        value : int
+           the new sample value
+        """
+        n = frameNum * self.sampleWidth * self.numChannels
+        m = n + self.sampleWidth
+        self.buffer[n:m] = value.to_bytes(self.sampleWidth,
+                                          byteorder='little',
+                                          signed=True)
+
+    def setLeftSample(self, frameNum, value):
+        """Set the left sample value in a stereo sample
+        
+        Parameters
+        ----------
+        frameNum : int
+            the index of the frame where the sample should be changed
+        value : int
+            an integer representation of the new sample
+        """
+        if not self.isStereo():
+            print("Sound is not stereo, cannot set left value")
+        else:
+            self.setSampleValue(frameNum, value)
+
+    def setRightSample(self, frameNum, value):
+        """Set the right sample value in a stereo sample
+        
+        Parameters
+        ----------
+        frameNum : int
+            the index of the frame where the sample should be changed
+        value : int
+            an integer representation of the new sample
+        """
+        if not self.isStereo():
+            print("Sound is not stereo, cannot set right value")
+        else:
+            n = frameNum * self.sampleWidth * self.numChannels + self.sampleWidth
+            m = n + self.sampleWidth
+            self.buffer[n:m] = value.to_bytes(self.sampleWidth,
+                                              byteorder='little',
+                                              signed=True)
