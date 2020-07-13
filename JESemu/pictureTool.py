@@ -14,7 +14,8 @@ class MainWindow(wx.Frame):
         self.screenSize = wx.DisplaySize()
         self.screenWidth = self.screenSize[0]
         self.screenHeight = self.screenSize[1]
-        self.viewableArea = (self.screenWidth - 200), (self.screenHeight - 100)
+        self.viewableArea = (self.screenWidth - int(self.screenWidth/20)), \
+                            (self.screenHeight - int(self.screenHeight/40))
 
 
         self.origImage = wx.Image(filename, wx.BITMAP_TYPE_ANY)
@@ -32,8 +33,6 @@ class MainWindow(wx.Frame):
         # Boxsizer to contain sublevel panels
         sizer = wx.BoxSizer(wx.VERTICAL)
         self.panel1 = wx.Panel(topPanel, size=(-1,55), style=wx.EXPAND, id=-1)
-        print (int(self.size[0]/2),self.size[0])
-        print (self.screenHeight, self.screenWidth)
         # self.panel2 = wx.Panel(self, -1, size=(self.size[0],400), pos=(0,55), style=wx.SIMPLE_BORDER)
         self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=topPanel, pos=(0,56), size=(self.viewableArea), id=-1, style=wx.SIMPLE_BORDER)
         self.panel2.SetupScrolling()
