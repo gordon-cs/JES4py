@@ -111,6 +111,28 @@ class Sound:
     def getFileName(self):
         return self.filename
 
+    def getChannels(self):
+        return self.numChannels
+
+    #     /**
+    #  * Returns an array containing all of the bytes in the specified
+    #  * frame.
+    #  *
+    #  * @param frameNum the index of the frame to access
+    #  * @return the array containing all of the bytes in frame
+    #  *         <code>frameNum</code>
+    #  * @throws SoundException if the frame number is invalid.
+    #  */
+    def getFrame(self, frameNum):
+        if (frameNum >= self.numFrames):
+            print("The index {}, does not exist. The last valid index is {}".format(frameNum, self.numFrames-1))
+            
+        frameSize = self.getLength()/self.getLengthInFrames()
+        theFrame = bytearray(frameSize)
+        for i in frameSize:
+            theFrame[i] = buffer[frameNum * frameSize + i]
+        return theFrame
+
     # ----------------------- modifiers --------------------------------------
 
     def setBuffer(self, newBuffer):
@@ -412,6 +434,37 @@ class Sound:
                                               signed=True)
 
     # ------------------------ File I/O ---------------------------------------
+
+    # /**
+    #  * Resets the fields of this sound so that it now represents the
+    #  * sound in the specified file.  If successful, the fileName
+    #  * ariable is updated such that it is equivalent to
+    #  * <code>inFileName</code>.
+    #  *
+    #  * @param inFileName the path and filename of the sound we want to
+    #  *                   represent.
+    #  * @throws SoundException if any problem is encountered while
+    #  *                            reading in from the file.
+    #  */
+    def loadFromFile(self, inFileName):
+        """Resets the fields of this sound so that it now represents the
+           sound in the specified file.  If successful, the fileName variable
+           is updated such that it is equivalent to the passed in file
+ 
+        Parameters
+        ----------
+        inFileName: str
+            the name of the file to read the sound in from
+        """
+        self.filename = inFileName
+        waveRead = wave.open(self.filename, 'rb')
+        # self.waveWrite = wave.open(self.filename, 'wb')
+        self.numFrames = waveRead.getnframes()
+        self.numChannels = waveRead.getnchannels()
+        self.sampleWidth = waveRead.getsampwidth()
+        self.sampleRate = waveRead.getframerate()
+        self.buffer = bytearray(waveRead.readframes(self.numFrames))
+        waveRead.close()
 
     def write(self, fileName):
         """Write the sound to a wav file and throw an error if it can't be written
