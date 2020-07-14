@@ -359,8 +359,11 @@ class MainWindow(wx.Frame):
 
         self.image = self.origImage.Scale(int(self.ScaledW),int(self.ScaledH))
         self.imageCtrl.SetBitmap(wx.Bitmap(self.image))
-        # self.panel1.Refresh()
+        self.panel1.Refresh()
         self.topPanel.Layout()
+
+    # def coordScaler(self):
+
 
     def onAbout(self,e):
         # A message dialog box with an OK button. wx.OK is a standard ID in wxWidgets.
@@ -379,7 +382,7 @@ if __name__ == '__main__':
         filename = sys.argv[1]
         title = sys.argv[2]
     else:
-        print("usage: {} file title".format(sys.argv[0]))
+        print("usage: {} file [title]".format(sys.argv[0]))
         exit(1)
 
     app = wx.App(False)
