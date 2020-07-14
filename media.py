@@ -12,13 +12,18 @@ import math
 # import traceback
 # import user
 #import pictureMod
-#import Picture
+# import Picture
 # import Pixel
+from Picture import Picture
+from Pixel import Pixel
 # import Sound
+from Sound import Sound
 # import StoppableInput
 # import StoppableOutput
 # import Sample
 # import Samples
+from Sample import Sample
+from Samples import Samples
 # import MoviePlayer
 # import MovieWriter
 import FileChooser
@@ -27,9 +32,9 @@ from Pixel import Color
 import JESConfig
 import PIL.Image
 #from PIL import Image as img
-from Pixel import Pixel
-from Picture import Picture
 import wx
+import simpleaudio as sa
+import wave
 
 # from jes.tools.framesequencer import FrameSequencerTool
 
@@ -150,26 +155,26 @@ def makeSound(filename, maxIndex=100):
 # added optional 2nd argument of sampling rate
 
 
-# def makeEmptySound(numSamples, samplingRate=Sound.SAMPLE_RATE):
-#     if numSamples <= 0 or samplingRate <= 0:
-#         print("makeEmptySound(numSamples[, samplingRate]): numSamples and samplingRate must each be greater than 0")
-#         raise ValueError
-#     if (numSamples / samplingRate) > 600:
-#         print("makeEmptySound(numSamples[, samplingRate]): Created sound must be less than 600 seconds")
-#         raise ValueError
-#     return Sound(numSamples, samplingRate)
+def makeEmptySound(numSamples, samplingRate=Sound.SAMPLE_RATE):
+    if numSamples <= 0 or samplingRate <= 0:
+        print("makeEmptySound(numSamples[, samplingRate]): numSamples and samplingRate must each be greater than 0")
+        raise ValueError
+    if (numSamples / samplingRate) > 600:
+        print("makeEmptySound(numSamples[, samplingRate]): Created sound must be less than 600 seconds")
+        raise ValueError
+    return Sound(numSamples, samplingRate)
 
 # Brian O (5 May 2008): Added method for creating sound by duration
 
 
-# def makeEmptySoundBySeconds(seconds, samplingRate=Sound.SAMPLE_RATE):
-#     if seconds <= 0 or samplingRate <= 0:
-#         print("makeEmptySoundBySeconds(numSamples[, samplingRate]): numSamples and samplingRate must each be greater than 0")
-#         raise ValueError
-#     if seconds > 600:
-#         print("makeEmptySoundBySeconds(numSamples[, samplingRate]): Created sound must be less than 600 seconds")
-#         raise ValueError
-#     return Sound(seconds * samplingRate, samplingRate)
+def makeEmptySoundBySeconds(seconds, samplingRate=Sound.SAMPLE_RATE):
+    if seconds <= 0 or samplingRate <= 0:
+        print("makeEmptySoundBySeconds(numSamples[, samplingRate]): numSamples and samplingRate must each be greater than 0")
+        raise ValueError
+    if seconds > 600:
+        print("makeEmptySoundBySeconds(numSamples[, samplingRate]): Created sound must be less than 600 seconds")
+        raise ValueError
+    return Sound(seconds * samplingRate, samplingRate)
 
 # PamC: Added this function to duplicate a sound
 
