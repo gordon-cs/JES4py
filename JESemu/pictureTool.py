@@ -40,8 +40,7 @@ class MainWindow(wx.Frame):
         # Boxsizer to contain sublevel panels
         sizer = wx.BoxSizer(wx.VERTICAL)
         self.panel1 = wx.Panel(self.topPanel, size=(-1,55), style=wx.EXPAND, id=-1)
-        # self.panel2 = wx.Panel(self, -1, size=(self.size[0],400), pos=(0,55), style=wx.SIMPLE_BORDER)
-        self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.topPanel, pos=(0,56), size=(self.viewableArea), id=-1, style=wx.SIMPLE_BORDER)
+        self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.topPanel, pos=(0,56), size=(self.viewableArea), id=-1, style=wx.BORDER_SIMPLE)
         self.panel2.SetupScrolling()
         sizer.Add(self.panel1,0,wx.EXPAND|wx.ALL,border=0)
         sizer.Add(self.panel2,0,wx.EXPAND|wx.ALL,border=0)
@@ -93,7 +92,7 @@ class MainWindow(wx.Frame):
         self.panel2.SetFocus()
         self.panel2.Bind(wx.EVT_LEFT_DOWN, self.onFocus)
         self.onView()
-        self.isInteger()
+        self.clipOnBoundary()
         
     
     def onFocus(self, event):
@@ -122,7 +121,7 @@ class MainWindow(wx.Frame):
         hSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         # Places components to the sizers
-        mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALL,0)
+        mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_LEFT|wx.ALL,0)
         hSizer.Add(self.photoTxt, 0, wx.ALL, 5)
         mainSizer.Add(hSizer, 0, wx.ALL, 5)
 
@@ -229,8 +228,16 @@ class MainWindow(wx.Frame):
             # Check if the mouse is dragged
             if event.LeftIsDown():
                 ctrl_pos = event.GetPosition()
-                self.x = ctrl_pos.x
-                self.y = ctrl_pos.y
+                # print("ctrl_pos: " + str(ctrl_pos.x) + ", " + str(ctrl_pos.y))
+                pos = self.imageCtrl.ScreenToClient(ctrl_pos)
+                # print ("pos relative to screen top left = ", pos)
+                screen_pos = self.panel2.GetScreenPosition()
+                relative_pos_x = pos[0] + screen_pos[0]
+                relative_pos_y = pos[1] + screen_pos[1]
+                # print ("pos relative to image top left = ", relative_pos_x, relative_pos_y)
+                # print ("screen position: ", screen_pos)
+                self.x = relative_pos_x
+                self.y = relative_pos_y
                 self.pixelTxtX.SetValue(str(self.x))
                 self.pixelTxtY.SetValue(str(self.y))
                 self.ColorInfo()
@@ -260,9 +267,9 @@ class MainWindow(wx.Frame):
             self.y = int(self.pixelTxtY.GetValue()) + 1
         else:
             ""
-        self.isInteger()
+        self.clipOnBoundary()
 
-    def isInteger(self):
+    def clipOnBoundary(self):
         currentX = self.x
         currentY = self.y
         w = int(self.ScaledW)
