@@ -46,11 +46,10 @@ class Sound:
             the frame rate for the sound
         """
         if (sound == None):
-            sound = SAMPLE_RATE*3
-        if isinstance(sound, str):
+            self.__init__(self.SAMPLE_RATE * 3)
+        elif isinstance(sound, str):
             self.filename = sound
             waveRead = wave.open(self.filename, 'rb')
-            # self.waveWrite = wave.open(self.filename, 'wb')
             self.numFrames = waveRead.getnframes()
             self.numChannels = waveRead.getnchannels()
             self.sampleWidth = waveRead.getsampwidth()
@@ -435,17 +434,6 @@ class Sound:
 
     # ------------------------ File I/O ---------------------------------------
 
-    # /**
-    #  * Resets the fields of this sound so that it now represents the
-    #  * sound in the specified file.  If successful, the fileName
-    #  * ariable is updated such that it is equivalent to
-    #  * <code>inFileName</code>.
-    #  *
-    #  * @param inFileName the path and filename of the sound we want to
-    #  *                   represent.
-    #  * @throws SoundException if any problem is encountered while
-    #  *                            reading in from the file.
-    #  */
     def loadFromFile(self, inFileName):
         """Resets the fields of this sound so that it now represents the
            sound in the specified file.  If successful, the fileName variable
@@ -453,12 +441,11 @@ class Sound:
  
         Parameters
         ----------
-        inFileName: str
+        inFileName : str
             the name of the file to read the sound in from
         """
         self.filename = inFileName
         waveRead = wave.open(self.filename, 'rb')
-        # self.waveWrite = wave.open(self.filename, 'wb')
         self.numFrames = waveRead.getnframes()
         self.numChannels = waveRead.getnchannels()
         self.sampleWidth = waveRead.getsampwidth()
@@ -471,7 +458,7 @@ class Sound:
  
         Parameters
         ----------
-        fileName: str
+        fileName : str
             the name of the file to write the sound to
         """
         try:
