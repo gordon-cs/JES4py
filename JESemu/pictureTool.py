@@ -35,13 +35,13 @@ class MainWindow(wx.Frame):
         
         # Initialize the top level panel under the MainFrame
         # This will include sublevel panels
-        topPanel = wx.Panel(self)
+        self.topPanel = wx.Panel(self)
 
         # Boxsizer to contain sublevel panels
         sizer = wx.BoxSizer(wx.VERTICAL)
-        self.panel1 = wx.Panel(topPanel, size=(-1,55), style=wx.EXPAND, id=-1)
+        self.panel1 = wx.Panel(self.topPanel, size=(-1,55), style=wx.EXPAND, id=-1)
         # self.panel2 = wx.Panel(self, -1, size=(self.size[0],400), pos=(0,55), style=wx.SIMPLE_BORDER)
-        self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=topPanel, pos=(0,56), size=(self.viewableArea), id=-1, style=wx.SIMPLE_BORDER)
+        self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.topPanel, pos=(0,56), size=(self.viewableArea), id=-1, style=wx.SIMPLE_BORDER)
         self.panel2.SetupScrolling()
         sizer.Add(self.panel1,0,wx.EXPAND|wx.ALL,border=0)
         sizer.Add(self.panel2,0,wx.EXPAND|wx.ALL,border=0)
@@ -90,8 +90,8 @@ class MainWindow(wx.Frame):
         menuBar = wx.MenuBar()
         menuBar.Append(self.filemenu,"&Zoom") # Adds the "filemenu" to the MenuBar
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
-        topPanel.SetSizer(sizer)
-        topPanel.Layout()
+        self.topPanel.SetSizer(sizer)
+        self.topPanel.Layout()
         self.panel2.Layout()
         self.Show()
 
@@ -357,7 +357,8 @@ class MainWindow(wx.Frame):
 
         self.image = self.origImage.Scale(int(self.ScaledW),int(self.ScaledH))
         self.imageCtrl.SetBitmap(wx.Bitmap(self.image))
-        self.panel1.Refresh()
+        # self.panel1.Refresh()
+        self.topPanel.Layout()
 
     def onAbout(self,e):
         # A message dialog box with an OK button. wx.OK is a standard ID in wxWidgets.
