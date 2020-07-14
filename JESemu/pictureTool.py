@@ -46,14 +46,9 @@ class MainWindow(wx.Frame):
         sizer.Add(self.panel1,0,wx.EXPAND|wx.ALL,border=0)
         sizer.Add(self.panel2,0,wx.EXPAND|wx.ALL,border=0)
         
-        #self.panel2.SetupScrolling(scroll_x=True, scroll_y=True, rate_x=20, rate_y=20, scrollToTop=True, scrollIntoView=True)
         # wx.lib.inspection.InspectionTool().Show() # Inspection tool for debugging
         
-        # Maximum horizontal dimension. Needs to be removed later.
-        #self.PhotoMaxSize = 600
-
-        # Initialize a buffer image
-        self.image = None
+        self.image = None # Initialize a buffer image
 
         self.ColorPicker() # Color Eyedropper
         self.viewingWindow() # Image viewer
