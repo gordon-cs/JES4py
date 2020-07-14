@@ -134,9 +134,9 @@ class Sound:
 
     def setBuffer(self, newBuffer):
         if isinstance(newBuffer, int):
-            buffer = bytearray(newBuffer)
+            self.buffer = bytearray(newBuffer)
         elif isinstance(newBuffer, bytearray):
-            buffer = newBuffer.copy() #maybe not a copy?
+            self.buffer = newBuffer.copy() #maybe not a copy?
 
     # def setAudioFileFormat(self, audioFileFormat):
     #     self.audioFileFormat = audioFileFormat
