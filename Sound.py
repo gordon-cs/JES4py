@@ -45,9 +45,7 @@ class Sound:
         sampleRate : int
             the frame rate for the sound
         """
-        if (sound == None):
-            self.__init__(self.SAMPLE_RATE * 3)
-        elif isinstance(sound, str):
+        if isinstance(sound, str):
             self.filename = sound
             waveRead = wave.open(self.filename, 'rb')
             self.numFrames = waveRead.getnframes()
@@ -432,6 +430,16 @@ class Sound:
                                               byteorder='little',
                                               signed=True)
 
+    def setFileName(self, filename):
+        """Set picture file name
+
+        Parameters
+        ----------
+        filename : string
+            filename to assign to this picture
+        """
+        self.filename = filename
+
     # ------------------------ File I/O ---------------------------------------
 
     def loadFromFile(self, inFileName):
@@ -462,7 +470,7 @@ class Sound:
             the name of the file to write the sound to
         """
         try:
-            writeToFile(fileName)
+            self.writeToFile(fileName)
         except IOError:
             print("Couldn't write file to " + fileName)
 
@@ -474,7 +482,10 @@ class Sound:
         outFileName : str
             the name of the file to write the sound to
         """
-        file = wave.open(outFileName+".wav", "wb")
+        if outFileName.endswith(".wav"):
+            file = wave.open(outFileName, "wb")
+        else:
+            file = wave.open(outFileName+".wav", "wb")
 
         file.setnframes(self.numFrames)
         file.setnchannels(self.numChannels)
