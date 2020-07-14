@@ -13,11 +13,6 @@ def openSound(mediaPath='', filename='myFirstSound.wav'):
 def openEmptySound(numSamples=3, samplingRate=Sound.SAMPLE_RATE):
     return Sound(numSamples, samplingRate)
 
-# def makeReferenceImage(filename='refimage.jpg'):
-#     pic = scribble()
-#     pic.image.save(filename)
-
-
 # Testing functions
 
 def test_init():
@@ -78,34 +73,16 @@ def test_setSampleVal_getSampleVal():
     returnVal = sound.getSampleValueAt(3)
     assert returnVal == newSampleVal
 
-# def getWidth_getHeight():
-#     picture = openPicture()
-#     image = picture.getImage()
-#     assert image.width == picture.getWidth()
-#     assert image.height == picture.getHeight()
-
-# def test_setImage_getImage():
-#     picture = openPicture()
-#     image = picture.getImage()
-#     #assert isinstance(image, PIL.Image)
-#     w, h = image.size
-#     x1, y1 = round(w/4), round(h/4)
-#     x2, y2 = w-x1, h-y1
-#     newImage = image.crop([x1, y1, x2, y2])
-#     picture.setImage(newImage)
-#     assert (x2 - x1) == picture.getWidth()
-#     assert (y2 - y1) == picture.getHeight()
-
 def test_play():
    sound = openSound()
    sound.play()
 
 def test_write():
-    s = Sound(5)
     fi1 = "myFirstSound.wav"
     s2 = makeSound(fi1)
     fi = "testFile"
     s2.write(fi)
+    s = Sound(5)
     s.loadFromFile(fi+".wav")
     assert s.isStereo() == s2.isStereo()
     assert s.getLengthInFrames() == s2.getLengthInFrames()

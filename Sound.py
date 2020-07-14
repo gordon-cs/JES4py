@@ -482,10 +482,14 @@ class Sound:
         outFileName : str
             the name of the file to write the sound to
         """
-        if outFileName.endswith(".wav"):
-            file = wave.open(outFileName, "wb")
-        else:
-            file = wave.open(outFileName+".wav", "wb")
+        # if outFileName.endswith(".wav"):
+            # file = wave.open(outFileName, "wb")
+        # else:
+        #     file = wave.open(outFileName+".wav", "wb")
+
+        file = wave.open(outFileName, "wb")
+        #For some ungodly reason write doesn't assume the user wants the written file to be a wave.
+        #If you would like this QUALITY functionality uncomment lines 485-488 and comment out line 490.
 
         file.setnframes(self.numFrames)
         file.setnchannels(self.numChannels)
