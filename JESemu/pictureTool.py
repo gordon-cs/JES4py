@@ -43,7 +43,7 @@ class MainWindow(wx.Frame):
         #self.panel1 = wx.Panel(self.topPanel, size=(-1,55), style=wx.EXPAND, id=-1)
         #self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.topPanel, pos=(0,56), size=(self.viewableArea), id=-1, style=wx.BORDER_SIMPLE)
         self.panel1 = wx.Panel(self, size=(-1,-1), style=wx.EXPAND, id=-1)
-        self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=self, size=(self.viewableArea), id=-1, style=wx.BORDER_SIMPLE)
+        self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=self, size=(self.origImage.GetSize() * 5), id=-1, style=wx.BORDER_SIMPLE)
         self.panel2.SetupScrolling()
         sizer.Add(self.panel1,0,wx.EXPAND|wx.ALL,border=0)
         #sizer.Add((-1, 40))
