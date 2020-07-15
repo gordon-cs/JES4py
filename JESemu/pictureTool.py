@@ -35,14 +35,17 @@ class MainWindow(wx.Frame):
         
         # Initialize the top level panel under the MainFrame
         # This will include sublevel panels
-        self.topPanel = wx.Panel(self)
+        #self.topPanel = wx.Panel(self)
 
         # Boxsizer to contain sublevel panels
         sizer = wx.BoxSizer(wx.VERTICAL)
-        self.panel1 = wx.Panel(self.topPanel, size=(-1,55), style=wx.EXPAND, id=-1)
-        self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.topPanel, pos=(0,56), size=(self.viewableArea), id=-1, style=wx.BORDER_SIMPLE)
+        #self.panel1 = wx.Panel(self.topPanel, size=(-1,55), style=wx.EXPAND, id=-1)
+        #self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.topPanel, pos=(0,56), size=(self.viewableArea), id=-1, style=wx.BORDER_SIMPLE)
+        self.panel1 = wx.Panel(self, size=(-1,55), style=wx.EXPAND, id=-1)
+        self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=self, pos=(0,56), size=(self.viewableArea), id=-1, style=wx.BORDER_SIMPLE)
         self.panel2.SetupScrolling()
         sizer.Add(self.panel1,0,wx.EXPAND|wx.ALL,border=0)
+        #sizer.Add((-1, 40))
         sizer.Add(self.panel2,0,wx.EXPAND|wx.ALL,border=0)
         
         # wx.lib.inspection.InspectionTool().Show() # Inspection tool for debugging
@@ -84,8 +87,10 @@ class MainWindow(wx.Frame):
         menuBar = wx.MenuBar()
         menuBar.Append(self.filemenu,"&Zoom") # Adds the "filemenu" to the MenuBar
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
-        self.topPanel.SetSizer(sizer)
-        self.topPanel.Layout()
+        #self.topPanel.SetSizer(sizer)
+        #self.topPanel.Layout()
+        self.SetSizer(sizer)
+        self.Layout()
         self.panel2.Layout()
         self.Show()
 
@@ -196,18 +201,17 @@ class MainWindow(wx.Frame):
         self.hbox1.Add(self.buttonY_R, 0, border=0)
         
         # Add the hbox1 to the main sizer
-        self.box.Add(self.hbox1, 0, flag=wx.LEFT|wx.RIGHT|
-                    wx.TOP|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
+        self.box.Add(self.hbox1, 0, flag=wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
 
         # Vertical spacer
         self.box.Add((-1, 5))
         
         # Add items to the second sizer (hbox2)
-        self.hbox2.Add(self.rgbValue, 5, flag=wx.ALIGN_CENTER, border=5)
+        self.hbox2.Add(self.rgbValue, 0, flag=wx.ALIGN_CENTER, border=5)
         self.hbox2.Add((10, -1), 0) # Horizonal spacer
 
         # Small image that shows the color at the selected pixel
-        self.hbox2.Add(self.colorPreview, 1, flag=wx.ALIGN_CENTER, border=5) 
+        self.hbox2.Add(self.colorPreview, 0, flag=wx.ALIGN_CENTER, border=5) 
         
         # Add hbox2 to the main sizer
         self.box.Add(self.hbox2, 0, flag=wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
@@ -360,7 +364,7 @@ class MainWindow(wx.Frame):
         self.image = self.origImage.Scale(int(self.ScaledW),int(self.ScaledH))
         self.imageCtrl.SetBitmap(wx.Bitmap(self.image))
         self.panel1.Refresh()
-        self.topPanel.Layout()
+        #self.topPanel.Layout()
 
     # def coordScaler(self):
 
