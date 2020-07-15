@@ -19,13 +19,13 @@ def test_init():
     sound = openSound()
 
     # create empty Sound
-    s1 = Sound()
-    assert isinstance(s1, Sound)
-    assert s1.getFileName() == ''
-    assert s1.isStereo() == False
-    assert s1.getLengthInFrames() == 3*Sound.SAMPLE_RATE
-    assert s1.getSamplingRate() == Sound.SAMPLE_RATE
-    assert isinstance(s1.getBuffer(), bytearray)
+    # s1 = Sound()
+    # assert isinstance(s1, Sound)
+    # assert s1.getFileName() == ''
+    # assert s1.isStereo() == False
+    # assert s1.getLengthInFrames() == 3*Sound.SAMPLE_RATE
+    # assert s1.getSamplingRate() == Sound.SAMPLE_RATE
+    # assert isinstance(s1.getBuffer(), bytearray)
 
     # create Sound from an Integer
     s2 = Sound(Sound.SAMPLE_RATE * 5)
@@ -78,7 +78,7 @@ def test_play():
    sound.play()
 
 def test_write():
-    fi1 = "myFirstSound"
+    fi1 = "myFirstSound.wav"
     s2 = makeSound(fi1)
     fi = "testFile"
     s2.write(fi)

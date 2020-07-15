@@ -13,7 +13,7 @@ class Sound:
     NUM_BITS_PER_SAMPLE = 16
     _SoundIndexOffset = 0
 
-    def __init__(self, sound=None, sampleRate=22050):
+    def __init__(self, sound, sampleRate=22050):
         """Construct new sound object
         
         If first passed parameter is the name of a WAV file, then read
@@ -140,15 +140,6 @@ class Sound:
         """
         return playbacks
 
-    def getFileName(self):
-        """Return sounds file name
-
-        Returns
-        -------
-        string
-            name of associated file
-        """
-        return self.filename
 
     def getChannels(self):
         """Return sounds number of channels
@@ -159,6 +150,16 @@ class Sound:
             number of channels
         """
         return self.numChannels
+        
+    def getFileName(self):
+        """Return sounds file name
+
+        Returns
+        -------
+        string
+            name of associated file
+        """
+        return self.filename
 
     def getFrame(self, frameNum):
         """Obtains all the data from a specified frame in the audio data
