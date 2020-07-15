@@ -15,8 +15,10 @@ Several dependencies need to be installed before you can use the JES-emulator.  
 TBD
 
 ### Mac OS-X
-
-TBD
+```
+pip3 install wxPython
+pip3 install simpleaudio
+```
 
 ### Linux
 ```
