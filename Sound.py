@@ -551,7 +551,7 @@ class Sound:
 
         file = wave.open(outFileName, "wb")
         #For some ungodly reason write doesn't assume the user wants the written file to be a wave.
-        #If you would like this QUALITY functionality uncomment lines 485-488 and comment out line 490.
+        #If you would like this QUALITY functionality uncomment the lines above.
 
         file.setnframes(self.numFrames)
         file.setnchannels(self.numChannels)

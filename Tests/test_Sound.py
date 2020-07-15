@@ -87,7 +87,7 @@ def test_write():
     assert s.isStereo() == s2.isStereo()
     assert s.getLengthInFrames() == s2.getLengthInFrames()
     assert s.getSamplingRate() == s2.getSamplingRate()
-    assert s.getBuffer() == s2.getBuffer()
+    assert s.getBuffer().__eq__(s2.getBuffer())
     os.remove(fi)
 
 # Can be run as script to create or recreate refimage.jpg if needed
