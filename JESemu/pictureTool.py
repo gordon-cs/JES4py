@@ -9,6 +9,7 @@ import wx.lib.scrolledpanel
 # import wx.lib.inspection
 
 class MainWindow(wx.Frame):
+    PaintChipSize = 24
     def __init__(self, filename, parent=None, id=-1, pos=wx.DefaultPosition, title=None):
         MIN_WIDTH = 255
         #First retrieve the screen size of the device
@@ -41,8 +42,8 @@ class MainWindow(wx.Frame):
         sizer = wx.BoxSizer(wx.VERTICAL)
         #self.panel1 = wx.Panel(self.topPanel, size=(-1,55), style=wx.EXPAND, id=-1)
         #self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=self.topPanel, pos=(0,56), size=(self.viewableArea), id=-1, style=wx.BORDER_SIMPLE)
-        self.panel1 = wx.Panel(self, size=(-1,55), style=wx.EXPAND, id=-1)
-        self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=self, pos=(0,56), size=(self.viewableArea), id=-1, style=wx.BORDER_SIMPLE)
+        self.panel1 = wx.Panel(self, size=(-1,-1), style=wx.EXPAND, id=-1)
+        self.panel2 = wx.lib.scrolledpanel.ScrolledPanel(parent=self, size=(self.viewableArea), id=-1, style=wx.BORDER_SIMPLE)
         self.panel2.SetupScrolling()
         sizer.Add(self.panel1,0,wx.EXPAND|wx.ALL,border=0)
         #sizer.Add((-1, 40))
@@ -207,11 +208,11 @@ class MainWindow(wx.Frame):
         self.box.Add((-1, 5))
         
         # Add items to the second sizer (hbox2)
-        self.hbox2.Add(self.rgbValue, 0, flag=wx.ALIGN_CENTER, border=5)
-        self.hbox2.Add((10, -1), 0) # Horizonal spacer
+        self.hbox2.Add(self.rgbValue, 0, flag=wx.CENTER, border=5)
+        self.hbox2.Add((10, -1)) # Horizonal spacer
 
         # Small image that shows the color at the selected pixel
-        self.hbox2.Add(self.colorPreview, 0, flag=wx.ALIGN_CENTER, border=5) 
+        self.hbox2.Add(self.colorPreview, 0, flag=wx.CENTER, border=5) 
         
         # Add hbox2 to the main sizer
         self.box.Add(self.hbox2, 0, flag=wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
@@ -228,28 +229,21 @@ class MainWindow(wx.Frame):
             Then, passes those positions to ColorInfo() to get RGB values
         """
         # Checks if the image exists before executing the next function
-        if self.image is not None:
-            # Check if the mouse is dragged
-            if event.LeftIsDown():
-                ctrl_pos = event.GetPosition()
-                # print("ctrl_pos: " + str(ctrl_pos.x) + ", " + str(ctrl_pos.y))
-                pos = self.imageCtrl.ScreenToClient(ctrl_pos)
-                # print ("pos relative to screen top left = ", pos)
-                screen_pos = self.panel2.GetScreenPosition()
-                relative_pos_x = pos[0] + screen_pos[0]
-                relative_pos_y = pos[1] + screen_pos[1]
-                # print ("pos relative to image top left = ", relative_pos_x, relative_pos_y)
-                # print ("screen position: ", screen_pos)
-                self.x = relative_pos_x
-                self.y = relative_pos_y
-                self.pixelTxtX.SetValue(str(self.x))
-                self.pixelTxtY.SetValue(str(self.y))
-                self.ColorInfo()
-                # self.imageCtrl.Bind(wx.EVT_PAINT, self.CursorOnImage)
-            else:
-                "" # Do nothing if mouse left button is not pressed and hold
-        else:
-            "" # Do nothing if self.image is None
+        if event.LeftIsDown():
+            ctrl_pos = event.GetPosition()
+            # print("ctrl_pos: " + str(ctrl_pos.x) + ", " + str(ctrl_pos.y))
+            pos = self.imageCtrl.ScreenToClient(ctrl_pos)
+            # print ("pos relative to screen top left = ", pos)
+            screen_pos = self.panel2.GetScreenPosition()
+            relative_pos_x = pos[0] + screen_pos[0]
+            relative_pos_y = pos[1] + screen_pos[1]
+            # print ("pos relative to image top left = ", relative_pos_x, relative_pos_y)
+            # print ("screen position: ", screen_pos)
+            self.x = relative_pos_x
+            self.y = relative_pos_y
+            self.pixelTxtX.SetValue(str(self.x))
+            self.pixelTxtY.SetValue(str(self.y))
+            self.ColorInfo()
 
     def ImageCtrl_OnEnter(self, event):
         """ Gets X and Y coordinates from the user input
@@ -306,15 +300,17 @@ class MainWindow(wx.Frame):
         self.rgbValue.SetLabel(label=u'R: {} G: {} B: {} Color at location:'.format(r, g, b))
 
         # Sets the color of the square image on mouse click
-        bmp = wx.Bitmap(20,20) # Empty bitmap image initialized
+        bmp = wx.Bitmap(self.PaintChipSize, self.PaintChipSize)
         dc = wx.MemoryDC()
         dc.SelectObject(bmp)
-        dc.SetBackground(wx.Brush(wx.Colour(r,g,b), wx.SOLID)) # Sets the color
-        dc.Clear()
+        pen = wx.Pen(wx.Colour(0,0,0))
+        dc.SetPen(pen)
+        brush = wx.Brush(wx.Colour(r,g,b))
+        dc.SetBrush(brush)
+        dc.DrawRectangle(0, 0, self.PaintChipSize, self.PaintChipSize)
         del dc
-
         self.colorPreview.SetBitmap(bmp) # Replace the bitmap with the new one
-        self.Refresh() # Updates the static bitmap
+        self.panel1.Layout()
     
     # def CursorOnImage(self, event):
     #     dc = wx.PaintDC(self)
