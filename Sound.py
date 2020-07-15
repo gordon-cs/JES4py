@@ -83,44 +83,96 @@ class Sound:
         return output
 
     def __repr__(self):
+        """Return string representation of this sound
+
+        Returns
+        -------
+        str
+            representation of this sound
+        """
         return self.__str__()
 
     # ----------------------- accessors --------------------------------------
 
     def getBuffer(self):
+        """Returns the sounds associated buffer
+
+        Returns
+        -------
+        arr
+            The sounds buffer(i.e. an array representaion of the sound)
+        """
         return self.buffer
 
 #    def getAudioFileFormat(self):
 #        return self.audioFileFormat # not yet defined
 
     def getSamplingRate(self):
+        """Return sounds sampling rate
+
+        Returns
+        -------
+        int
+            the sampling rate
+        """
         return self.sampleRate
 
 #    def getSoundExplorer(self):
 #        return self.soundExplorer # not yet defined
 
     def asArray(self):
+        """Returns an array representation of the sound
+
+        Returns
+        -------
+        arr
+            The sounds buffer(i.e. an array representaion of the sound)
+        """
         return self.getBuffer()
 
     def getPlaybacks(self):
+        """Returns an array of all the current sounds playbacks
+
+        Returns
+        -------
+        arr
+            array of all the current sounds playbacks
+        """
         return playbacks
 
     def getFileName(self):
+        """Return sounds file name
+
+        Returns
+        -------
+        string
+            name of associated file
+        """
         return self.filename
 
     def getChannels(self):
+        """Return sounds number of channels
+
+        Returns
+        -------
+        int
+            number of channels
+        """
         return self.numChannels
 
-    #     /**
-    #  * Returns an array containing all of the bytes in the specified
-    #  * frame.
-    #  *
-    #  * @param frameNum the index of the frame to access
-    #  * @return the array containing all of the bytes in frame
-    #  *         <code>frameNum</code>
-    #  * @throws SoundException if the frame number is invalid.
-    #  */
     def getFrame(self, frameNum):
+        """Obtains all the data from a specified frame in the audio data
+
+        Parameters
+        ----------
+        fameNum : int
+            the index of the frame to access
+
+        Returns
+        -------
+        arr
+            the array containing all of the bytes in frame
+        """
         if (frameNum >= self.numFrames):
             print("The index {}, does not exist. The last valid index is {}".format(frameNum, self.numFrames-1))
             
@@ -133,6 +185,15 @@ class Sound:
     # ----------------------- modifiers --------------------------------------
 
     def setBuffer(self, newBuffer):
+        """Changes the buffer assoiciated with the current sound to the (newBuffer)
+
+        Parameters
+        ----------
+        newBuffer : int
+            the length of the buffer that will replace (self.buffer)
+        newBuffer : bytearray
+            the byte array that (self.buffer) is being replaced with
+        """
         if isinstance(newBuffer, int):
             self.buffer = bytearray(newBuffer)
         elif isinstance(newBuffer, bytearray):
