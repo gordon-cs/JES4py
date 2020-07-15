@@ -78,17 +78,17 @@ def test_play():
    sound.play()
 
 def test_write():
-    fi1 = "myFirstSound.wav"
+    fi1 = "myFirstSound"
     s2 = makeSound(fi1)
     fi = "testFile"
     s2.write(fi)
     s = Sound(5)
-    s.loadFromFile(fi+".wav")
+    s.loadFromFile(fi)
     assert s.isStereo() == s2.isStereo()
     assert s.getLengthInFrames() == s2.getLengthInFrames()
     assert s.getSamplingRate() == s2.getSamplingRate()
     assert s.getBuffer() == s2.getBuffer()
-    os.remove(fi+".wav")
+    os.remove(fi)
 
 # Can be run as script to create or recreate refimage.jpg if needed
 # if __name__ == "__main__":
