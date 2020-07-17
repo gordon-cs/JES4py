@@ -6,7 +6,7 @@
 import os, sys
 import wx
 import wx.lib.scrolledpanel
-# import wx.lib.inspection
+import wx.lib.inspection
 
 class MainWindow(wx.Frame):
     PaintChipSize = 24
