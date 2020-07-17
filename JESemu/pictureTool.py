@@ -217,10 +217,11 @@ class MainWindow(wx.Frame):
         if wx.Platform == "__WXMSW__" or wx.Platform == "__WXGTK__":
             self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
             self.imageCtrl.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick)
+            self.imageCtrl.Bind(wx.EVT_LEFT_UP, self.OnPaint)
         elif wx.Platform == "__WXMAC__":
             self.imagePanel.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
             self.imagePanel.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick)        
-        self.imageCtrl.Bind(wx.EVT_LEFT_UP, self.OnPaint)
+            self.imagePanel.Bind(wx.EVT_LEFT_UP, self.OnPaint)
         #panel.SetFocus()
         #panel.Bind(wx.EVT_LEFT_DOWN, self.onFocus)
 
