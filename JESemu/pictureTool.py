@@ -247,12 +247,16 @@ class MainWindow(wx.Frame):
         #print('image size: ', imageSize)
         if self.x < 0:
             self.x = 0
+            self.y = 0
         elif self.x >= imageSize[0]:
             self.x = imageSize[0] - 1
+            self.y = imageSize[1] - 1
         if self.y < 0:
+            self.x = 0
             self.y = 0
         elif self.y >= imageSize[1]:
             self.y = imageSize[1] - 1
+            self.x = imageSize[0] - 1
         self.pixelTxtX.SetValue(str(self.x))
         self.pixelTxtY.SetValue(str(self.y))
         self.updateColorInfo()
