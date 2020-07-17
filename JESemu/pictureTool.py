@@ -17,15 +17,13 @@ import wx.lib.inspection
 
 class MainWindow(wx.Frame):
 
-    # MinWindowWidth = 300
-    # MinWindowHeight = 300
+    MinWindowWidth = 350
+    MinWindowHeight = 0
     ColorPanelHeight = 70
     PaintChipSize = 24
     x = 0
     y = 0
     ratio = 1.0
-    OSVersion = wx.Platform
-    print ("You are on ", OSVersion)
 
     def __init__(self, filename, parent, title):
 
@@ -36,16 +34,19 @@ class MainWindow(wx.Frame):
         super(MainWindow, self).__init__(parent=parent, title=title, style=wx.DEFAULT_FRAME_STYLE)
 
         self.InitUI()
+        self.Center()
         self.clipOnBoundary()
         wx.lib.inspection.InspectionTool().Show() # Inspection tool for debugging
 
     def InitUI(self):
-        # wScr, hScr = wx.DisplaySize()
-        # wView, hView = wScr - int(wScr/20.0), hScr - int(hScr/40.0)
-        # w, h = self.image.GetSize()
+        wScr, hScr = wx.DisplaySize()
+        wView, hView = int(wScr * 0.95), int(hScr * 0.85)
+        w, h = self.image.GetSize()
 
         # w = min(max(self.MinWindowWidth, w), wView)
         # h = min(max(self.MinWindowHeight, h + self.ColorPanelHeight), hView)
+        w = min(max(self.MinWindowWidth, w), wView)
+        h = min(max(self.MinWindowHeight, h + self.ColorPanelHeight), hView)
 
         # setup the zoom menu
         self.setupZoomMenu()
@@ -66,8 +67,8 @@ class MainWindow(wx.Frame):
         self.Fit()
         self.imagePanel.SetupScrolling(scrollToTop=True)
 
-        w, h = self.image.GetSize()
-        h = h + self.ColorPanelHeight
+        # w, h = self.image.GetSize()
+        # h = h + self.ColorPanelHeight
         self.SetSize((w, h))
         self.SetClientSize((w,h))
 
@@ -213,10 +214,10 @@ class MainWindow(wx.Frame):
 
         # Store the image and setup even handlers for mouse clicks and motion
         self.imageCtrl = wx.StaticBitmap(parent=self.imagePanel, bitmap=self.bmp)
-        if self.OSVersion == "__WXMSW__" or self.OSVersion == "__WXGTK__":
+        if wx.Platform == "__WXMSW__" or wx.Platform == "__WXGTK__":
             self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
             self.imageCtrl.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick)
-        elif self.OSVersion == "__WXMAC__":
+        elif wx.Platform == "__WXMAC__":
             self.imagePanel.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
             self.imagePanel.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick)        
         self.imageCtrl.Bind(wx.EVT_LEFT_UP, self.OnPaint)
@@ -339,9 +340,9 @@ class MainWindow(wx.Frame):
             event.Skip()
             dc = wx.ClientDC(self)
             self.imagePanel.DoPrepareDC(dc)
-            if self.OSVersion == "__WXMSW__":
+            if wx.Platform == "__WXMSW__":
                 dc_pos = event.GetPosition()
-            elif self.OSVersion == "__WXGTK__" or OSVersion == "__WXMAC__":
+            elif wx.Platform == "__WXGTK__" or wx.Platform == "__WXMAC__":
                 dc_pos = event.GetLogicalPosition(dc)
             self.coordinates = dc_pos
             del dc
