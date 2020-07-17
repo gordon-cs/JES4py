@@ -117,8 +117,10 @@ class Sound:
         """
         return self.sampleRate
 
-#    def getSoundExplorer(self):
-#        return self.soundExplorer # not yet defined
+    def getSoundExplorer(self):
+        return "The sound explore tool is not implemented yet for JESemu"
+        #return self.soundExplorer
+        # not yet defined
 
     def asArray(self):
         """Returns an array representation of the sound
@@ -203,10 +205,16 @@ class Sound:
     # def setAudioFileFormat(self, audioFileFormat):
     #     self.audioFileFormat = audioFileFormat
     
-    # def setSoundExplorer(self, soundExplorer):
-    #     self.soundExplorer = soundExplorer
+    def setSoundExplorer(self, soundExplorer):
+        #self.soundExplorer = soundExplorer
+        print("The sound explorer tool is not yet properly implemented for JESemu")
 
     # ------------------------ methods ---------------------------------------
+
+    def makeAIS(self):
+        print('''This function is not implemented in JESemu. Byte streams that are
+                written to a file in the original JES are now held and written through
+                use of a bytearray called self.buffer.''')
 
     def isStereo(self):
         """Method to check if a sound is stereo (2 channel) or not
@@ -223,6 +231,29 @@ class Sound:
         """
         waveObject = sa.WaveObject(self.buffer, self.numChannels, self.sampleWidth, self.sampleRate)
         self.playbacks.append(waveObject.play())
+
+    def explore(self):
+        """Open a sound explorer on a copy of this sound
+        """
+        # Make a new sound explorer
+        # Open it with a copy of this sound
+        print("The sound explore tool is not implemented yet for JESemu")
+
+    def playNote(self, key, duration, intensity):
+        print("This method was unused in the original JES as well")
+
+    def convert(self, mp3File, wavFile):
+        print("this method isn't implemented.")
+        # try:
+        #     fi = open(mp3File, "r")
+        #     contents = fi.read()
+        #     fi.close()
+        #     writeFi = open(wavFile, "w")
+        #     writeFi.write(contents)
+        #     writeFi.close()
+        #     print("this method isn't implemented yet.")
+        # except Exception:
+        #     print("Couldn't covert the file {}".format(mp3File))
 
     def blockingPlay(self):
         """Play a sound - blocking

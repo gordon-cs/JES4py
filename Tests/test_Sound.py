@@ -64,6 +64,7 @@ def test_setBuffer_getBuffer():
     sound = openEmptySound()
     sound.setBuffer(newBuff)
     assert newBuff.__eq__(sound.getBuffer())
+    assert newBuff.__eq__(sound.asArray())
 
 def test_setSampleVal_getSampleVal():
     newSampleVal = 5
@@ -72,6 +73,17 @@ def test_setSampleVal_getSampleVal():
     sound.setSampleValueAt(pos, newSampleVal)
     returnVal = sound.getSampleValueAt(3)
     assert returnVal == newSampleVal
+
+def test_getSamplingRate():
+    sound = Sound(1000)
+    sampleRate = sound.getSamplingRate()
+    assert sampleRate == 22050
+    #assert that the sounds sample rate is equal to the base sample rate
+
+def test_toString():
+    sound = openSound()
+    assumedStringRep = "Sound file: {} number of samples: {}".format(sound.getFileName(), sound.getLengthInFrames())
+    assert sound.__str__() == assumedStringRep
 
 def test_play():
    sound = openSound()
