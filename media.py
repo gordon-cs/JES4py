@@ -76,6 +76,7 @@ def setMediaPath(file=None):
     else:
         FileChooser.setMediaPath(file)
     mediaFolder = getMediaPath()
+    return mediaFolder
 
 
 def getMediaPath(filename=""):
@@ -92,12 +93,12 @@ def setTestMediaFolder():
 
 
 def getMediaFolder(filename=""):
-    return str(FileChooser.getMediaDirectory(filename))
+    return str(getMediaPath(filename))
 
 
 def showMediaFolder():
     global mediaFolder
-    print("The media path is currently: "+ mediaFolder)
+    print("The media path is currently: ", mediaFolder)
 
 
 def getShortPath(filename):
@@ -146,7 +147,7 @@ def makeSound(filename, maxIndex=100):
     if not os.path.isabs(filename):
         filename = mediaFolder + filename
     if not os.path.isfile(filename):
-        print("There is no file at ") + filename
+        print("There is no file at " + filename)
         raise ValueError
     return Sound(filename)
 
@@ -408,8 +409,8 @@ def getIndex(sample):
 ##
 
 
-def makeStyle(fontName, emph, size):
-    return awt.Font(fontName, emph, size)
+#def makeStyle(fontName, emph, size):
+#    return awt.Font(fontName, emph, size)
 
 # sansSerif = "SansSerif"
 # serif = "Serif"
@@ -487,42 +488,42 @@ def makeEmptyPicture(width, height, acolor=white):
     if width <= 0 or height <= 0:
         print("makeEmptyPicture(width, height[, acolor]): height and width must be greater than 0 each")
         raise ValueError
-    mode = "RGB"
-    size = (width, height)
-    tup = (acolor.getRed(), acolor.getGreen(), acolor.getBlue())
-    im = PIL.Image.new(mode, size, tup)
-    im.filename = ""
-    pic = Picture(im)
-    return pic
+    picture = Picture(width, height, acolor)
+    # picture.createImage(width, height)
+    # picture.filename = ''
+    # careful here; do we want empty strings or "None"?
+    return picture
 
 
-def getPixels(pic):
-    if not isinstance(pic, Picture):
+def getPixels(picture):
+    if not isinstance(picture, Picture):
         print("getPixels(picture): Input is not a picture")
         raise ValueError
-    return pic.getPixels()
+    return picture.getPixels()
 
 
-def getAllPixels(pic):
-    return getPixels(pic)
+def getAllPixels(picture):
+    return getPixels(picture)
 
 
-def getWidth(pic):
-    if not isinstance(pic, Picture):
-        print("getWidth(pic): Input is not a picture")
+def getWidth(picture):
+    if not isinstance(picture, Picture):
+        print("getWidth(picture): Input is not a picture")
         raise ValueError
-    return pic.getImage().width
+    return picture.getWidth()
 
 
-def getHeight(pic):
-    if not isinstance(pic, Picture):
-        print("getHeight(pic): Input is not a picture")
+def getHeight(picture):
+    if not isinstance(picture, Picture):
+        print("getHeight(picture): Input is not a picture")
         raise ValueError
-    return pic.getImage().height
+    return picture.getHeight()
 
 
 def show(picture, title=None):
-    # pic.setTitle(title)
+    # picture.setTitle(getShortPath(picture.filename))
+    # if title <> None:
+            # picture.setTitle(title)
     if not isinstance(picture, Picture):
         print("show(picture): Input is not a picture")
         raise ValueError
@@ -553,22 +554,22 @@ def pickAColor():
         col = Color(red,green,blue)
         return col
 
-def addLine(pic, x1, y1, x2, y2, acolor=black):
-    if not isinstance(pic, Picture):
+def addLine(picture, x1, y1, x2, y2, acolor=black):
+    if not isinstance(picture, Picture):
         print("addLine(picture, x1, y1, x2, y2[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
-        print ("addLine(picture, x1, y1, x2, y2[, color]): Last input is not a color")
+        print("addLine(picture, x1, y1, x2, y2[, color]): Last input is not a color")
         raise ValueError
     #g = picture.getBufferedImage().createGraphics()
     # g.setColor(acolor.color)
     #g.drawLine(x1 - 1,y1 - 1,x2 - 1,y2 - 1)
-    pic.addLine(acolor, x1, y1, x2, y2)
+    picture.addLine(acolor, x1, y1, x2, y2)
 
 
-def addText(pic, x, y, string, acolor=black):
+def addText(picture, x, y, string, acolor=black):
     if not isinstance(pic, Picture):
-        print ("addText(picture, x, y, string[, color]): First input is not a picture")
+        print("addText(picture, x, y, string[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
         print("addText(picture, x, y, string[, color]): Last input is not a color")
@@ -576,7 +577,7 @@ def addText(pic, x, y, string, acolor=black):
     #g = picture.getBufferedImage().getGraphics()
     #g.setColor(acolor.color)
     #g.drawString(string, x - 1, y - 1)
-    pic.addText(acolor, x, y, string)
+    picture.addText(acolor, x, y, string)
 
 # def addTextWithStyle(pic, x, y, text, style, acolor=black):
 #     if not isinstance(pic, Picture):
