@@ -17,35 +17,35 @@ import wx.lib.inspection
 
 class MainWindow(wx.Frame):
 
-    MinWindowWidth = 300
-    MinWindowHeight = 300
+    # MinWindowWidth = 300
+    # MinWindowHeight = 300
     ColorPanelHeight = 70
     PaintChipSize = 24
+    x = 0
+    y = 0
+    ratio = 1.0
+    OSVersion = wx.Platform
+    print ("You are on ", OSVersion)
 
     def __init__(self, filename, parent, title):
 
         # Load image and get image size
         self.image = wx.Image(filename, wx.BITMAP_TYPE_ANY)
-        #w, h = self.image.GetSize()
-        #size = (w, h + self.ColorPanelHeight)
+        self.bmp = wx.Bitmap(self.image, wx.BITMAP_TYPE_ANY)
 
         super(MainWindow, self).__init__(parent=parent, title=title, style=wx.DEFAULT_FRAME_STYLE)
-
-        self.x = self.y = 0
-        self.ratio = 1.0
 
         self.InitUI()
         self.clipOnBoundary()
         wx.lib.inspection.InspectionTool().Show() # Inspection tool for debugging
 
-
     def InitUI(self):
-        wScr, hScr = wx.DisplaySize()
-        wView, hView = wScr - int(wScr/20.0), hScr - int(hScr/40.0)
-        w, h = self.image.GetSize()
+        # wScr, hScr = wx.DisplaySize()
+        # wView, hView = wScr - int(wScr/20.0), hScr - int(hScr/40.0)
+        # w, h = self.image.GetSize()
 
-        w = min(max(self.MinWindowWidth, w), wView)
-        h = min(max(self.MinWindowHeight, h + self.ColorPanelHeight), hView)
+        # w = min(max(self.MinWindowWidth, w), wView)
+        # h = min(max(self.MinWindowHeight, h + self.ColorPanelHeight), hView)
 
         # setup the zoom menu
         self.setupZoomMenu()
@@ -62,9 +62,14 @@ class MainWindow(wx.Frame):
         self.mainSizer.Add(self.imagePanel, 0, wx.EXPAND|wx.ALL, 0)
 
         self.SetSizer(self.mainSizer)
-        self.SetSize((w, h))
+        # self.SetSize((w, h))
         self.Fit()
         self.imagePanel.SetupScrolling(scrollToTop=True)
+
+        w, h = self.image.GetSize()
+        h = h + self.ColorPanelHeight
+        self.SetSize((w, h))
+        self.SetClientSize((w,h))
 
     def setupZoomMenu(self):
         # Set up zoom menu
@@ -129,8 +134,10 @@ class MainWindow(wx.Frame):
         buttonY_R.Bind(wx.EVT_BUTTON, self.ImageCtrl_OnNavBtn)
 
         # Textboxes to display X and Y coordinates on click
-        self.pixelTxtX = wx.TextCtrl(self.colorInfoPanel, wx.ALIGN_CENTER, style=wx.TE_PROCESS_ENTER, size=(50,-1))
-        self.pixelTxtY = wx.TextCtrl(self.colorInfoPanel, wx.ALIGN_CENTER, style=wx.TE_PROCESS_ENTER, size=(50,-1))
+        self.pixelTxtX = wx.TextCtrl(self.colorInfoPanel, wx.ALIGN_CENTER, \
+            style=wx.TE_PROCESS_ENTER, size=(50,-1))
+        self.pixelTxtY = wx.TextCtrl(self.colorInfoPanel, wx.ALIGN_CENTER, \
+            style=wx.TE_PROCESS_ENTER, size=(50,-1))
         self.pixelTxtX.Bind(wx.EVT_TEXT_ENTER, self.ImageCtrl_OnEnter)
         self.pixelTxtY.Bind(wx.EVT_TEXT_ENTER, self.ImageCtrl_OnEnter)
 
@@ -205,13 +212,14 @@ class MainWindow(wx.Frame):
         self.imagePanel = wx.lib.scrolledpanel.ScrolledPanel(parent=self, size=maxSize, style=wx.NO_BORDER)
 
         # Store the image and setup even handlers for mouse clicks and motion
-        self.imageCtrl = wx.StaticBitmap(parent=self.imagePanel, bitmap=wx.Bitmap(self.image))
-        self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
-        self.imageCtrl.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick)
-        # next two lines are needed for mac os x
-        self.imagePanel.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
-        self.imagePanel.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick)        
-
+        self.imageCtrl = wx.StaticBitmap(parent=self.imagePanel, bitmap=self.bmp)
+        if self.OSVersion == "__WXMSW__" or self.OSVersion == "__WXGTK__":
+            self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
+            self.imageCtrl.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick)
+        elif self.OSVersion == "__WXMAC__":
+            self.imagePanel.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
+            self.imagePanel.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick)        
+        self.imageCtrl.Bind(wx.EVT_LEFT_UP, self.OnPaint)
         #panel.SetFocus()
         #panel.Bind(wx.EVT_LEFT_DOWN, self.onFocus)
 
@@ -281,7 +289,8 @@ class MainWindow(wx.Frame):
         w = int(imageSize[0] * self.ratio)
         h = int(imageSize[1] * self.ratio)
         image = self.image.Scale(w, h)
-        self.imageCtrl.SetBitmap(wx.Bitmap(image))
+        self.bmp = wx.Bitmap(image, wx.BITMAP_TYPE_ANY)
+        self.imageCtrl.SetBitmap(self.bmp)
 
 # ===========================================================================
 # Event handlers
@@ -330,12 +339,21 @@ class MainWindow(wx.Frame):
             event.Skip()
             dc = wx.ClientDC(self)
             self.imagePanel.DoPrepareDC(dc)
-            dc_pos = event.GetPosition()
+            if self.OSVersion == "__WXMSW__":
+                dc_pos = event.GetPosition()
+            elif self.OSVersion == "__WXGTK__" or OSVersion == "__WXMAC__":
+                dc_pos = event.GetLogicalPosition(dc)
+            self.coordinates = dc_pos
             del dc
             self.x = int(dc_pos.x / self.ratio)
             self.y = int(dc_pos.y / self.ratio)
             self.clipOnBoundary()
 
+    def OnPaint(self, e):
+        dc = wx.ClientDC(self.imagePanel)
+        dc.DrawBitmap(self.bmp, 0, 0, False)
+        dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), 1, wx.DOT))
+        dc.CrossHair(int(self.x*self.ratio), int(self.y*self.ratio))
 
 # ===========================================================================
 # Main program
@@ -361,10 +379,10 @@ def main(argv):
 
     app = wx.App(False)
     frame = MainWindow(filename=filename, parent=None, title=title)
-    w, h = frame.image.GetSize()
-    h = h + frame.ColorPanelHeight
-    frame.SetSize((w, h))
-    frame.SetClientSize((w,h))
+    # w, h = frame.image.GetSize()
+    # h = h + frame.ColorPanelHeight
+    # frame.SetSize((w, h))
+    # frame.SetClientSize((w,h))
     frame.Show()
     #wx.lib.inspection.InspectionTool().Show()
     app.MainLoop()
