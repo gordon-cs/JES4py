@@ -355,7 +355,7 @@ class MainWindow(wx.Frame):
             self.clipOnBoundary()
 
     def OnPaint(self, e):
-        dc = wx.ClientDC(self.imagePanel)
+        dc = wx.ClientDC(self.imageCtrl)
         dc.DrawBitmap(self.bmp, 0, 0, False)
         dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), 1, wx.DOT))
         dc.CrossHair(int(self.x*self.ratio), int(self.y*self.ratio))
