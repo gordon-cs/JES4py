@@ -436,6 +436,35 @@ def setColorWrapAround(setting):
 def getColorWrapAround():
     return Pixel.getWrapLevels()
 
+def pickAColor():
+    # Dorn 5/8/2009:  Edited to be thread safe since this code is executed from an
+    # interpreter JESThread and will result in an update to the main JES GUI due to
+    # it being a modal dialog.
+    app = wx.App()
+
+    dlg = wx.ColourDialog(wx.GetApp().GetTopWindow())
+    if dlg.ShowModal() == wx.ID_OK:
+        red =  dlg.GetColourData().GetColour().Red()
+        green = dlg.GetColourData().GetColour().Green()
+        blue = dlg.GetColourData().GetColour().Blue()
+        col = Color(red,green,blue)
+        return col
+
+# Constants
+black = Color(0, 0, 0)
+white = Color(255, 255, 255)
+blue = Color(0, 0, 255)
+red = Color(255, 0, 0)
+green = Color(0, 255, 0)
+gray = Color(128, 128, 128)
+darkGray = Color(64, 64, 64)
+lightGray = Color(192, 192, 192)
+yellow = Color(255, 255, 0)
+orange = Color(255, 200, 0)
+pink = Color(255, 175, 175)
+magenta = Color(255, 0, 255)
+cyan = Color(0, 255, 255)
+
 ##
 # Global picture functions
 ##
@@ -540,19 +569,6 @@ def repaint(picture):
 
 ## adding graphics to your pictures! ##
 
-def pickAColor():
-    # Dorn 5/8/2009:  Edited to be thread safe since this code is executed from an
-    # interpreter JESThread and will result in an update to the main JES GUI due to
-    # it being a modal dialog.
-    app = wx.App()
-
-    dlg = wx.ColourDialog(wx.GetApp().GetTopWindow())
-    if dlg.ShowModal() == wx.ID_OK:
-        red =  dlg.GetColourData().GetColour().Red()
-        green = dlg.GetColourData().GetColour().Green()
-        blue = dlg.GetColourData().GetColour().Blue()
-        col = Color(red,green,blue)
-        return col
 
 def addLine(picture, x1, y1, x2, y2, acolor=black):
     if not isinstance(picture, Picture):
@@ -568,7 +584,7 @@ def addLine(picture, x1, y1, x2, y2, acolor=black):
 
 
 def addText(picture, x, y, string, acolor=black):
-    if not isinstance(pic, Picture):
+    if not isinstance(picture, Picture):
         print("addText(picture, x, y, string[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
@@ -579,8 +595,10 @@ def addText(picture, x, y, string, acolor=black):
     #g.drawString(string, x - 1, y - 1)
     picture.addText(acolor, x, y, string)
 
-# def addTextWithStyle(pic, x, y, text, style, acolor=black):
-#     if not isinstance(pic, Picture):
+# PamC: Added this function to allow different font styles
+
+# def addTextWithStyle(picture, x, y, text, style, acolor=black):
+#     if not isinstance(picture, Picture):
 #         print("addTextWithStyle(picture, x, y, string, style[, color]): First input is not a picture")
 #         raise ValueError
 #     if not isinstance(style, String):
@@ -589,82 +607,100 @@ def addText(picture, x, y, string, acolor=black):
 #     if not isinstance(acolor, Color):
 #         print("addTextWithStyle(picture, x, y, string, style[, color]): Last input is not a color")
 #         raise ValueError
-#     pic.addTextWithStyle(acolor, x, y, text, style)
+#     picture.addTextWithStyle(acolor, x, y, text, style)
 
 # - JRS -- 2020-06-23 -- START OF MODIFICATIONS
 
-def addRect(pic, x, y, w, h, acolor=black):
-    if not isinstance(pic, Picture):
+def addRect(picture, x, y, w, h, acolor=black):
+    if not isinstance(picture, Picture):
         print("addRect(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
-        print("addRect(pic, x, y, w, h[, color]): Last input is not a color")
+        print("addRect(picture, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
-    pic.addRect(acolor, x, y, w, h)
+    picture.addRect(acolor, x, y, w, h)
 
-def addRectFilled(pic, x, y, w, h, acolor=black):
-    if not isinstance(pic, Picture):
+
+def addRectFilled(picture, x, y, w, h, acolor=black):
+    if not isinstance(picture, Picture):
         print("addRectFilled(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
-        print("addRectFilled(pic, x, y, w, h[, color]): Last input is not a color")
+        print("addRectFilled(picture, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
-    pic.addRectFilled(acolor, x, y, w, h)
+    picture.addRectFilled(acolor, x, y, w, h)
 
-def addOval(pic, x, y, w, h, acolor=black):
-    if not isinstance(pic, Picture):
+# PamC: Added the following addOval, addOvalFilled, addArc, and addArcFilled
+# functions to add more graphics to pictures.
+
+
+def addOval(picture, x, y, w, h, acolor=black):
+    if not isinstance(picture, Picture):
         print("addOval(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
-        print("addOval(pic, x, y, w, h[, color]): Last input is not a color")
+        print("addOval(picture, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
-    pic.addOval(acolor, x, y, w, h)
+    picture.addOval(acolor, x, y, w, h)
 
-def addOvalFilled(pic, x, y, w, h, acolor=black):
-    if not isinstance(pic, Picture):
+
+def addOvalFilled(picture, x, y, w, h, acolor=black):
+    if not isinstance(picture, Picture):
         print("addOvalFilled(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
-        print("addOvalFilled(pic, x, y, w, h[, color]): Last input is not a color")
+        print("addOvalFilled(picture, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
-    pic.addOvalFilled(acolor, x, y, w, h)
+    picture.addOvalFilled(acolor, x, y, w, h)
 
-def addArc(pic, x, y, w, h, start, angle, acolor=black):
-    if not isinstance(pic, Picture):
+
+def addArc(picture, x, y, w, h, start, angle, acolor=black):
+    if not isinstance(picture, Picture):
         print("addArc(picture, x, y, w, h, start, angle[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
-        print("addArc(pic, x, y, w, h, start, angle[, color]): Last input is not a color")
+        print("addArc(picture, x, y, w, h, start, angle[, color]): Last input is not a color")
         raise ValueError
-    pic.addArc(acolor, x, y, w, h, start, angle)
+    picture.addArc(acolor, x, y, w, h, start, angle)
 
-def addArcFilled(pic, x, y, w, h, start, angle, acolor=black):
-    if not isinstance(pic, Picture):
+
+def addArcFilled(picture, x, y, w, h, start, angle, acolor=black):
+    if not isinstance(picture, Picture):
         print("addArcFilled(picture, x, y, w, h[, color]): First First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
-        print("addArcFilled(pic, x, y, w, h, start, angle[, color]): Last input is not a color")
+        print("addArcFilled(picture, x, y, w, h, start, angle[, color]): Last input is not a color")
         raise ValueError
-    pic.addArcFilled(acolor, x, y, w, h, start, angle)
+    picture.addArcFilled(acolor, x, y, w, h, start, angle)
+
+# note the -1; in JES we think of pictures as starting at (1,1) but not
+# in the Java.
+##
+# 29 Oct 2008: -1 changed to Picture._PictureIndexOffset
 
 
-# JRS -- 2020-06-23 -- END OF MODIFICATIONS
-
-def getPixel(pic, x, y):
-    if not isinstance(pic, Picture):
+def getPixel(picture, x, y):
+    if not isinstance(picture, Picture):
         print("getPixel(picture,x,y): First input is not a picture")
         raise ValueError
-    if (x < 0 or x > pic.getWidth() or y < 0 or y > pic.getHeight()):
-        print("The pixel location you chose was out of bounds")
+    if (x < Picture._PictureIndexOffset) or (x > getWidth(picture) - 1 + Picture._PictureIndexOffset):
+        print("getPixel(picture,x,y): x (= {}) is less than {} or bigger than the width (= {})".format(x, Picture._PictureIndexOffset, getWidth(picture) - 1 + Picture._PictureIndexOffset))
         raise ValueError
-    return pic.getPixel(x,y)
+    if (y < Picture._PictureIndexOffset) or (y > getHeight(picture) - 1 + Picture._PictureIndexOffset):
+        print("getPixel(picture,x,y): y (= {}) is less than {} or bigger than the height (= {})".format(y, Picture._PictureIndexOffset, getHeight(picture) - 1 + Picture._PictureIndexOffset))
+        raise ValueError
+
+    return picture.getPixel(x - Picture._PictureIndexOffset, y - Picture._PictureIndexOffset)
 
 # Added as a better name for getPixel
-def getPixelAt(pic, x, y):
-    return getPixel(pic, x, y)
+
+
+def getPixelAt(picture, x, y):
+    return getPixel(picture, x, y)
 
 
 def setRed(pixel, value):
+    value = Pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setRed(pixel,value): Input is not a pixel")
         raise ValueError
@@ -679,6 +715,7 @@ def getRed(pixel):
 
 
 def setBlue(pixel, value):
+    value = Pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setBlue(pixel,value): Input is not a pixel")
         raise ValueError
@@ -693,6 +730,7 @@ def getBlue(pixel):
 
 
 def setGreen(pixel, value):
+    value = Pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setGreen(pixel,value): Input is not a pixel")
         raise ValueError
@@ -710,30 +748,31 @@ def getColor(pixel):
     if not isinstance(pixel, Pixel):
         print("getColor(pixel): Input is not a pixel")
         raise ValueError
-    return pixel.getColor()
+    return Color(pixel.getColor())
 
 
 def setColor(pixel, color):
     if not isinstance(pixel, Pixel):
         print("setColor(pixel,color): First input is not a pixel")
         raise ValueError
-    # if not isinstance(color, Color):
-    #     print("setColor(pixel,color): Second input is not a color")
-    #     raise ValueError
-    pixel.setColor(color)
+    if not isinstance(color, Color):
+        print("setColor(pixel,color): Second input is not a color")
+        raise ValueError
+    pixel.setColor(color.color)
+
 
 def getX(pixel):
     if not isinstance(pixel, Pixel):
         print("getX(pixel): Input is not a pixel")
         raise ValueError
-    return pixel.getX()# + Picture._PictureIndexOffset
+    return pixel.getX() + Picture._PictureIndexOffset
 
 
 def getY(pixel):
     if not isinstance(pixel, Pixel):
         print("getY(pixel): Input is not a pixel")
         raise ValueError
-    return pixel.getY() #+ Picture._PictureIndexOffset
+    return pixel.getY() + Picture._PictureIndexOffset
 
 
 def distance(c1, c2):
@@ -794,7 +833,7 @@ def makeBrighter(color):  # This is the same as makeLighter(color)
     return Color(color.makeLighter())
 
 
-def makeColor(red, green=0, blue=0):
+def makeColor(red, green=None, blue=None):
     return Color(red, green, blue)
 
 
@@ -826,7 +865,16 @@ def setAllPixelsToAColor(picture, color):
 #     if ((startX + getWidth(smallPicture) - 1) > (getWidth(bigPicture) - 1) or (startY + getHeight(smallPicture) - 1) > (getHeight(bigPicture) - 1)):
 #         print("copyInto(smallPicture, bigPicture, startX, startY): smallPicture won't fit into bigPicture")
 #         raise ValueError
-
+# 
+#     xOffset = startX - Picture._PictureIndexOffset
+#     yOffset = startY - Picture._PictureIndexOffset
+# 
+#     for x in range(0, getWidth(smallPicture)):
+#         for y in range(0, getHeight(smallPicture)):
+#             bigPicture.setBasicPixel(
+#                 x + xOffset, y + yOffset, smallPicture.getBasicPixel(x, y))
+# 
+#     return bigPicture
 
 # Alyce Brady's version of copyInto, with additional error-checking on the upper-left corner
 # Will copy as much of the original picture into the destination picture as will fit.
@@ -851,10 +899,10 @@ def duplicatePicture(picture):
     if not isinstance(picture, Picture):
         print("duplicatePicture(picture): Input is not a picture")
         raise ValueError
-    return picture(picture)
+    return Picture(picture)
 
-def cropPicture(pic, upperLeftX, upperLeftY, width, height):
- if not isinstance(pic, Picture):
+def cropPicture(picture, upperLeftX, upperLeftY, width, height):
+ if not isinstance(picture, Picture):
    print("crop(picture, upperLeftX, upperLeftY, width, height): First parameter is not a picture")
    raise ValueError
  if upperLeftX < 1 or upperLeftX > getWidth(pic):
@@ -863,7 +911,7 @@ def cropPicture(pic, upperLeftX, upperLeftY, width, height):
  if upperLeftY < 1 or upperLeftY > getHeight(pic):
    print("crop(picture, upperLeftX, upperLeftY, width, height): upperLeftY must be within the picture")
    raise ValueError
- return pic.crop(upperLeftX-1, upperLeftY-1, width, height)
+ return picture.crop(upperLeftX-1, upperLeftY-1, width, height)
 
 ##
 # Input and Output interfaces
@@ -934,7 +982,8 @@ def playNote(note, duration, intensity=64):
 def pickAFile():
     # Note: this needs to be done in a threadsafe manner, see FileChooser
     # for details how this is accomplished.
-    return FileChooser.pickAFile()
+    return str(FileChooser.pickAFile())
+
 
 def pickAFolder():
     # Note: this needs to be done in a threadsafe manner, see FileChooser
@@ -955,9 +1004,11 @@ def quit():
 
 
 def openPictureTool(picture):
-    import PictureExplorer
-    thecopy = duplicatePicture(picture)
-    viewer = PictureExplorer(thecopy)
+    #import PictureExplorer
+    #thecopy = duplicatePicture(picture)
+    #viewer = PictureExplorer(thecopy)
+    picture.pictureTool()
+
 
 #    viewer.changeToBaseOne();
     viewer.setTitle(getShortPath(picture.getFileName()))
@@ -979,8 +1030,7 @@ def openSoundTool(sound):
 
 def explore(someMedia):
     if isinstance(someMedia, Picture):
-        #openPictureTool(someMedia)
-        someMedia.pictureTool()
+        openPictureTool(someMedia)
     elif isinstance(someMedia, Sound):
         openSoundTool(someMedia)
     elif isinstance(someMedia, Movie):
@@ -1137,6 +1187,7 @@ def getTurtleList(world):
 
 def printNow(text):
     print(text)
+
 
 class Movie(object):
     def __init__(self):  # frames are filenames

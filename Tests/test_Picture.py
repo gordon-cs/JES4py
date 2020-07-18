@@ -38,8 +38,8 @@ def test_init():
     # create empty Picture
     p1 = Picture()
     assert isinstance(p1, Picture)
-    assert p1.getFileName() == ''
-    assert p1.getTitle() == ''
+    assert p1.getFileName() == u'None'
+    assert p1.getTitle() == u'None'
     assert p1.getExtension() == '.jpg'
 
     # create Picture from PIL Image
@@ -63,7 +63,7 @@ def test_init():
     p4 = Picture(s)
     assert isinstance(p4, Picture)
     assert isinstance(p4.getImage(), PIL.Image.Image)
-    assert p4.getFileName() == ''
+    assert p4.getFileName() == s
     assert p4.getTitle() == s
     assert p4.getExtension() == '.jpg'
 
