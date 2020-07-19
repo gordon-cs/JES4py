@@ -5,6 +5,8 @@
 # JES distribution:
 #     # Media Wrappers for "Introduction to Media Computation"
 #     # Started: Mark Guzdial, 2 July 2002
+#
+# 
 
 import sys
 import os
@@ -15,7 +17,7 @@ import math
 # import Picture
 # import Pixel
 from Picture import Picture
-from Pixel import Pixel
+from PixelColor import Pixel, Color
 # import Sound
 from Sound import Sound
 # import StoppableInput
@@ -28,13 +30,7 @@ from Samples import Samples
 # import MovieWriter
 import FileChooser
 import random
-from Pixel import Color
 import JESConfig
-import PIL.Image
-#from PIL import Image as img
-import wx
-import simpleaudio as sa
-import wave
 
 # from jes.tools.framesequencer import FrameSequencerTool
 
@@ -51,22 +47,6 @@ _lastFilePath = ""
 
 true = 1
 false = 0
-
-# Constants
-black = Color(0, 0, 0)
-white = Color(255, 255, 255)
-blue = Color(0, 0, 255)
-red = Color(255, 0, 0)
-green = Color(0, 255, 0)
-gray = Color(128, 128, 128)
-darkGray = Color(64, 64, 64)
-lightGray = Color(192, 192, 192)
-yellow = Color(255, 255, 0)
-orange = Color(255, 200, 0)
-pink = Color(255, 175, 175)
-magenta = Color(255, 0, 255)
-cyan = Color(0, 255, 255)
-
 
 
 def setMediaPath(file=None):
@@ -440,15 +420,7 @@ def pickAColor():
     # Dorn 5/8/2009:  Edited to be thread safe since this code is executed from an
     # interpreter JESThread and will result in an update to the main JES GUI due to
     # it being a modal dialog.
-    app = wx.App()
-
-    dlg = wx.ColourDialog(wx.GetApp().GetTopWindow())
-    if dlg.ShowModal() == wx.ID_OK:
-        red =  dlg.GetColourData().GetColour().Red()
-        green = dlg.GetColourData().GetColour().Green()
-        blue = dlg.GetColourData().GetColour().Blue()
-        col = Color(red,green,blue)
-        return col
+    return Color.pickAColor()
 
 # Constants
 black = Color(0, 0, 0)
@@ -1007,11 +979,10 @@ def openPictureTool(picture):
     #import PictureExplorer
     #thecopy = duplicatePicture(picture)
     #viewer = PictureExplorer(thecopy)
-    picture.pictureTool()
-
 
 #    viewer.changeToBaseOne();
-    viewer.setTitle(getShortPath(picture.getFileName()))
+    #viewer.setTitle(getShortPath(picture.getFileName()))
+    picture.pictureTool()
 
 
 def openFrameSequencerTool(movie):

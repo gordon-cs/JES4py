@@ -3,8 +3,7 @@ import wx
 import subprocess, tempfile
 import PIL.ImageDraw, PIL.Image
 import JESConfig
-from Pixel import Pixel
-from Pixel import Color
+from PixelColor import Pixel, Color
 import FileChooser
 from pathlib import Path
 
