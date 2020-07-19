@@ -21,12 +21,11 @@ class MainWindow(wx.Frame):
     MinWindowHeight = 0
     ColorPanelHeight = 70
     PaintChipSize = 24
+    zoomLevel = 1.0
     x = 0
     y = 0
-    ratio = 1.0
 
     def __init__(self, filename, parent, title):
-
         # Load image and get image size
         self.image = wx.Image(filename, wx.BITMAP_TYPE_ANY)
         self.bmp = wx.Bitmap(self.image, wx.BITMAP_TYPE_ANY)
@@ -217,11 +216,11 @@ class MainWindow(wx.Frame):
         if wx.Platform == "__WXMSW__" or wx.Platform == "__WXGTK__":
             self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
             self.imageCtrl.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick)
-            self.imageCtrl.Bind(wx.EVT_LEFT_UP, self.OnPaint)
+            #self.imageCtrl.Bind(wx.EVT_LEFT_UP, self.OnPaint)
         elif wx.Platform == "__WXMAC__":
             self.imagePanel.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
-            self.imagePanel.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick)        
-            self.imagePanel.Bind(wx.EVT_LEFT_UP, self.OnPaint)
+            self.imagePanel.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick) 
+            #self.imagePanel.Bind(wx.EVT_LEFT_UP, self.OnPaint)
         #panel.SetFocus()
         #panel.Bind(wx.EVT_LEFT_DOWN, self.onFocus)
 
@@ -292,8 +291,8 @@ class MainWindow(wx.Frame):
         """Scale image according to the zoom factor and (re)display it
         """
         imageSize = self.image.GetSize()
-        w = int(imageSize[0] * self.ratio)
-        h = int(imageSize[1] * self.ratio)
+        w = int(imageSize[0] * self.zoomLevel)
+        h = int(imageSize[1] * self.zoomLevel)
         image = self.image.Scale(w, h)
         self.bmp = wx.Bitmap(image, wx.BITMAP_TYPE_ANY)
         self.imageCtrl.SetBitmap(self.bmp)
@@ -313,7 +312,7 @@ class MainWindow(wx.Frame):
         id_selected = event.GetId() # Gets the event id of the selected menu item
         obj = event.GetEventObject() # Gets the event object
         menuItem = obj.GetLabelText(id_selected) # Gets the label text of the menu item
-        self.ratio = float(menuItem.replace('%','')) / 100.0
+        self.zoomLevel = float(menuItem.replace('%','')) / 100.0
         self.PostSizeEvent()
         self.updateView()  
 
@@ -330,6 +329,7 @@ class MainWindow(wx.Frame):
         elif selectedBtn == "YR":
             self.y = int(self.pixelTxtY.GetValue()) + 1
         self.clipOnBoundary()
+        self.OnPaint(event)
 
     def ImageCtrl_OnEnter(self, event):
         """Adjusts x and y pixel values to match displayed values
@@ -337,6 +337,7 @@ class MainWindow(wx.Frame):
         self.x = int(self.pixelTxtX.GetValue())
         self.y = int(self.pixelTxtY.GetValue())
         self.clipOnBoundary()
+        self.OnPaint(event)
 
     def ImageCtrl_OnMouseClick(self, event):
         """Update x and y pixel coordinates from pointer location
@@ -351,15 +352,16 @@ class MainWindow(wx.Frame):
                 dc_pos = event.GetLogicalPosition(dc)
             self.coordinates = dc_pos
             del dc
-            self.x = int(dc_pos.x / self.ratio)
-            self.y = int(dc_pos.y / self.ratio)
+            self.x = int(dc_pos.x / self.zoomLevel)
+            self.y = int(dc_pos.y / self.zoomLevel)
             self.clipOnBoundary()
+            self.OnPaint(event)
 
     def OnPaint(self, e):
         dc = wx.ClientDC(self.imageCtrl)
         dc.DrawBitmap(self.bmp, 0, 0, False)
         dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), 1, wx.DOT))
-        dc.CrossHair(int(self.x*self.ratio), int(self.y*self.ratio))
+        dc.CrossHair(int(self.x * self.zoomLevel), int(self.y * self.zoomLevel))
 
 # ===========================================================================
 # Main program
