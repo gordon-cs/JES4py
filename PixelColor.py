@@ -261,7 +261,7 @@ class Pixel:
         int
             corrected color level
         """
-        level = round(level)
+        level = int(level)
         if cls.wrapLevels:
             return level % 256
         elif level < 0:
@@ -522,7 +522,7 @@ class Color:
         Color
             darker version of this color
         """
-        return self.scaleColor(0.8)
+        return self.scaleColor(7.0/10.0)
 
     def makeLighter(self):
         """Return a lighter version of this color
@@ -532,7 +532,22 @@ class Color:
         Color
             lighter version of this color
         """
-        return self.scaleColor(1.25)
+        if self.color == (0,0,0):
+            # Special case -- black gets lighted to very dark gray
+            lighterColor = Color(3,3,3)
+        else:
+            # Scale color values by 10/7
+            lighterColor = self.scaleColor(10.0/7.0)
+            if max(lighterColor.color) <= 2:
+                # if all color values are 2 or less we need to adjust them
+                c = list(lighterColor.color)
+                for i in range(3):
+                    if c[i] > 0 and c[i] < 2:
+                        c[i] += 3
+                    elif c[i] > 0 and c[i] == 2:
+                        c[i] += 2
+                lighterColor = Color(c)
+        return lighterColor
 
     @classmethod
     def pickAColor(cls):
