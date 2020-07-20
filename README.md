@@ -7,7 +7,8 @@
 The **JES-Emulator** implements a subset of JES features that can be used in Python 2.x and Python 3.x scripts.  The goal is to provide the pedogocial assets of JES without requiring Jython or needing to use JES's IDE.
 
 ## Prerequisites
-1. An IDE (Integrated Development Environment) of your choice ([**Visual Studio Code**](https://code.visualstudio.com/) is recommended if you have no preference).
+1. An IDE (Integrated Development Environment) of your choice
+- ([**Visual Studio Code**](https://code.visualstudio.com/) is recommended if you have no preference).
 2. [**Python**](https://www.python.org/downloads/) Installed [Recommended: Python 3.0 or newer]
 3. **A Supported OS**:  Windows, Linux, macOS
 
