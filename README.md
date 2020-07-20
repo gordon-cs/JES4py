@@ -12,11 +12,29 @@ Several dependencies need to be installed before you can use the JES-emulator.  
 
 ### Windows
 
-TBD
+#### wxPython GUI Package Installation
+```
+pip install -U wxPython
+```
+
+#### Pillow (Python Imaging Library) Installation
+```
+python3 -m pip install --upgrade pip
+python3 -m pip install --upgrade Pillow
+```
 
 ### Mac OS-X
 
-TBD
+#### wxPython GUI Package
+```
+pip install -U wxPython
+```
+
+#### Pillow (Python Imaging Library) Installation
+```
+python3 -m pip install --upgrade pip
+python3 -m pip install --upgrade Pillow
+```
 
 ### Linux
 ```
