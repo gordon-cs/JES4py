@@ -241,7 +241,7 @@ class Pixel:
         int
             corrected color level
         """
-        level = round(level)
+        level = int(level)
         if cls.wrapLevels:
             return level % 256
         elif level < 0:
@@ -303,7 +303,7 @@ class Color:
             elif isinstance(r, list):
                 self.color = tuple(r)
             elif isinstance(r, Color):
-                self.color = r.color
+                self.color = r.getRGB()
             else:
                 val = Pixel.correctLevel(r)
                 self.color = (val, val, val)

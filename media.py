@@ -836,10 +836,10 @@ def copyInto(origPict, destPict, upperLeftX, upperLeftY):
  if not isinstance(destPict, Picture):
    print("copyInto(origPict, destPict, upperLeftX, upperLeftY): Second parameter is not a picture")
    raise ValueError
- if upperLeftX < 1 or upperLeftX > getWidth(destPict):
+ if upperLeftX < 0 or upperLeftX > getWidth(destPict):
    print("copyInto(origPict, destPict, upperLeftX, upperLeftY): upperLeftX must be within the destPict")
    raise ValueError
- if upperLeftY < 1 or upperLeftY > getHeight(destPict):
+ if upperLeftY < 0 or upperLeftY > getHeight(destPict):
    print("copyInto(origPict, destPict, upperLeftX, upperLeftY): upperLeftY must be within the destPict")
    raise ValueError
  return origPict.copyInto(destPict, upperLeftX-1, upperLeftY-1)
@@ -850,7 +850,7 @@ def duplicatePicture(picture):
     if not isinstance(picture, Picture):
         print("duplicatePicture(picture): Input is not a picture")
         raise ValueError
-    return picture(picture)
+    return Picture(picture)
 
 def cropPicture(pic, upperLeftX, upperLeftY, width, height):
  if not isinstance(pic, Picture):
