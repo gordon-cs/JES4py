@@ -8,7 +8,7 @@ The **JES-Emulator** implements a subset of JES features that can be used in Pyt
 
 ## Prerequisites
 1. An IDE (Integrated Development Environment) of your choice
-    - ([**Visual Studio Code**](https://code.visualstudio.com/) is recommended if you have no preference).
+    - [**Visual Studio Code**](https://code.visualstudio.com/) is recommended if you have no preference
 2. [**Python**](https://www.python.org/downloads/) Installed [Recommended: Python 3.0 or newer]
 3. **A Supported OS**:  Windows, Linux, macOS
 
