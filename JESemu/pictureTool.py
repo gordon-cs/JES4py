@@ -12,7 +12,7 @@ import os
 import sys
 import wx
 import wx.lib.scrolledpanel
-import wx.lib.inspection
+# import wx.lib.inspection
 
 
 class MainWindow(wx.Frame):
@@ -21,7 +21,8 @@ class MainWindow(wx.Frame):
     MinWindowHeight = 0
     ColorPanelHeight = 70
     PaintChipSize = 24
-    zoomLevel = 1.0
+    zoomLevels = [25, 50, 75, 100, 150, 200, 500]
+    zoomLevel = float(zoomLevels[3]) / 100.0
     x = 0
     y = 0
 
@@ -35,7 +36,7 @@ class MainWindow(wx.Frame):
         self.InitUI()
         self.Center()
         self.clipOnBoundary()
-        wx.lib.inspection.InspectionTool().Show() # Inspection tool for debugging
+        # wx.lib.inspection.InspectionTool().Show() # Inspection tool for debugging
 
     def InitUI(self):
         wScr, hScr = wx.DisplaySize()
@@ -74,22 +75,28 @@ class MainWindow(wx.Frame):
     def setupZoomMenu(self):
         # Set up zoom menu
         zoomMenu = wx.Menu()
-        menuZoom25 = zoomMenu.Append(wx.ID_ANY, "25%","Zoom by 25%")
-        menuZoom50 = zoomMenu.Append(wx.ID_ANY, "50%","Zoom by 50%")
-        menuZoom75 = zoomMenu.Append(wx.ID_ANY, "75%","Zoom by 75%")
-        menuZoom100 = zoomMenu.Append(wx.ID_ZOOM_100, "100%","Zoom by 100% (original size)")
-        menuZoom150 = zoomMenu.Append(wx.ID_ANY, "150%","Zoom by 150%")
-        menuZoom200 = zoomMenu.Append(wx.ID_ANY, "200%","Zoom by 200%")
-        menuZoom500 = zoomMenu.Append(wx.ID_ANY, "500%","Zoom by 500%")
+        for z in self.zoomLevels:
+            item = "{}%".format(z)
+            helpString = "Zoom by {}%".format(z)
+            zoomID = zoomMenu.Append(wx.ID_ANY, item, helpString)
+            self.Bind(wx.EVT_MENU, self.onZoom, zoomID)
 
-        # Set menu events
-        self.Bind(wx.EVT_MENU, self.onZoom, menuZoom25)
-        self.Bind(wx.EVT_MENU, self.onZoom, menuZoom50)
-        self.Bind(wx.EVT_MENU, self.onZoom, menuZoom75)
-        self.Bind(wx.EVT_MENU, self.onZoom, menuZoom100)
-        self.Bind(wx.EVT_MENU, self.onZoom, menuZoom150)
-        self.Bind(wx.EVT_MENU, self.onZoom, menuZoom200)
-        self.Bind(wx.EVT_MENU, self.onZoom, menuZoom500)
+        # menuZoom25 = zoomMenu.Append(wx.ID_ANY, "25%","Zoom by 25%")
+        # menuZoom50 = zoomMenu.Append(wx.ID_ANY, "50%","Zoom by 50%")
+        # menuZoom75 = zoomMenu.Append(wx.ID_ANY, "75%","Zoom by 75%")
+        # menuZoom100 = zoomMenu.Append(wx.ID_ANY, "100%","Zoom by 100%")
+        # menuZoom150 = zoomMenu.Append(wx.ID_ANY, "150%","Zoom by 150%")
+        # menuZoom200 = zoomMenu.Append(wx.ID_ANY, "200%","Zoom by 200%")
+        # menuZoom500 = zoomMenu.Append(wx.ID_ANY, "500%","Zoom by 500%")
+
+        # # Set menu events
+        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom25)
+        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom50)
+        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom75)
+        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom100)
+        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom150)
+        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom200)
+        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom500)
         
         # Creating the menubar.
         menuBar = wx.MenuBar()
@@ -206,7 +213,8 @@ class MainWindow(wx.Frame):
         # Get image size and make scrolled panel large enough to hold image
         # even with maximum zoom
         w, h = self.image.GetSize()
-        maxSize = (5 * w, 5 * h)
+        maxZoomLevel = int(int(self.zoomLevels[-1]) / 100)
+        maxSize = (maxZoomLevel * w, maxZoomLevel * h)
     
         # Create a scrolled panel to hold the image
         self.imagePanel = wx.lib.scrolledpanel.ScrolledPanel(parent=self, size=maxSize, style=wx.NO_BORDER)
@@ -297,6 +305,18 @@ class MainWindow(wx.Frame):
         self.bmp = wx.Bitmap(image, wx.BITMAP_TYPE_ANY)
         self.imageCtrl.SetBitmap(self.bmp)
 
+    def drawCrosshairs(self):
+        """Draw image with crosshairs to indicate selected position
+        """
+        dc = wx.ClientDC(self.imageCtrl)
+        origin = dc.GetDeviceOrigin()
+        scrolledPosition = self.imagePanel.CalcScrolledPosition(origin)
+        x = int(self.x * self.zoomLevel) + scrolledPosition[0]
+        y = int(self.y * self.zoomLevel) + scrolledPosition[1]
+        dc.DrawBitmap(self.bmp, scrolledPosition, False)
+        dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), 1, wx.DOT))
+        dc.CrossHair(x, y)
+
 # ===========================================================================
 # Event handlers
 # ===========================================================================
@@ -313,8 +333,11 @@ class MainWindow(wx.Frame):
         obj = event.GetEventObject() # Gets the event object
         menuItem = obj.GetLabelText(id_selected) # Gets the label text of the menu item
         self.zoomLevel = float(menuItem.replace('%','')) / 100.0
+        self.x = self.y = 0
+        self.imagePanel.Scroll(self.x, self.y) # "non-scrolled" position
         self.PostSizeEvent()
-        self.updateView()  
+        self.clipOnBoundary()
+        self.updateView()
 
     def ImageCtrl_OnNavBtn(self, event):
         """Increment or decrement x or y pixel coordinate
@@ -329,7 +352,7 @@ class MainWindow(wx.Frame):
         elif selectedBtn == "YR":
             self.y = int(self.pixelTxtY.GetValue()) + 1
         self.clipOnBoundary()
-        self.OnPaint(event)
+        self.drawCrosshairs()
 
     def ImageCtrl_OnEnter(self, event):
         """Adjusts x and y pixel values to match displayed values
@@ -337,7 +360,7 @@ class MainWindow(wx.Frame):
         self.x = int(self.pixelTxtX.GetValue())
         self.y = int(self.pixelTxtY.GetValue())
         self.clipOnBoundary()
-        self.OnPaint(event)
+        self.drawCrosshairs()
 
     def ImageCtrl_OnMouseClick(self, event):
         """Update x and y pixel coordinates from pointer location
@@ -355,13 +378,7 @@ class MainWindow(wx.Frame):
             self.x = int(dc_pos.x / self.zoomLevel)
             self.y = int(dc_pos.y / self.zoomLevel)
             self.clipOnBoundary()
-            self.OnPaint(event)
-
-    def OnPaint(self, e):
-        dc = wx.ClientDC(self.imageCtrl)
-        dc.DrawBitmap(self.bmp, 0, 0, False)
-        dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), 1, wx.DOT))
-        dc.CrossHair(int(self.x * self.zoomLevel), int(self.y * self.zoomLevel))
+            self.drawCrosshairs()
 
 # ===========================================================================
 # Main program
@@ -387,12 +404,7 @@ def main(argv):
 
     app = wx.App(False)
     frame = MainWindow(filename=filename, parent=None, title=title)
-    # w, h = frame.image.GetSize()
-    # h = h + frame.ColorPanelHeight
-    # frame.SetSize((w, h))
-    # frame.SetClientSize((w,h))
     frame.Show()
-    #wx.lib.inspection.InspectionTool().Show()
     app.MainLoop()
 
 if __name__ == '__main__':
