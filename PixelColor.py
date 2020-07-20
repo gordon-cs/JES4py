@@ -1,8 +1,9 @@
 import JESConfig
 import math
+import wx
 
 class Pixel:
-    """Provides access to pixels within a PIL image
+    """Provides access to pixels within an PIL image
 
     Attributes
     ----------
@@ -177,8 +178,27 @@ class Pixel:
         newColor = (color.getRed(), color.getGreen(), value)
         self.image.putpixel((self.x, self.y), newColor)
 
+    def colorDistance(self, testColor):
+        """Computes the Euclidean distance norm between this pixel and a color
+
+        Parameters
+        ----------
+        testColor : Color
+            the color to compute the distance to
+
+        Returns
+        -------
+        float
+            the Euclidean distance between the two colors
+        """
+        r = pow((self.getRed() - testColor.getRed()), 2)
+        g = pow((self.getGreen() - testColor.getGreen()), 2)
+        b = pow((self.getBlue() - testColor.getBlue()), 2)
+        return math.sqrt(r + g + b)
+
     def getColor(self):
         """Returns the color object for the pixel
+
         Returns
         -------
         Color
@@ -271,6 +291,7 @@ class Pixel:
             true means levels are wrapped, false means levels are truncated
         """
         return cls.wrapLevels
+
 
 
 
@@ -512,3 +533,15 @@ class Color:
             lighter version of this color
         """
         return self.scaleColor(1.25)
+
+    @classmethod
+    def pickAColor(cls):
+        app = wx.App()
+        dlg = wx.ColourDialog(wx.GetApp().GetTopWindow())
+        color = None
+        if dlg.ShowModal() == wx.ID_OK:
+            red =  dlg.GetColourData().GetColour().Red()
+            green = dlg.GetColourData().GetColour().Green()
+            blue = dlg.GetColourData().GetColour().Blue()
+            color = Color(red,green,blue)
+        return color
