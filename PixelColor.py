@@ -178,8 +178,27 @@ class Pixel:
         newColor = (color.getRed(), color.getGreen(), value)
         self.image.putpixel((self.x, self.y), newColor)
 
+    def colorDistance(self, testColor):
+        """Computes the Euclidean distance norm between this pixel and a color
+
+        Parameters
+        ----------
+        testColor : Color
+            the color to compute the distance to
+
+        Returns
+        -------
+        float
+            the Euclidean distance between the two colors
+        """
+        r = pow((self.getRed() - testColor.getRed()), 2)
+        g = pow((self.getGreen() - testColor.getGreen()), 2)
+        b = pow((self.getBlue() - testColor.getBlue()), 2)
+        return math.sqrt(r + g + b)
+
     def getColor(self):
         """Returns the color object for the pixel
+
         Returns
         -------
         Color
@@ -272,6 +291,7 @@ class Pixel:
             true means levels are wrapped, false means levels are truncated
         """
         return cls.wrapLevels
+
 
 
 
