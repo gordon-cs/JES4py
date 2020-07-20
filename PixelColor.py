@@ -1,8 +1,9 @@
 import JESConfig
 import math
+import wx
 
 class Pixel:
-    """Provides access to pixels within a PIL image
+    """Provides access to pixels within an PIL image
 
     Attributes
     ----------
@@ -512,3 +513,15 @@ class Color:
             lighter version of this color
         """
         return self.scaleColor(1.25)
+
+    @classmethod
+    def pickAColor(cls):
+        app = wx.App()
+        dlg = wx.ColourDialog(wx.GetApp().GetTopWindow())
+        color = None
+        if dlg.ShowModal() == wx.ID_OK:
+            red =  dlg.GetColourData().GetColour().Red()
+            green = dlg.GetColourData().GetColour().Green()
+            blue = dlg.GetColourData().GetColour().Blue()
+            color = Color(red,green,blue)
+        return color
