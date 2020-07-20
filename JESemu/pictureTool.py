@@ -306,19 +306,22 @@ class MainWindow(wx.Frame):
         self.imageCtrl.SetBitmap(self.bmp)
 
     def drawCrosshairs(self):
-        """Draw image with crosshairs to indicate selected position
+        """This feature works fine with Linux but not with Windows
         """
-        dc = wx.ClientDC(self.imageCtrl)
-        self.imagePanel.DoPrepareDC(dc)
-        origin = dc.GetDeviceOrigin()
-        scrolledPosition = self.imagePanel.CalcUnscrolledPosition(origin)
-        x = int(self.x * self.zoomLevel) + scrolledPosition[0]
-        y = int(self.y * self.zoomLevel) + scrolledPosition[1]
-        print (origin, scrolledPosition)
-        print (x, y)
-        dc.DrawBitmap(self.bmp, scrolledPosition, False)
-        dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), 1, wx.DOT))
-        dc.CrossHair(x, y)
+        pass
+        # """Draw image with crosshairs to indicate selected position
+        # """
+        # dc = wx.ClientDC(self.imageCtrl)
+        # self.imagePanel.DoPrepareDC(dc)
+        # origin = dc.GetDeviceOrigin()
+        # scrolledPosition = self.imagePanel.CalcUnscrolledPosition(origin)
+        # x = int(self.x * self.zoomLevel) + scrolledPosition[0]
+        # y = int(self.y * self.zoomLevel) + scrolledPosition[1]
+        # print (origin, scrolledPosition)
+        # print (x, y)
+        # dc.DrawBitmap(self.bmp, scrolledPosition, False)
+        # dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), 1, wx.DOT))
+        # dc.CrossHair(x, y)
 
 # ===========================================================================
 # Event handlers
