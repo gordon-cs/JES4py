@@ -74,11 +74,24 @@ def test_setSampleVal_getSampleVal():
     returnVal = sound.getSampleValueAt(3)
     assert returnVal == newSampleVal
 
+def test_setFrame_getFrame():
+    newFrameVal = 5
+    pos = 3
+    sound = openEmptySound()
+    sound.setSampleValueAt(pos, newSampleVal)
+    returnVal = sound.getSampleValueAt(3)
+    assert returnVal == newSampleVal  
+
 def test_getSamplingRate():
     sound = Sound(1000)
     sampleRate = sound.getSamplingRate()
     assert sampleRate == 22050
     #assert that the sounds sample rate is equal to the base sample rate
+
+def test_getChannels():
+    sound = Sound(1000)
+    chan = sound.getChannels()
+    assert chan == 1
 
 def test_toString():
     sound = openSound()
@@ -101,6 +114,15 @@ def test_write():
     assert s.getSamplingRate() == s2.getSamplingRate()
     assert s.getBuffer().__eq__(s2.getBuffer())
     os.remove(fi)
+
+def test_getLeng_getNumSamp_getLenInFrames():
+    sound = Sound(1000)
+    leng  = sound.getLength()
+    numSamples = sound.getNumSamples()
+    lenInFrames = sound.getLengthInFrames()
+    assert leng == 1000
+    assert numSamples == 1000
+    assert lenInFrames == 1000
 
 # Can be run as script to create or recreate refimage.jpg if needed
 # if __name__ == "__main__":
