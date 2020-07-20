@@ -6,6 +6,12 @@
 
 The **JES-Emulator** implements a subset of JES features that can be used in Python 2.x and Python 3.x scripts.  The goal is to provide the pedogocial assets of JES without requiring Jython or needing to use JES's IDE.
 
+## Prerequisites
+1. An IDE (Integrated Development Environment) of your choice ([**Visual Studio Code**](https://code.visualstudio.com/) is recommended if you have no preference).
+2. [**Python**](https://www.python.org/downloads/) Installed [Recommended: Python 3.0 or newer]
+3. **A Supported OS**:  Windows, Linux, macOS
+
+
 ## Installation of Dependencies
 
 Several dependencies need to be installed before you can use the JES-emulator.  Currently these include PIL (the Python Image Library) or Pillow (an updated fork of PIL).  Instructions to do this are OS-dependent:
