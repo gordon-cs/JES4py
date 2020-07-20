@@ -9,38 +9,55 @@ The **JES-Emulator** implements a subset of JES features that can be used in Pyt
 ## Prerequisites
 1. An IDE (Integrated Development Environment) of your choice
     - ([**Visual Studio Code**](https://code.visualstudio.com/) is recommended if you have no preference).
-2. [**Python**](https://www.python.org/downloads/) Installed [Recommended: Python 3.0 or newer]
+2. [**Python**](https://www.python.org/downloads/) 3.x Installed
 3. **A Supported OS**:  Windows, Linux, macOS
 
 
 ## Installation of Dependencies
 
-Several dependencies need to be installed before you can use the JES-emulator.  Currently these include PIL (the Python Image Library) or Pillow (an updated fork of PIL).  Instructions to do this are OS-dependent:
+Several dependencies need to be installed before you can use the JES-emulator.  
+* PIL (the Python Image Library) or Pillow (an updated fork of PIL)
+* wxPython (GUI toolkit for the Python language)
+* Simpleaudio (Audio toolkit for Python 3)
+
+Instructions to do this are OS-dependent:
+
+Note: The pip and python command may vary between platforms and Python versions. Substitute the correct one for usages in these examples. Some possible variants are: python, python3, pip, pip3 and pip3.x
 
 ### Windows
 
-#### wxPython GUI Package Installation
+Pillow (Python Imaging Library)
+```
+python3 -m pip install --upgrade pip
+python3 -m pip install --upgrade Pillow
+```
+
+wxPython
 ```
 pip install -U wxPython
 ```
 
-#### Pillow (Python Imaging Library) Installation
+Simpleaudio
 ```
-python3 -m pip install --upgrade pip
-python3 -m pip install --upgrade Pillow
+pip install simpleaudio
 ```
 
 ### Mac OS-X
 
-#### wxPython GUI Package
+Pillow (Python Imaging Library)
+```
+python3 -m pip install --upgrade pip
+python3 -m pip install --upgrade Pillow
+```
+
+wxPython
 ```
 pip install -U wxPython
 ```
 
-#### Pillow (Python Imaging Library) Installation
+Simpleaudio
 ```
-python3 -m pip install --upgrade pip
-python3 -m pip install --upgrade Pillow
+pip install simpleaudio
 ```
 
 ### Linux
