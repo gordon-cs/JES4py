@@ -805,7 +805,7 @@ def setAllPixelsToAColor(picture, color):
     if not isinstance(color, Color):
         print("setAllPixelsToAColor(picture,color): Second input is not a color")
         raise ValueError
-    picture.setAllPixelsToAColor(color.color)
+    picture.setAllPixelsToAColor(color)
 
 
 # def copyInto(smallPicture, bigPicture, startX, startY):
