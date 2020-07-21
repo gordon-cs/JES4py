@@ -1,4 +1,4 @@
-import JESConfig
+from jes4py import Config
 import math
 import wx
 
@@ -27,7 +27,7 @@ class Pixel:
         y : int
             row of the pixel
         """
-        self.wrapLevels = JESConfig.getConfigVal("CONFIG_WRAPPIXELVALUES")
+        self.wrapLevels = Config.getConfigVal("CONFIG_WRAPPIXELVALUES")
         self.image = image
         self.x = x
         self.y = y

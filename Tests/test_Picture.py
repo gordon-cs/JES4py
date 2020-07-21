@@ -1,4 +1,4 @@
-from JESemu import *
+from jes4py import *
 from random import randint
 import PIL.Image
 import os

@@ -2,8 +2,8 @@
 import simpleaudio as sa
 # import numpy as np
 import wave
-import JESConfig
-from SoundSample import SoundSample
+from jes4py import Config
+from jes4py.SoundSample import SoundSample
 #import FileChooser
 
 class Sound:
@@ -95,7 +95,7 @@ class Sound:
     # ----------------------- accessors --------------------------------------
 
     def getBuffer(self):
-        """Returns the sounds associated buffer
+        """Returns this sound's associated buffer
 
         Returns
         -------
@@ -108,7 +108,7 @@ class Sound:
 #        return self.audioFileFormat # not yet defined
 
     def getSamplingRate(self):
-        """Return sounds sampling rate
+        """Return this sound's sampling rate
 
         Returns
         -------
@@ -118,7 +118,7 @@ class Sound:
         return self.sampleRate
 
     def getSoundExplorer(self):
-        return "The sound explore tool is not implemented yet for JESemu"
+        return "The sound explore tool is not implemented yet for jes4py"
         #return self.soundExplorer
         # not yet defined
 
@@ -130,18 +130,17 @@ class Sound:
         arr
             The sounds buffer(i.e. an array representaion of the sound)
         """
-        return self.getBuffer()
+        return self.buffer
 
     def getPlaybacks(self):
-        """Returns an array of all the current sounds playbacks
+        """Returns an array of all the current sound's playbacks
 
         Returns
         -------
-        arr
+        list
             array of all the current sounds playbacks
         """
-        return playbacks
-
+        return self.playbacks
 
     def getChannels(self):
         """Return sounds number of channels
@@ -163,6 +162,16 @@ class Sound:
         """
         return self.filename
 
+    def getFileName(self):
+        """Return sounds file name
+
+        Returns
+        -------
+        string
+            name of associated file
+        """
+        return self.filename
+
     def getFrame(self, frameNum):
         """Obtains all the data from a specified frame in the audio data
 
@@ -173,7 +182,7 @@ class Sound:
 
         Returns
         -------
-        arr
+        bytearray
             the array containing all of the bytes in frame
         """
         if (frameNum >= self.numFrames):
@@ -181,7 +190,7 @@ class Sound:
             
         frameSize = int(len(self.buffer)/self.numFrames)
         theFrame = bytearray(frameSize)
-        for i in range(len(theFrame)):
+        for i in range(frameSize):
             theFrame[i] = self.buffer[frameNum * frameSize + i]
         return theFrame
 
@@ -207,14 +216,12 @@ class Sound:
     
     def setSoundExplorer(self, soundExplorer):
         #self.soundExplorer = soundExplorer
-        print("The sound explorer tool is not yet properly implemented for JESemu")
+        print("The sound explorer tool is not yet properly implemented for jes4py")
 
     # ------------------------ methods ---------------------------------------
 
     def makeAIS(self):
-        print('''This function is not implemented in JESemu. Byte streams that are
-                written to a file in the original JES are now held and written through
-                use of a bytearray called self.buffer.''')
+        print('This function is not implemented in jes4py.')
 
     def isStereo(self):
         """Method to check if a sound is stereo (2 channel) or not
@@ -237,10 +244,10 @@ class Sound:
         """
         # Make a new sound explorer
         # Open it with a copy of this sound
-        print("The sound explore tool is not implemented yet for JESemu")
+        print("The sound explore tool is not yet implemented in jes4py")
 
     def playNote(self, key, duration, intensity):
-        print("This method was unused in the original JES as well")
+        print("This method is not implemented in jes4py.")
 
     def convert(self, mp3File, wavFile):
         print("this method isn't implemented.")
@@ -524,12 +531,12 @@ class Sound:
                                               signed=True)
 
     def setFileName(self, filename):
-        """Set picture file name
+        """Set sound's file name
 
         Parameters
         ----------
         filename : string
-            filename to assign to this picture
+            filename to assign to this sound
         """
         self.filename = filename
 
@@ -575,15 +582,12 @@ class Sound:
         outFileName : str
             the name of the file to write the sound to
         """
-        # if outFileName.endswith(".wav"):
-            # file = wave.open(outFileName, "wb")
-        # else:
-        #     file = wave.open(outFileName+".wav", "wb")
+        # Append the .wav extension if the filename doesn't have it
+        # (Uncomment the next two lines to implement this functionality)
+        # if not outFileName.endswith(".wav"):
+        #     outFileName = outFileName+".wav"
 
         file = wave.open(outFileName, "wb")
-        #For some ungodly reason write doesn't assume the user wants the written file to be a wave.
-        #If you would like this QUALITY functionality uncomment the lines above.
-
         file.setnframes(self.numFrames)
         file.setnchannels(self.numChannels)
         file.setsampwidth(self.sampleWidth)

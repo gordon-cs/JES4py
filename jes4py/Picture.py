@@ -2,9 +2,9 @@ import os, sys
 import wx
 import subprocess, tempfile
 import PIL.ImageDraw, PIL.Image
-import JESConfig
-from PixelColor import Pixel, Color
-import FileChooser
+from jes4py import Config
+from jes4py.PixelColor import Pixel, Color
+from jes4py import FileChooser
 from pathlib import Path
 
 class Picture:
@@ -770,7 +770,7 @@ class Picture:
         Parameters
         ----------
         script : str
-            the script to run; must be in the JESemu directory
+            the script to run; must be in the jes4py directory
         *argv : list
             parameters to pass to script on command line
 
@@ -778,7 +778,7 @@ class Picture:
         -------
         Popen instance
         """
-        scriptpath = os.path.join(JESConfig.getConfigVal("CONFIG_JESPATH"), script)
+        scriptpath = os.path.join(Config.getConfigVal("CONFIG_JES4PY_PATH"), script)
         return subprocess.Popen([sys.executable, scriptpath] + list(argv))
 
     def show(self):

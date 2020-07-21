@@ -12,7 +12,7 @@
 import sys, os
 import wx
 import PIL.Image
-from Picture import Picture
+from jes4py.Picture import Picture
 
 class mainWindow(wx.Frame):
     """Frame class that display an image"""

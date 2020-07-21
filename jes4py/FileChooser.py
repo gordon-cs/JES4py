@@ -5,7 +5,7 @@
 
 import os
 import wx
-import JESConfig
+from jes4py import Config
 
 def pickAFile():
     """Method to let the user pick a file and return the full name as
@@ -20,14 +20,14 @@ def pickAFile():
     frame.SetSize(0,0,200,50)
 
     # Create open file dialog
-    directory = JESConfig.getConfigVal('CONFIG_SESSIONPATH')
+    directory = Config.getConfigVal('CONFIG_SESSION_PATH')
     openFileDialog = wx.FileDialog(frame, "Pick A File", directory, "", "", 
         wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
     if openFileDialog.ShowModal() == wx.ID_CANCEL:
         return ""
     else:
         path = openFileDialog.GetPath()
-        JESConfig.setConfigVal('CONFIG_SESSIONPATH',os.path.dirname(path))
+        Config.setConfigVal('CONFIG_SESSION_PATH',os.path.dirname(path))
         openFileDialog.Destroy()
         return path
 
@@ -43,7 +43,7 @@ def pickADirectory():
     frame.SetSize(0,0,200,50)
 
     # Create open file dialog
-    directory = JESConfig.getConfigVal('CONFIG_SESSIONPATH')
+    directory = Config.getConfigVal('CONFIG_SESSION_PATH')
     openDirDialog = wx.DirDialog(frame, "Pick A Folder", directory,
         wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
     if openDirDialog.ShowModal() == wx.ID_CANCEL:
@@ -51,7 +51,7 @@ def pickADirectory():
     else:
         path = openDirDialog.GetPath()
         openDirDialog.Destroy()
-        JESConfig.setConfigVal('CONFIG_SESSIONPATH',path)
+        Config.setConfigVal('CONFIG_SESSION_PATH',path)
         return path
 
 def getMediaPath(fileName):
@@ -62,7 +62,7 @@ def getMediaPath(fileName):
     Returns:
         the full path for the file
     """
-    return os.path.join(JESConfig.getConfigVal("CONFIG_MEDIAPATH"), fileName)
+    return os.path.join(Config.getConfigVal("CONFIG_MEDIA_PATH"), fileName)
 
 def getMediaDirectory():
     """Method to get the directory for the media
@@ -70,7 +70,7 @@ def getMediaDirectory():
     Returns:
         the media directory
     """
-    return JESConfig.getConfigVal("CONFIG_MEDIAPATH")
+    return Config.getConfigVal("CONFIG_MEDIA_PATH")
 
 def setMediaPath(directory):
     """Method to set the media path by setting the directory to use
@@ -78,8 +78,8 @@ def setMediaPath(directory):
     Parameters:
         directory - the directory to use for the media path
     """
-    JESConfig.setConfigVal("CONFIG_MEDIAPATH", directory)
+    Config.setConfigVal("CONFIG_MEDIA_PATH", directory)
 
 def pickMediaPath():
     path = pickADirectory()
-    JESConfig.setConfigVal("CONFIG_MEDIAPATH", path)
+    Config.setConfigVal("CONFIG_MEDIA_PATH", path)
