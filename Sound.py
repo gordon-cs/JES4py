@@ -168,7 +168,7 @@ class Sound:
 
         Parameters
         ----------
-        fameNum : int
+        frameNum : int
             the index of the frame to access
 
         Returns
@@ -179,10 +179,10 @@ class Sound:
         if (frameNum >= self.numFrames):
             print("The index {}, does not exist. The last valid index is {}".format(frameNum, self.numFrames-1))
             
-        frameSize = self.getLength()/self.getLengthInFrames()
+        frameSize = int(len(self.buffer)/self.numFrames)
         theFrame = bytearray(frameSize)
-        for i in frameSize:
-            theFrame[i] = buffer[frameNum * frameSize + i]
+        for i in range(len(theFrame)):
+            theFrame[i] = self.buffer[frameNum * frameSize + i]
         return theFrame
 
     # ----------------------- modifiers --------------------------------------

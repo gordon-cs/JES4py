@@ -75,12 +75,12 @@ def test_setSampleVal_getSampleVal():
     assert returnVal == newSampleVal
 
 def test_setFrame_getFrame():
-    newFrameVal = 5
+    newFrameVal = bytearray([1,2])
+    print(newFrameVal)
     pos = 3
-    sound = openEmptySound()
-    sound.setSampleValueAt(pos, newSampleVal)
-    returnVal = sound.getSampleValueAt(3)
-    assert returnVal == newSampleVal  
+    sound = Sound(5*Sound.SAMPLE_RATE)
+    sound.setFrame(pos, newFrameVal)
+    assert newFrameVal == sound.getFrame(3)  
 
 def test_getSamplingRate():
     sound = Sound(1000)
@@ -88,10 +88,10 @@ def test_getSamplingRate():
     assert sampleRate == 22050
     #assert that the sounds sample rate is equal to the base sample rate
 
-def test_getChannels():
-    sound = Sound(1000)
-    chan = sound.getChannels()
-    assert chan == 1
+def test_blockingPlay():
+    sound = openSound()
+    blockingPlay(sound)
+    blockingPlay(sound)
 
 def test_toString():
     sound = openSound()
