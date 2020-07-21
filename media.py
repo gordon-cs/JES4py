@@ -894,57 +894,57 @@ def cropPicture(picture, upperLeftX, upperLeftY, width, height):
 ##
 
 
-def requestNumber(message):
-    return StoppableInput.getNumber(message)
+# def requestNumber(message):
+#     return StoppableInput.getNumber(message)
 
 
-def requestInteger(message):
-    return StoppableInput.getIntNumber(message)
+# def requestInteger(message):
+#     return StoppableInput.getIntNumber(message)
 
 
-def requestIntegerInRange(message, min, max):
-    if min >= max:
-        print("requestIntegerInRange(message, min, max): min >= max not allowed")
-        raise ValueError
+# def requestIntegerInRange(message, min, max):
+#     if min >= max:
+#         print("requestIntegerInRange(message, min, max): min >= max not allowed")
+#         raise ValueError
 
-    return StoppableInput.getIntNumber(message, min, max)
-
-
-def requestString(message):
-    s = StoppableInput.getString(message)
-    if s is None:
-        return None
-    else:
-        return str(s)
+#     return StoppableInput.getIntNumber(message, min, max)
 
 
-def input(message=None):
-    from jes.gui.commandwindow.prompt import promptService
-    return eval(promptService.requestInput(message))
+# def requestString(message):
+#     s = StoppableInput.getString(message)
+#     if s is None:
+#         return None
+#     else:
+#         return str(s)
 
 
-def raw_input(message=None):
-    from jes.gui.commandwindow.prompt import promptService
-    return promptService.requestInput(message)
+# def input(message=None):
+#     from jes.gui.commandwindow.prompt import promptService
+#     return eval(promptService.requestInput(message))
 
 
-def showWarning(message):
-    return StoppableOutput.showWarning(message)
+# def raw_input(message=None):
+#     from jes.gui.commandwindow.prompt import promptService
+#     return promptService.requestInput(message)
 
 
-def showInformation(message):
-    return StoppableOutput.showInformation(message)
+# def showWarning(message):
+#     return StoppableOutput.showWarning(message)
 
 
-def showError(message):
-    return StoppableOutput.showError(message)
+# def showInformation(message):
+#     return StoppableOutput.showInformation(message)
+
+
+# def showError(message):
+#     return StoppableOutput.showError(message)
 
 
 ##
 # Java Music Interface
 ##
-def playNote(note, duration, intensity=64):
-    JavaMusic.playNote(note, duration, intensity)
+# def playNote(note, duration, intensity=64):
+#     JavaMusic.playNote(note, duration, intensity)
 
 
 ##
