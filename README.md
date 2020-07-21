@@ -22,15 +22,12 @@ Several dependencies need to be installed before you can use the JES-emulator.
 
 Instructions to do this are OS-dependent:
 
-Note: The pip and python command may vary between platforms and Python versions. Substitute the correct one for usages in these examples. Some possible variants are: python, python3, pip, pip3 and pip3.x
-
 ### Windows
 
+Note: The pip and python command may vary between platforms and Python versions. Substitute the correct one for usages in these examples. Some possible variants are: python, python3, pip, pip3 and pip3.x
+
 Pillow (Python Imaging Library)
-```
-python3 -m pip install --upgrade pip
-python3 -m pip install --upgrade Pillow
-```
+* It comes with wxPython (No need to install separately)
 
 wxPython
 ```
@@ -44,11 +41,10 @@ pip install simpleaudio
 
 ### Mac OS-X
 
+Note: The pip and python command may vary between platforms and Python versions. Substitute the correct one for usages in these examples. Some possible variants are: python, python3, pip, pip3 and pip3.x
+
 Pillow (Python Imaging Library)
-```
-python3 -m pip install --upgrade pip
-python3 -m pip install --upgrade Pillow
-```
+* It comes with wxPython (No need to install separately)
 
 wxPython
 ```
@@ -61,6 +57,9 @@ pip install simpleaudio
 ```
 
 ### Linux
+
+Note: The pip and python command may vary between platforms and Python versions. Substitute the correct one for usages in these examples. Some possible variants are: python, python3, pip, pip3 and pip3.x
+
 ```
 python3 -m pip install --upgrade pip
 python3 -m pip install --upgrade Pillow
