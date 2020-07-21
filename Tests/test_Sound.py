@@ -88,11 +88,6 @@ def test_getSamplingRate():
     assert sampleRate == 22050
     #assert that the sounds sample rate is equal to the base sample rate
 
-def test_blockingPlay():
-    sound = openSound()
-    blockingPlay(sound)
-    blockingPlay(sound)
-
 def test_toString():
     sound = openSound()
     assumedStringRep = "Sound file: {} number of samples: {}".format(sound.getFileName(), sound.getLengthInFrames())
@@ -101,6 +96,11 @@ def test_toString():
 def test_play():
    sound = openSound()
    sound.play()
+
+def test_blockingPlay():
+    sound = openSound()
+    blockingPlay(sound)
+    blockingPlay(sound)
 
 def test_write():
     fi1 = "myFirstSound.wav"
