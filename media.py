@@ -817,7 +817,7 @@ def setAllPixelsToAColor(picture, color):
     if not isinstance(color, Color):
         print("setAllPixelsToAColor(picture,color): Second input is not a color")
         raise ValueError
-    picture.setAllPixelsToAColor(color.color)
+    picture.setAllPixelsToAColor(color)
 
 
 # def copyInto(smallPicture, bigPicture, startX, startY):
@@ -857,10 +857,10 @@ def copyInto(origPict, destPict, upperLeftX, upperLeftY):
  if not isinstance(destPict, Picture):
    print("copyInto(origPict, destPict, upperLeftX, upperLeftY): Second parameter is not a picture")
    raise ValueError
- if upperLeftX < 1 or upperLeftX > getWidth(destPict):
+ if upperLeftX < 0 or upperLeftX > getWidth(destPict):
    print("copyInto(origPict, destPict, upperLeftX, upperLeftY): upperLeftX must be within the destPict")
    raise ValueError
- if upperLeftY < 1 or upperLeftY > getHeight(destPict):
+ if upperLeftY < 0 or upperLeftY > getHeight(destPict):
    print("copyInto(origPict, destPict, upperLeftX, upperLeftY): upperLeftY must be within the destPict")
    raise ValueError
  return origPict.copyInto(destPict, upperLeftX-1, upperLeftY-1)

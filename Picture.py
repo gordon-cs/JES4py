@@ -565,7 +565,7 @@ class Picture:
         result = True
 
         # try to load the picture into the buffered image from the file name
-        result = load(fileName)
+        result = self.load(fileName)
 
         # show the picture in a picture frame
         self.show()
