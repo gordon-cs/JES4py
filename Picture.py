@@ -3,41 +3,54 @@ import wx
 import subprocess, tempfile
 import PIL.ImageDraw, PIL.Image
 import JESConfig
-from Pixel import Pixel
-from Pixel import Color
+from PixelColor import Pixel, Color
 import FileChooser
 from pathlib import Path
 
 class Picture:
 
-    def __init__(self, arg=None, extension=".jpg"):
-        if isinstance(arg, Picture):
-            # arg is a Picture
-            self.image = arg.image.copy()
-            self.extension = arg.extension
-            self.filename = arg.filename
-            self.title = arg.title
-        elif isinstance(arg, PIL.Image.Image):
-            # arg is a PIL image
-            self.image = arg
-            self.extension = extension
-            try:
-                self.filename = self.title = arg.filename
-            except AttributeError:
-                self.filename = self.title = ''
-        elif isinstance(arg, str):
-            # arg is a string, do what JES does and make picture of string
-            self.image = PIL.Image.new("RGB", (600, 200))
-            self.extension = extension
-            self.title = arg
-            self.filename = ''
-            draw = PIL.ImageDraw.Draw(self.image)
-            draw.text((0, 100), arg)
+    extension = ".jpg"
+    _PictureIndexOffset = 0
+
+    def __init__(self, *args, **kwargs):
+        self.filename = self.title = 'None'
+        if len(args) == 0:
+            # no parameters, make an empty picture
+            self.image = PIL.Image.Image()
+        elif len(args) == 1:
+            if isinstance(args[0], str):
+                self.filename = self.title = args[0]
+                # Assume 'we've been passed a filename
+                if not os.path.isfile(self.filename):
+                    # File not found, try prepending media path
+                    filepath = FileChooser.getMediaPath(self.filename)
+                    if os.path.isfile(filepath):
+                        self.filename = self.title = filepath
+                try:
+                    self.image = PIL.Image.open(self.filename)
+                except:
+                    self.image = PIL.Image.new("RGB", (600, 200))
+                    draw = PIL.ImageDraw.Draw(self.image)
+                    draw.text((0, 100), "Couldn't load " + self.filename)
+            elif isinstance(args[0], Picture):
+                # We've been passed a Picture object
+                self.image = args[0].image.copy()
+                self.filename = args[0].filename
+                self.title = args[0].title
+            elif isinstance(args[0], PIL.Image.Image):
+                # We've been passed a PIL image object
+                self.image = args[0]
+                try:
+                    self.filename = self.title = args[0].filename
+                except AttributeError:
+                    pass
+        elif len(args) == 2 or len(args) == 3:
+            # We've been passed width and height, and possibly a color
+            size = (int(args[0]), int(args[1]))
+            c = Color(255,255,255) if len(args) == 2 else args[2]
+            self.image = PIL.Image.new("RGB", size, c.color)
         else:
-            # arg is not None or not recogized; create empty Picture
-            self.image = None
-            self.extension = extension
-            self.filename = self.title = ''
+            print("Could not construct Picture object")
 
     def __str__(self):
         """Return string representation of this picture

@@ -5,6 +5,8 @@
 # JES distribution:
 #     # Media Wrappers for "Introduction to Media Computation"
 #     # Started: Mark Guzdial, 2 July 2002
+#
+# 
 
 import sys
 import os
@@ -15,7 +17,7 @@ import math
 # import Picture
 # import Pixel
 from Picture import Picture
-from Pixel import Pixel
+from PixelColor import Pixel, Color
 # import Sound
 from Sound import Sound
 # import StoppableInput
@@ -28,13 +30,7 @@ from Samples import Samples
 # import MovieWriter
 import FileChooser
 import random
-from Pixel import Color
 import JESConfig
-import PIL.Image
-#from PIL import Image as img
-import wx
-import simpleaudio as sa
-import wave
 
 # from jes.tools.framesequencer import FrameSequencerTool
 
@@ -52,22 +48,6 @@ _lastFilePath = ""
 true = 1
 false = 0
 
-# Constants
-black = Color(0, 0, 0)
-white = Color(255, 255, 255)
-blue = Color(0, 0, 255)
-red = Color(255, 0, 0)
-green = Color(0, 255, 0)
-gray = Color(128, 128, 128)
-darkGray = Color(64, 64, 64)
-lightGray = Color(192, 192, 192)
-yellow = Color(255, 255, 0)
-orange = Color(255, 200, 0)
-pink = Color(255, 175, 175)
-magenta = Color(255, 0, 255)
-cyan = Color(0, 255, 255)
-
-
 
 def setMediaPath(file=None):
     global mediaFolder
@@ -76,6 +56,7 @@ def setMediaPath(file=None):
     else:
         FileChooser.setMediaPath(file)
     mediaFolder = getMediaPath()
+    return mediaFolder
 
 
 def getMediaPath(filename=""):
@@ -92,12 +73,12 @@ def setTestMediaFolder():
 
 
 def getMediaFolder(filename=""):
-    return str(FileChooser.getMediaDirectory(filename))
+    return str(getMediaPath(filename))
 
 
 def showMediaFolder():
     global mediaFolder
-    print("The media path is currently: "+ mediaFolder)
+    print("The media path is currently: ", mediaFolder)
 
 
 def getShortPath(filename):
@@ -146,7 +127,7 @@ def makeSound(filename, maxIndex=100):
     if not os.path.isabs(filename):
         filename = mediaFolder + filename
     if not os.path.isfile(filename):
-        print("There is no file at ") + filename
+        print("There is no file at " + filename)
         raise ValueError
     return Sound(filename)
 
@@ -408,8 +389,8 @@ def getIndex(sample):
 ##
 
 
-def makeStyle(fontName, emph, size):
-    return awt.Font(fontName, emph, size)
+#def makeStyle(fontName, emph, size):
+#    return awt.Font(fontName, emph, size)
 
 # sansSerif = "SansSerif"
 # serif = "Serif"
@@ -434,6 +415,27 @@ def setColorWrapAround(setting):
 
 def getColorWrapAround():
     return Pixel.getWrapLevels()
+
+def pickAColor():
+    # Dorn 5/8/2009:  Edited to be thread safe since this code is executed from an
+    # interpreter JESThread and will result in an update to the main JES GUI due to
+    # it being a modal dialog.
+    return Color.pickAColor()
+
+# Constants
+black = Color(0, 0, 0)
+white = Color(255, 255, 255)
+blue = Color(0, 0, 255)
+red = Color(255, 0, 0)
+green = Color(0, 255, 0)
+gray = Color(128, 128, 128)
+darkGray = Color(64, 64, 64)
+lightGray = Color(192, 192, 192)
+yellow = Color(255, 255, 0)
+orange = Color(255, 200, 0)
+pink = Color(255, 175, 175)
+magenta = Color(255, 0, 255)
+cyan = Color(0, 255, 255)
 
 ##
 # Global picture functions
@@ -487,42 +489,42 @@ def makeEmptyPicture(width, height, acolor=white):
     if width <= 0 or height <= 0:
         print("makeEmptyPicture(width, height[, acolor]): height and width must be greater than 0 each")
         raise ValueError
-    mode = "RGB"
-    size = (width, height)
-    tup = (acolor.getRed(), acolor.getGreen(), acolor.getBlue())
-    im = PIL.Image.new(mode, size, tup)
-    im.filename = ""
-    pic = Picture(im)
-    return pic
+    picture = Picture(width, height, acolor)
+    # picture.createImage(width, height)
+    # picture.filename = ''
+    # careful here; do we want empty strings or "None"?
+    return picture
 
 
-def getPixels(pic):
-    if not isinstance(pic, Picture):
+def getPixels(picture):
+    if not isinstance(picture, Picture):
         print("getPixels(picture): Input is not a picture")
         raise ValueError
-    return pic.getPixels()
+    return picture.getPixels()
 
 
-def getAllPixels(pic):
-    return getPixels(pic)
+def getAllPixels(picture):
+    return getPixels(picture)
 
 
-def getWidth(pic):
-    if not isinstance(pic, Picture):
-        print("getWidth(pic): Input is not a picture")
+def getWidth(picture):
+    if not isinstance(picture, Picture):
+        print("getWidth(picture): Input is not a picture")
         raise ValueError
-    return pic.getImage().width
+    return picture.getWidth()
 
 
-def getHeight(pic):
-    if not isinstance(pic, Picture):
-        print("getHeight(pic): Input is not a picture")
+def getHeight(picture):
+    if not isinstance(picture, Picture):
+        print("getHeight(picture): Input is not a picture")
         raise ValueError
-    return pic.getImage().height
+    return picture.getHeight()
 
 
 def show(picture, title=None):
-    # pic.setTitle(title)
+    # picture.setTitle(getShortPath(picture.filename))
+    # if title <> None:
+            # picture.setTitle(title)
     if not isinstance(picture, Picture):
         print("show(picture): Input is not a picture")
         raise ValueError
@@ -539,36 +541,23 @@ def repaint(picture):
 
 ## adding graphics to your pictures! ##
 
-def pickAColor():
-    # Dorn 5/8/2009:  Edited to be thread safe since this code is executed from an
-    # interpreter JESThread and will result in an update to the main JES GUI due to
-    # it being a modal dialog.
-    app = wx.App()
 
-    dlg = wx.ColourDialog(wx.GetApp().GetTopWindow())
-    if dlg.ShowModal() == wx.ID_OK:
-        red =  dlg.GetColourData().GetColour().Red()
-        green = dlg.GetColourData().GetColour().Green()
-        blue = dlg.GetColourData().GetColour().Blue()
-        col = Color(red,green,blue)
-        return col
-
-def addLine(pic, x1, y1, x2, y2, acolor=black):
-    if not isinstance(pic, Picture):
+def addLine(picture, x1, y1, x2, y2, acolor=black):
+    if not isinstance(picture, Picture):
         print("addLine(picture, x1, y1, x2, y2[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
-        print ("addLine(picture, x1, y1, x2, y2[, color]): Last input is not a color")
+        print("addLine(picture, x1, y1, x2, y2[, color]): Last input is not a color")
         raise ValueError
     #g = picture.getBufferedImage().createGraphics()
     # g.setColor(acolor.color)
     #g.drawLine(x1 - 1,y1 - 1,x2 - 1,y2 - 1)
-    pic.addLine(acolor, x1, y1, x2, y2)
+    picture.addLine(acolor, x1, y1, x2, y2)
 
 
-def addText(pic, x, y, string, acolor=black):
-    if not isinstance(pic, Picture):
-        print ("addText(picture, x, y, string[, color]): First input is not a picture")
+def addText(picture, x, y, string, acolor=black):
+    if not isinstance(picture, Picture):
+        print("addText(picture, x, y, string[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
         print("addText(picture, x, y, string[, color]): Last input is not a color")
@@ -576,10 +565,12 @@ def addText(pic, x, y, string, acolor=black):
     #g = picture.getBufferedImage().getGraphics()
     #g.setColor(acolor.color)
     #g.drawString(string, x - 1, y - 1)
-    pic.addText(acolor, x, y, string)
+    picture.addText(acolor, x, y, string)
 
-# def addTextWithStyle(pic, x, y, text, style, acolor=black):
-#     if not isinstance(pic, Picture):
+# PamC: Added this function to allow different font styles
+
+# def addTextWithStyle(picture, x, y, text, style, acolor=black):
+#     if not isinstance(picture, Picture):
 #         print("addTextWithStyle(picture, x, y, string, style[, color]): First input is not a picture")
 #         raise ValueError
 #     if not isinstance(style, String):
@@ -588,82 +579,100 @@ def addText(pic, x, y, string, acolor=black):
 #     if not isinstance(acolor, Color):
 #         print("addTextWithStyle(picture, x, y, string, style[, color]): Last input is not a color")
 #         raise ValueError
-#     pic.addTextWithStyle(acolor, x, y, text, style)
+#     picture.addTextWithStyle(acolor, x, y, text, style)
 
 # - JRS -- 2020-06-23 -- START OF MODIFICATIONS
 
-def addRect(pic, x, y, w, h, acolor=black):
-    if not isinstance(pic, Picture):
+def addRect(picture, x, y, w, h, acolor=black):
+    if not isinstance(picture, Picture):
         print("addRect(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
-        print("addRect(pic, x, y, w, h[, color]): Last input is not a color")
+        print("addRect(picture, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
-    pic.addRect(acolor, x, y, w, h)
+    picture.addRect(acolor, x, y, w, h)
 
-def addRectFilled(pic, x, y, w, h, acolor=black):
-    if not isinstance(pic, Picture):
+
+def addRectFilled(picture, x, y, w, h, acolor=black):
+    if not isinstance(picture, Picture):
         print("addRectFilled(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
-        print("addRectFilled(pic, x, y, w, h[, color]): Last input is not a color")
+        print("addRectFilled(picture, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
-    pic.addRectFilled(acolor, x, y, w, h)
+    picture.addRectFilled(acolor, x, y, w, h)
 
-def addOval(pic, x, y, w, h, acolor=black):
-    if not isinstance(pic, Picture):
+# PamC: Added the following addOval, addOvalFilled, addArc, and addArcFilled
+# functions to add more graphics to pictures.
+
+
+def addOval(picture, x, y, w, h, acolor=black):
+    if not isinstance(picture, Picture):
         print("addOval(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
-        print("addOval(pic, x, y, w, h[, color]): Last input is not a color")
+        print("addOval(picture, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
-    pic.addOval(acolor, x, y, w, h)
+    picture.addOval(acolor, x, y, w, h)
 
-def addOvalFilled(pic, x, y, w, h, acolor=black):
-    if not isinstance(pic, Picture):
+
+def addOvalFilled(picture, x, y, w, h, acolor=black):
+    if not isinstance(picture, Picture):
         print("addOvalFilled(picture, x, y, w, h[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
-        print("addOvalFilled(pic, x, y, w, h[, color]): Last input is not a color")
+        print("addOvalFilled(picture, x, y, w, h[, color]): Last input is not a color")
         raise ValueError
-    pic.addOvalFilled(acolor, x, y, w, h)
+    picture.addOvalFilled(acolor, x, y, w, h)
 
-def addArc(pic, x, y, w, h, start, angle, acolor=black):
-    if not isinstance(pic, Picture):
+
+def addArc(picture, x, y, w, h, start, angle, acolor=black):
+    if not isinstance(picture, Picture):
         print("addArc(picture, x, y, w, h, start, angle[, color]): First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
-        print("addArc(pic, x, y, w, h, start, angle[, color]): Last input is not a color")
+        print("addArc(picture, x, y, w, h, start, angle[, color]): Last input is not a color")
         raise ValueError
-    pic.addArc(acolor, x, y, w, h, start, angle)
+    picture.addArc(acolor, x, y, w, h, start, angle)
 
-def addArcFilled(pic, x, y, w, h, start, angle, acolor=black):
-    if not isinstance(pic, Picture):
+
+def addArcFilled(picture, x, y, w, h, start, angle, acolor=black):
+    if not isinstance(picture, Picture):
         print("addArcFilled(picture, x, y, w, h[, color]): First First input is not a picture")
         raise ValueError
     if not isinstance(acolor, Color):
-        print("addArcFilled(pic, x, y, w, h, start, angle[, color]): Last input is not a color")
+        print("addArcFilled(picture, x, y, w, h, start, angle[, color]): Last input is not a color")
         raise ValueError
-    pic.addArcFilled(acolor, x, y, w, h, start, angle)
+    picture.addArcFilled(acolor, x, y, w, h, start, angle)
+
+# note the -1; in JES we think of pictures as starting at (1,1) but not
+# in the Java.
+##
+# 29 Oct 2008: -1 changed to Picture._PictureIndexOffset
 
 
-# JRS -- 2020-06-23 -- END OF MODIFICATIONS
-
-def getPixel(pic, x, y):
-    if not isinstance(pic, Picture):
+def getPixel(picture, x, y):
+    if not isinstance(picture, Picture):
         print("getPixel(picture,x,y): First input is not a picture")
         raise ValueError
-    if (x < 0 or x > pic.getWidth() or y < 0 or y > pic.getHeight()):
-        print("The pixel location you chose was out of bounds")
+    if (x < Picture._PictureIndexOffset) or (x > getWidth(picture) - 1 + Picture._PictureIndexOffset):
+        print("getPixel(picture,x,y): x (= {}) is less than {} or bigger than the width (= {})".format(x, Picture._PictureIndexOffset, getWidth(picture) - 1 + Picture._PictureIndexOffset))
         raise ValueError
-    return pic.getPixel(x,y)
+    if (y < Picture._PictureIndexOffset) or (y > getHeight(picture) - 1 + Picture._PictureIndexOffset):
+        print("getPixel(picture,x,y): y (= {}) is less than {} or bigger than the height (= {})".format(y, Picture._PictureIndexOffset, getHeight(picture) - 1 + Picture._PictureIndexOffset))
+        raise ValueError
+
+    return picture.getPixel(x - Picture._PictureIndexOffset, y - Picture._PictureIndexOffset)
 
 # Added as a better name for getPixel
-def getPixelAt(pic, x, y):
-    return getPixel(pic, x, y)
+
+
+def getPixelAt(picture, x, y):
+    return getPixel(picture, x, y)
 
 
 def setRed(pixel, value):
+    value = Pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setRed(pixel,value): Input is not a pixel")
         raise ValueError
@@ -678,6 +687,7 @@ def getRed(pixel):
 
 
 def setBlue(pixel, value):
+    value = Pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setBlue(pixel,value): Input is not a pixel")
         raise ValueError
@@ -692,6 +702,7 @@ def getBlue(pixel):
 
 
 def setGreen(pixel, value):
+    value = Pixel.correctLevel(value)
     if not isinstance(pixel, Pixel):
         print("setGreen(pixel,value): Input is not a pixel")
         raise ValueError
@@ -709,30 +720,31 @@ def getColor(pixel):
     if not isinstance(pixel, Pixel):
         print("getColor(pixel): Input is not a pixel")
         raise ValueError
-    return pixel.getColor()
+    return Color(pixel.getColor())
 
 
 def setColor(pixel, color):
     if not isinstance(pixel, Pixel):
         print("setColor(pixel,color): First input is not a pixel")
         raise ValueError
-    # if not isinstance(color, Color):
-    #     print("setColor(pixel,color): Second input is not a color")
-    #     raise ValueError
-    pixel.setColor(color)
+    if not isinstance(color, Color):
+        print("setColor(pixel,color): Second input is not a color")
+        raise ValueError
+    pixel.setColor(color.color)
+
 
 def getX(pixel):
     if not isinstance(pixel, Pixel):
         print("getX(pixel): Input is not a pixel")
         raise ValueError
-    return pixel.getX()# + Picture._PictureIndexOffset
+    return pixel.getX() + Picture._PictureIndexOffset
 
 
 def getY(pixel):
     if not isinstance(pixel, Pixel):
         print("getY(pixel): Input is not a pixel")
         raise ValueError
-    return pixel.getY() #+ Picture._PictureIndexOffset
+    return pixel.getY() + Picture._PictureIndexOffset
 
 
 def distance(c1, c2):
@@ -793,7 +805,7 @@ def makeBrighter(color):  # This is the same as makeLighter(color)
     return Color(color.makeLighter())
 
 
-def makeColor(red, green=0, blue=0):
+def makeColor(red, green=None, blue=None):
     return Color(red, green, blue)
 
 
@@ -825,7 +837,16 @@ def setAllPixelsToAColor(picture, color):
 #     if ((startX + getWidth(smallPicture) - 1) > (getWidth(bigPicture) - 1) or (startY + getHeight(smallPicture) - 1) > (getHeight(bigPicture) - 1)):
 #         print("copyInto(smallPicture, bigPicture, startX, startY): smallPicture won't fit into bigPicture")
 #         raise ValueError
-
+# 
+#     xOffset = startX - Picture._PictureIndexOffset
+#     yOffset = startY - Picture._PictureIndexOffset
+# 
+#     for x in range(0, getWidth(smallPicture)):
+#         for y in range(0, getHeight(smallPicture)):
+#             bigPicture.setBasicPixel(
+#                 x + xOffset, y + yOffset, smallPicture.getBasicPixel(x, y))
+# 
+#     return bigPicture
 
 # Alyce Brady's version of copyInto, with additional error-checking on the upper-left corner
 # Will copy as much of the original picture into the destination picture as will fit.
@@ -852,8 +873,8 @@ def duplicatePicture(picture):
         raise ValueError
     return Picture(picture)
 
-def cropPicture(pic, upperLeftX, upperLeftY, width, height):
- if not isinstance(pic, Picture):
+def cropPicture(picture, upperLeftX, upperLeftY, width, height):
+ if not isinstance(picture, Picture):
    print("crop(picture, upperLeftX, upperLeftY, width, height): First parameter is not a picture")
    raise ValueError
  if upperLeftX < 1 or upperLeftX > getWidth(pic):
@@ -862,7 +883,7 @@ def cropPicture(pic, upperLeftX, upperLeftY, width, height):
  if upperLeftY < 1 or upperLeftY > getHeight(pic):
    print("crop(picture, upperLeftX, upperLeftY, width, height): upperLeftY must be within the picture")
    raise ValueError
- return pic.crop(upperLeftX-1, upperLeftY-1, width, height)
+ return picture.crop(upperLeftX-1, upperLeftY-1, width, height)
 
 ##
 # Input and Output interfaces
@@ -873,57 +894,57 @@ def cropPicture(pic, upperLeftX, upperLeftY, width, height):
 ##
 
 
-def requestNumber(message):
-    return StoppableInput.getNumber(message)
+# def requestNumber(message):
+#     return StoppableInput.getNumber(message)
 
 
-def requestInteger(message):
-    return StoppableInput.getIntNumber(message)
+# def requestInteger(message):
+#     return StoppableInput.getIntNumber(message)
 
 
-def requestIntegerInRange(message, min, max):
-    if min >= max:
-        print("requestIntegerInRange(message, min, max): min >= max not allowed")
-        raise ValueError
+# def requestIntegerInRange(message, min, max):
+#     if min >= max:
+#         print("requestIntegerInRange(message, min, max): min >= max not allowed")
+#         raise ValueError
 
-    return StoppableInput.getIntNumber(message, min, max)
-
-
-def requestString(message):
-    s = StoppableInput.getString(message)
-    if s is None:
-        return None
-    else:
-        return str(s)
+#     return StoppableInput.getIntNumber(message, min, max)
 
 
-def input(message=None):
-    from jes.gui.commandwindow.prompt import promptService
-    return eval(promptService.requestInput(message))
+# def requestString(message):
+#     s = StoppableInput.getString(message)
+#     if s is None:
+#         return None
+#     else:
+#         return str(s)
 
 
-def raw_input(message=None):
-    from jes.gui.commandwindow.prompt import promptService
-    return promptService.requestInput(message)
+# def input(message=None):
+#     from jes.gui.commandwindow.prompt import promptService
+#     return eval(promptService.requestInput(message))
 
 
-def showWarning(message):
-    return StoppableOutput.showWarning(message)
+# def raw_input(message=None):
+#     from jes.gui.commandwindow.prompt import promptService
+#     return promptService.requestInput(message)
 
 
-def showInformation(message):
-    return StoppableOutput.showInformation(message)
+# def showWarning(message):
+#     return StoppableOutput.showWarning(message)
 
 
-def showError(message):
-    return StoppableOutput.showError(message)
+# def showInformation(message):
+#     return StoppableOutput.showInformation(message)
+
+
+# def showError(message):
+#     return StoppableOutput.showError(message)
 
 
 ##
 # Java Music Interface
 ##
-def playNote(note, duration, intensity=64):
-    JavaMusic.playNote(note, duration, intensity)
+# def playNote(note, duration, intensity=64):
+#     JavaMusic.playNote(note, duration, intensity)
 
 
 ##
@@ -933,7 +954,8 @@ def playNote(note, duration, intensity=64):
 def pickAFile():
     # Note: this needs to be done in a threadsafe manner, see FileChooser
     # for details how this is accomplished.
-    return FileChooser.pickAFile()
+    return str(FileChooser.pickAFile())
+
 
 def pickAFolder():
     # Note: this needs to be done in a threadsafe manner, see FileChooser
@@ -954,12 +976,13 @@ def quit():
 
 
 def openPictureTool(picture):
-    import PictureExplorer
-    thecopy = duplicatePicture(picture)
-    viewer = PictureExplorer(thecopy)
+    #import PictureExplorer
+    #thecopy = duplicatePicture(picture)
+    #viewer = PictureExplorer(thecopy)
 
 #    viewer.changeToBaseOne();
-    viewer.setTitle(getShortPath(picture.getFileName()))
+    #viewer.setTitle(getShortPath(picture.getFileName()))
+    picture.pictureTool()
 
 
 def openFrameSequencerTool(movie):
@@ -978,8 +1001,7 @@ def openSoundTool(sound):
 
 def explore(someMedia):
     if isinstance(someMedia, Picture):
-        #openPictureTool(someMedia)
-        someMedia.pictureTool()
+        openPictureTool(someMedia)
     elif isinstance(someMedia, Sound):
         openSoundTool(someMedia)
     elif isinstance(someMedia, Movie):
@@ -1136,6 +1158,7 @@ def getTurtleList(world):
 
 def printNow(text):
     print(text)
+
 
 class Movie(object):
     def __init__(self):  # frames are filenames
