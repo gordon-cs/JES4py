@@ -13,7 +13,7 @@ class Sound:
     NUM_BITS_PER_SAMPLE = 16
     _SoundIndexOffset = 0
 
-    def __init__(self, sound=None, sampleRate=22050):
+    def __init__(self, sound, sampleRate=22050):
         """Construct new sound object
         
         If first passed parameter is the name of a WAV file, then read
@@ -45,9 +45,7 @@ class Sound:
         sampleRate : int
             the frame rate for the sound
         """
-        if (sound == None):
-            self.__init__(self.SAMPLE_RATE * 3)
-        elif isinstance(sound, str):
+        if isinstance(sound, str):
             self.filename = sound
             waveRead = wave.open(self.filename, 'rb')
             self.numFrames = waveRead.getnframes()
@@ -85,68 +83,138 @@ class Sound:
         return output
 
     def __repr__(self):
+        """Return string representation of this sound
+
+        Returns
+        -------
+        str
+            representation of this sound
+        """
         return self.__str__()
 
     # ----------------------- accessors --------------------------------------
 
     def getBuffer(self):
+        """Returns the sounds associated buffer
+
+        Returns
+        -------
+        arr
+            The sounds buffer(i.e. an array representaion of the sound)
+        """
         return self.buffer
 
 #    def getAudioFileFormat(self):
 #        return self.audioFileFormat # not yet defined
 
     def getSamplingRate(self):
+        """Return sounds sampling rate
+
+        Returns
+        -------
+        int
+            the sampling rate
+        """
         return self.sampleRate
 
-#    def getSoundExplorer(self):
-#        return self.soundExplorer # not yet defined
+    def getSoundExplorer(self):
+        return "The sound explore tool is not implemented yet for JESemu"
+        #return self.soundExplorer
+        # not yet defined
 
     def asArray(self):
+        """Returns an array representation of the sound
+
+        Returns
+        -------
+        arr
+            The sounds buffer(i.e. an array representaion of the sound)
+        """
         return self.getBuffer()
 
     def getPlaybacks(self):
+        """Returns an array of all the current sounds playbacks
+
+        Returns
+        -------
+        arr
+            array of all the current sounds playbacks
+        """
         return playbacks
 
-    def getFileName(self):
-        return self.filename
 
     def getChannels(self):
-        return self.numChannels
+        """Return sounds number of channels
 
-    #     /**
-    #  * Returns an array containing all of the bytes in the specified
-    #  * frame.
-    #  *
-    #  * @param frameNum the index of the frame to access
-    #  * @return the array containing all of the bytes in frame
-    #  *         <code>frameNum</code>
-    #  * @throws SoundException if the frame number is invalid.
-    #  */
+        Returns
+        -------
+        int
+            number of channels
+        """
+        return self.numChannels
+        
+    def getFileName(self):
+        """Return sounds file name
+
+        Returns
+        -------
+        string
+            name of associated file
+        """
+        return self.filename
+
     def getFrame(self, frameNum):
+        """Obtains all the data from a specified frame in the audio data
+
+        Parameters
+        ----------
+        frameNum : int
+            the index of the frame to access
+
+        Returns
+        -------
+        arr
+            the array containing all of the bytes in frame
+        """
         if (frameNum >= self.numFrames):
             print("The index {}, does not exist. The last valid index is {}".format(frameNum, self.numFrames-1))
             
-        frameSize = self.getLength()/self.getLengthInFrames()
+        frameSize = int(len(self.buffer)/self.numFrames)
         theFrame = bytearray(frameSize)
-        for i in frameSize:
-            theFrame[i] = buffer[frameNum * frameSize + i]
+        for i in range(len(theFrame)):
+            theFrame[i] = self.buffer[frameNum * frameSize + i]
         return theFrame
 
     # ----------------------- modifiers --------------------------------------
 
     def setBuffer(self, newBuffer):
+        """Changes the buffer assoiciated with the current sound to the (newBuffer)
+
+        Parameters
+        ----------
+        newBuffer : int
+            the length of the buffer that will replace (self.buffer)
+        newBuffer : bytearray
+            the byte array that (self.buffer) is being replaced with
+        """
         if isinstance(newBuffer, int):
-            buffer = bytearray(newBuffer)
+            self.buffer = bytearray(newBuffer)
         elif isinstance(newBuffer, bytearray):
-            buffer = newBuffer.copy() #maybe not a copy?
+            self.buffer = newBuffer.copy() #maybe not a copy?
 
     # def setAudioFileFormat(self, audioFileFormat):
     #     self.audioFileFormat = audioFileFormat
     
-    # def setSoundExplorer(self, soundExplorer):
-    #     self.soundExplorer = soundExplorer
+    def setSoundExplorer(self, soundExplorer):
+        #self.soundExplorer = soundExplorer
+        print("The sound explorer tool is not yet properly implemented for JESemu")
 
     # ------------------------ methods ---------------------------------------
+
+    def makeAIS(self):
+        print('''This function is not implemented in JESemu. Byte streams that are
+                written to a file in the original JES are now held and written through
+                use of a bytearray called self.buffer.''')
 
     def isStereo(self):
         """Method to check if a sound is stereo (2 channel) or not
@@ -163,6 +231,29 @@ class Sound:
         """
         waveObject = sa.WaveObject(self.buffer, self.numChannels, self.sampleWidth, self.sampleRate)
         self.playbacks.append(waveObject.play())
+
+    def explore(self):
+        """Open a sound explorer on a copy of this sound
+        """
+        # Make a new sound explorer
+        # Open it with a copy of this sound
+        print("The sound explore tool is not implemented yet for JESemu")
+
+    def playNote(self, key, duration, intensity):
+        print("This method was unused in the original JES as well")
+
+    def convert(self, mp3File, wavFile):
+        print("this method isn't implemented.")
+        # try:
+        #     fi = open(mp3File, "r")
+        #     contents = fi.read()
+        #     fi.close()
+        #     writeFi = open(wavFile, "w")
+        #     writeFi.write(contents)
+        #     writeFi.close()
+        #     print("this method isn't implemented yet.")
+        # except Exception:
+        #     print("Couldn't covert the file {}".format(mp3File))
 
     def blockingPlay(self):
         """Play a sound - blocking
@@ -432,6 +523,16 @@ class Sound:
                                               byteorder='little',
                                               signed=True)
 
+    def setFileName(self, filename):
+        """Set picture file name
+
+        Parameters
+        ----------
+        filename : string
+            filename to assign to this picture
+        """
+        self.filename = filename
+
     # ------------------------ File I/O ---------------------------------------
 
     def loadFromFile(self, inFileName):
@@ -462,7 +563,7 @@ class Sound:
             the name of the file to write the sound to
         """
         try:
-            writeToFile(fileName)
+            self.writeToFile(fileName)
         except IOError:
             print("Couldn't write file to " + fileName)
 
@@ -474,7 +575,14 @@ class Sound:
         outFileName : str
             the name of the file to write the sound to
         """
-        file = wave.open(outFileName+".wav", "wb")
+        # if outFileName.endswith(".wav"):
+            # file = wave.open(outFileName, "wb")
+        # else:
+        #     file = wave.open(outFileName+".wav", "wb")
+
+        file = wave.open(outFileName, "wb")
+        #For some ungodly reason write doesn't assume the user wants the written file to be a wave.
+        #If you would like this QUALITY functionality uncomment the lines above.
 
         file.setnframes(self.numFrames)
         file.setnchannels(self.numChannels)
