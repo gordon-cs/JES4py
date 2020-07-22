@@ -10,15 +10,20 @@ from jes4py import FileChooser
 
 class Picture:
 
+    filename = None
+    title = None
     extension = ".jpg"
     _PictureIndexOffset = 0
     tmpfilename = None
+    subprocessList = []
 
     def __init__(self, *args, **kwargs):
+        """Initializer for Picture class
+        """
         self.filename = self.title = 'None'
         if len(args) == 0:
-            # no parameters, make an empty picture
-            self.image = PIL.Image.Image()
+            # no parameters, make 100x200 picture with white background
+            self.image = PIL.Image.new("RGB", (200, 100), (255, 255, 255))
         elif len(args) == 1:
             if isinstance(args[0], str):
                 self.filename = self.title = args[0]
@@ -65,6 +70,16 @@ class Picture:
         output = "Picture, filename {} height {} width {}".format(
             self.filename, self.image.height, self.image.width)
         return output
+
+    def __repr__(self):
+        """Return string representation of this picture
+
+        Returns
+        -------
+        str
+            representation of this picture
+        """
+        return self.__str__()
 
     def getExtension(self):
         """Return the filename extension for this picture
@@ -760,10 +775,10 @@ class Picture:
         string
             path to temporary image file
         """
-        # filename = os.path.join(tempfile.gettempdir(),
-        #     "jes_" + next(tempfile._get_candidate_names()) + self.extension)
-        tempdir = tempfile.mkdtemp()
-        filename = os.path.join(tempdir, "showimage" + self.extension)
+        filename = os.path.join(tempfile.gettempdir(),
+            "jes4py_" + next(tempfile._get_candidate_names()) + self.extension)
+        #tempdir = tempfile.mkdtemp()
+        #filename = os.path.join(tempdir, "showimage" + self.extension)
         #os.mkdir(tempdir)
         self.write(filename)
         return filename
@@ -783,24 +798,39 @@ class Picture:
         -------
         Popen instance
         """
+        # Start subprocess using current Python intepreter to run a script
         scriptpath = os.path.join(Config.getConfigVal("CONFIG_JES4PY_PATH"), script)
         proc = subprocess.Popen([sys.executable, scriptpath] + list(argv), stdin=PIPE)
-        atexit.register(self.closeShow)
+
+        # Register atexit handler if this is the first subprocess
+        if len(self.subprocessList) == 0:
+            atexit.register(self._stopAllSubprocesses)
+
+        # Record the process and return
+        self.subprocessList.append(proc)
         return proc
 
-    def closeShow(self):
-        self.process.stdin.write(b'exit\n')
-        self.process.stdin.flush()
-        self.process.stdin.close()
-        self.process.terminate()
-        self.process.wait(timeout=0.2)
+    def _stopAllSubprocesses(self):
+        """Close windows (i.e. terminate subprocess)
+        """
+        for proc in self.subprocessList:
+            try:
+                proc.stdin.write(b'exit\n')
+                proc.stdin.flush()
+                proc.stdin.close()
+                proc.terminate()
+                proc.wait(timeout=0.2)
+            except BrokenPipeError:
+                pass
 
     def show(self):
         """Show a picture using stand-alone Python script
         """
-        self.tmpfilename = self.__saveInTempFile()
-        self.process = self.__runScript('show.py', self.tmpfilename, self.title)
-        #os.remove(filename)
+        if not self.tmpfilename is None:
+            self.repaint()
+        else:
+            self.tmpfilename = self.__saveInTempFile()
+            self.process = self.__runScript('show.py', self.tmpfilename, self.title)
 
     def repaint(self):
         """Reshow a picture using stand-alone Python script
@@ -808,15 +838,16 @@ class Picture:
         if self.tmpfilename is None:
             self.show()
         else:
-            #print("repainting file: {}".format(self.tmpfilename))
-            self.write(self.tmpfilename)
-            msg = self.tmpfilename + ' ' + self.title + '\n'
-            self.process.stdin.write(msg.encode('utf8'))
-            self.process.stdin.flush()
+            try:
+                self.write(self.tmpfilename)
+                msg = self.tmpfilename + ' ' + self.title + '\n'
+                self.process.stdin.write(msg.encode('utf8'))
+                self.process.stdin.flush()
+            except BrokenPipeError:
+                self.show()
 
     def pictureTool(self):
         """Explore a picture using a stand-alone Python script
         """
         filename = self.__saveInTempFile()
         self.__runScript('pictureTool.py', filename, self.title)
-        #os.remove(filename)
