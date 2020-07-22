@@ -1,67 +1,97 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-# Demo program that
-#   - optionally accepts an image file name as a command line argument
-#   - creates a PIL image from the filename
-#   - calls a "show()" function that converts the PIL image to a wx image
-#     and displays the image in a new wx window
-#
-# wx code based on that provided at
-# https://stackoverflow.com/questions/46374595/displaying-image-in-wxpython
-
-import sys, os
 import wx
-import PIL.Image
-from jes4py.Picture import Picture
+import sys
+import os
+import time
 
-class mainWindow(wx.Frame):
-    """Frame class that display an image"""
-    def __init__(self, image, parent=None, id=-1, pos=wx.DefaultPosition, title=None):
-        """Create a frame instance and display image"""
-        temp = image.ConvertToBitmap()
-        size = temp.GetWidth(), temp.GetHeight()
-        wx.Frame.__init__(self, parent, id, title, pos, size)
-        self.bmp = wx.StaticBitmap(parent=self, bitmap=temp)
-        self.SetClientSize(size)
+from threading import *
 
-class ShowImage(wx.App):
-    """Application class"""
-    def __init__(self, image=None, title=None, *args, **kwargs):
-        self.image = image
+# Define notification event for thread completion
+EVT_MESSAGE_ID = wx.NewId()
+
+class MessageEvent(wx.PyEvent):
+    """Simple event to carry arbitrary result data"""
+    def __init__(self, data):
+        """Init Message Event"""
+        wx.PyEvent.__init__(self)
+        self.SetEventType(EVT_MESSAGE_ID)
+        self.data = data
+
+# Thread class that executes processing
+class Listener(Thread):
+    """Listener Thread Class"""
+    def __init__(self, notifyWindow):
+        """Init Listener Thread Class"""
+        Thread.__init__(self)
+        self.notifyWindow = notifyWindow
+        self.start()
+
+    def run(self):
+        """Run Listener Thread"""
+        while True:
+            message = input().rstrip()
+            if  message == 'exit':
+                wx.PostEvent(self.notifyWindow, MessageEvent(None))
+                return
+            else:
+                wx.PostEvent(self.notifyWindow, MessageEvent(message))
+
+class MainWindow(wx.Frame):
+
+    filename = None
+    title = None
+
+    def __init__(self, parent, filename, title):
+        super(MainWindow, self).__init__(parent=parent, title=title)
+        self.Connect(-1, -1, EVT_MESSAGE_ID, self.OnMessage)
+        self.worker = Listener(self)
+        self.filename = filename
         self.title = title
-        wx.App.__init__(self, *args, **kwargs)
+        self.showImage()
 
-    def OnInit(self):
-        self.frame = mainWindow(image=self.image, title=self.title)
-        self.frame.Show()
-        self.SetTopWindow(self.frame)
-        return True
+    def OnMessage(self, event):
+        """Process message"""
+        if event.data is None:
+            # all done
+            self.Close()
+        else:
+            self.filename, self.title = event.data.split(' ', 1)
+            self.showImage()
 
+    def showImage(self):
+        image = wx.Image(self.filename, wx.BITMAP_TYPE_ANY)
+        bmp = wx.Bitmap(image)
+        imageSize = image.GetSize()
+        self.SetTitle(self.title)
+        self.imageCtrl = wx.StaticBitmap(parent=self, size=imageSize, bitmap=bmp)
+        self.SetClientSize(imageSize)
+
+# ===========================================================================
 # Main program
+# ===========================================================================
 
-if __name__ == "__main__":
+def main(argv):
+    usage = "usage: {} file [title]".format(argv[0])
     # Get image file name and optional image title from command line
-    if len(sys.argv) == 2:
-        filename = title = sys.argv[1]
-    elif len(sys.argv) == 3:
-        filename = sys.argv[1]
-        title = sys.argv[2]
+    if len(argv) == 2:
+        filename = title = argv[1]
+    elif len(argv) == 3:
+        filename = argv[1]
+        title = argv[2]
     else:
-        print("usage: {} file title".format(sys.argv[0]))
+        print(usage)
         exit(1)
 
-    # load the image 
-    try:
-        image = Picture(PIL.Image.open(filename)).getWxImage()
-        #image = getWxImage(PIL.Image.open(filename))
-    except FileNotFoundError:
-        print("Image file {} not found".format(filename))
-        exit(1)
-    except:
-        print("Unable to load image from {}".format(filename))
+    if not os.path.isfile(filename):
+        print("{} does not exist or is not a file".format(filename))
+        print(usage)
         exit(1)
 
-    # Show the image
-    #wxImage = getWxImage(image)
-    app = ShowImage(image=image, title=title)
+    app = wx.App(False)
+    frame = MainWindow(parent=None, filename=filename, title=title)
+    frame.Show()
     app.MainLoop()
+
+if __name__ == '__main__':
+    main(sys.argv)
