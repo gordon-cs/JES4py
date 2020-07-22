@@ -1,4 +1,5 @@
-from Sample import Sample
+from jes4py.Sample import Sample
+
 class Samples:
     def __init__(self, sound):
         self.sound = sound

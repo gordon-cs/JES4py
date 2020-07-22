@@ -1,9 +1,9 @@
-from JESemu import *
+from jes4py import *
 from random import randint
 import simpleaudio as sa
 import wave
 import os
-from Sound import Sound
+from jes4py.Sound import Sound
 
 # Supporting functions
 def openSound(mediaPath='', filename='myFirstSound.wav'):

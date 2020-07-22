@@ -1,5 +1,4 @@
-import JESConfig
-#import math
+from jes4py import Config
 
 class SoundSample:
     """Provides access to frames (samples) within a Sound
@@ -24,7 +23,7 @@ class SoundSample:
         frameNumber : int
             index of frame (sample)
         """
-        self.wrapLevels = JESConfig.getConfigVal("CONFIG_WRAPPIXELVALUES")
+        self.wrapLevels = Config.getConfigVal("CONFIG_WRAPPIXELVALUES")
         self.sound = sound
         self.frameNumber = frameNumber
 
@@ -63,7 +62,7 @@ class SoundSample:
         int
             corrected color level
         """
-        level = round(level)
+        level = int(level)
         if cls.wrapLevel:
             if level < 0:
                 return -1*((-1*level) % 32768)

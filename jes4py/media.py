@@ -16,21 +16,21 @@ import math
 #import pictureMod
 # import Picture
 # import Pixel
-from Picture import Picture
-from PixelColor import Pixel, Color
+from jes4py.Picture import Picture
+from jes4py.PixelColor import Pixel, Color
 # import Sound
-from Sound import Sound
+from jes4py.Sound import Sound
 # import StoppableInput
 # import StoppableOutput
 # import Sample
 # import Samples
-from Sample import Sample
-from Samples import Samples
+from jes4py.Sample import Sample
+from jes4py.Samples import Samples
 # import MoviePlayer
 # import MovieWriter
-import FileChooser
+from jes4py import FileChooser
 import random
-import JESConfig
+from jes4py import Config
 
 # from jes.tools.framesequencer import FrameSequencerTool
 

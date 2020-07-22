@@ -1,16 +1,18 @@
 import os, sys
 import wx
+import atexit
 import subprocess, tempfile
+from subprocess import PIPE
 import PIL.ImageDraw, PIL.Image
-import JESConfig
-from PixelColor import Pixel, Color
-import FileChooser
-from pathlib import Path
+from jes4py import Config
+from jes4py.PixelColor import Pixel, Color
+from jes4py import FileChooser
 
 class Picture:
 
     extension = ".jpg"
     _PictureIndexOffset = 0
+    tmpfilename = None
 
     def __init__(self, *args, **kwargs):
         self.filename = self.title = 'None'
@@ -758,8 +760,11 @@ class Picture:
         string
             path to temporary image file
         """
-        filename = os.path.join(tempfile.gettempdir(),
-            "jes_" + next(tempfile._get_candidate_names()) + self.extension)
+        # filename = os.path.join(tempfile.gettempdir(),
+        #     "jes_" + next(tempfile._get_candidate_names()) + self.extension)
+        tempdir = tempfile.mkdtemp()
+        filename = os.path.join(tempdir, "showimage" + self.extension)
+        #os.mkdir(tempdir)
         self.write(filename)
         return filename
 
@@ -770,7 +775,7 @@ class Picture:
         Parameters
         ----------
         script : str
-            the script to run; must be in the JESemu directory
+            the script to run; must be in the jes4py directory
         *argv : list
             parameters to pass to script on command line
 
@@ -778,25 +783,36 @@ class Picture:
         -------
         Popen instance
         """
-        scriptpath = os.path.join(JESConfig.getConfigVal("CONFIG_JESPATH"), script)
-        return subprocess.Popen([sys.executable, scriptpath] + list(argv))
+        scriptpath = os.path.join(Config.getConfigVal("CONFIG_JES4PY_PATH"), script)
+        proc = subprocess.Popen([sys.executable, scriptpath] + list(argv), stdin=PIPE)
+        atexit.register(self.closeShow)
+        return proc
+
+    def closeShow(self):
+        self.process.stdin.write(b'exit\n')
+        self.process.stdin.flush()
+        self.process.stdin.close()
+        self.process.terminate()
+        self.process.wait(timeout=0.2)
 
     def show(self):
         """Show a picture using stand-alone Python script
         """
-        filename = self.__saveInTempFile()
-        self.process = self.__runScript('show.py', filename, self.title)
+        self.tmpfilename = self.__saveInTempFile()
+        self.process = self.__runScript('show.py', self.tmpfilename, self.title)
         #os.remove(filename)
 
     def repaint(self):
         """Reshow a picture using stand-alone Python script
         """
-        try:
-            if self.process != None:
-                self.process.kill()
-        except AttributeError:
-            pass
-        self.show()
+        if self.tmpfilename is None:
+            self.show()
+        else:
+            #print("repainting file: {}".format(self.tmpfilename))
+            self.write(self.tmpfilename)
+            msg = self.tmpfilename + ' ' + self.title + '\n'
+            self.process.stdin.write(msg.encode('utf8'))
+            self.process.stdin.flush()
 
     def pictureTool(self):
         """Explore a picture using a stand-alone Python script
