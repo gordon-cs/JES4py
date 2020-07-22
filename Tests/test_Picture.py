@@ -2,6 +2,7 @@ from jes4py import *
 from random import randint
 import PIL.Image
 import os
+import time
 
 # Supporting functions
 def openPicture(mediaPath='', filename='nico.jpg'):
@@ -11,9 +12,9 @@ def openPicture(mediaPath='', filename='nico.jpg'):
 def openEmptyPicture(color=white, width=300, height=300):
     return makeEmptyPicture(width, height, color)
 
-def scribble():
-    pic = openEmptyPicture(white, 300, 300)
-    pic.setFileName("ScribbleTest")
+def scribble(pic):
+#    pic = openEmptyPicture(white, 300, 300)
+#    pic.setFileName("ScribbleTest")
     addRectFilled(pic, 100, 100, 50, 100, blue)
     addRect(pic, 100, 100, 50, 100, red)
     addOvalFilled(pic, 0, 25, 100, 50) #default color is black
@@ -22,12 +23,13 @@ def scribble():
     addArcFilled(pic, 100, 100, 100, 100, 270, -45, yellow)
     addArc(pic, 100, 100, 100, 100, 225, 90, black)
     addLine(pic, 0, 0, 100, 100, red)
-    return pic
+#    return pic
 
 def makeReferenceImage(filename='refimage.jpg'):
-    pic = scribble()
+    pic = openEmptyPicture()
+    scribble(pic)
+    pic.setFileName("ScribbleTest")
     pic.image.save(filename)
-
 
 # Testing functions
 
@@ -130,14 +132,20 @@ def test_crop():
     assert croppedImage == image.crop([x, y, x+cw, y+ch])
     
 def test_drawing():
-    pic = scribble()
+    pic = openEmptyPicture()
+    scribble(pic)
+    pic.setFileName("ScribbleTest")    
     testImagePix = pic.getPixels()
     refImagePix = openPicture('','refimage.jpg').getPixels()
     assert len(testImagePix) == len(refImagePix)
 
-#def test_show():
-#    picture = openPicture()
-#    picture.show()
+def test_show_repaint():
+    picture = openPicture()
+    picture.show()
+    scribble(picture)
+    time.sleep(1)
+    repaint(picture)
+    time.sleep(1)
 
 def test_write():
     goodFileName = 'test_picture.jpg'
@@ -150,7 +158,7 @@ def test_write():
 # Can be run as script to create or recreate refimage.jpg if needed
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "makeref":
-        makeReferenceImage('refimageA.jpg')
+        makeReferenceImage('refimage.jpg')
     else:
         print("To (re)create reference image 'refimage.jpg', ", end="")
         print("run script with command:",)
