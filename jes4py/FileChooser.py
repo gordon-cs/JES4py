@@ -12,11 +12,14 @@ def pickAFile():
        as a string.  If the user didn't pick a file then the name
        will be None.
 
-    Returns:
-        the file file name of the picked file or None"""
+    Returns
+    -------
+    str
+        the file file name of the picked file or None
+    """
     app = wx.App()
 
-    frame = wx.Frame(None, -1, 'PickAFile')
+    frame = wx.Frame(None, -1, title='PickAFile', style=wx.DEFAULT_FRAME_STYLE|wx.STAY_ON_TOP)
     frame.SetSize(0,0,200,50)
 
     # Create open file dialog
@@ -39,7 +42,7 @@ def pickADirectory():
         the full directory path"""
     app = wx.App()
 
-    frame = wx.Frame(None, -1, 'pickADirectory')
+    frame = wx.Frame(None, -1, title='pickADirectory', style=wx.DEFAULT_FRAME_STYLE|wx.STAY_ON_TOP)
     frame.SetSize(0,0,200,50)
 
     # Create open file dialog
