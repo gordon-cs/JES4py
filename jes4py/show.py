@@ -72,7 +72,8 @@ class Listener(Thread):
     def run(self):
         """Run Listener thread"""
         while True:
-            message = input().rstrip() # receive string on stdin
+            #message = input().rstrip() # receive string on stdin
+            message = sys.stdin.readline().rstrip()
             if  message == 'exit':
                 wx.PostEvent(self.notifyWindow, MessageEvent(None))
                 return
