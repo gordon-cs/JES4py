@@ -43,6 +43,10 @@ class MainWindow(wx.Frame):
         wView, hView = int(wScr * 0.95), int(hScr * 0.85)
         w, h = self.image.GetSize()
 
+        # Debugging purpose (for the crosshair function)
+        
+        self.points = []
+
         # w = min(max(self.MinWindowWidth, w), wView)
         # h = min(max(self.MinWindowHeight, h + self.ColorPanelHeight), hView)
         w = min(max(self.MinWindowWidth, w), wView)
@@ -308,19 +312,27 @@ class MainWindow(wx.Frame):
     def drawCrosshairs(self):
         """This feature works fine with Linux but not with Windows
         """
-        pass
+        # pass
         # """Draw image with crosshairs to indicate selected position
         # """
-        self.smallbmp = wx.Bitmap(5,5)
-        dc = wx.MemoryDC()
-        dc.SelectObject(self.smallbmp)
-        brush = wx.Brush(wx.Colour(255,0,0)) # current image pixel color
-        dc.SetBrush(brush)
-        del dc
-        
-        dc = wx.ClientDC(self.imageCtrl)
-        self.imagePanel.DoPrepareDC(dc)
-        dc.DrawBitmap(self.smallbmp, self.x,self.y, False)
+        # self.buffer = wx.Bitmap(self.image)
+        if len(self.points) == 1:
+            self.smallbmp = wx.Bitmap(5,5)
+            dc = wx.MemoryDC()
+            dc.SelectObject(self.smallbmp)
+            brush = wx.Brush(wx.Colour(255,0,0)) # current image pixel color
+            dc.SetBrush(brush)
+            del dc
+            
+            # dc = wx.BufferedDC(wx.ClientDC(self.imageCtrl), self.buffer)
+            dc = wx.ClientDC(self.imageCtrl)
+            dc.Clear()
+            dc.SetPen(wx.Pen(wx.Colour(0,0,0),2, wx.SOLID))
+            # x1, y1 = self.points[0]
+
+            self.imagePanel.DoPrepareDC(dc)
+            dc.DrawBitmap(self.smallbmp, self.points[0], False)
+            self.points = []
         # dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), 1, wx.DOT))
         # dc.CrossHair(x, y)
         # dc = wx.ClientDC(self.imageCtrl)
@@ -395,6 +407,11 @@ class MainWindow(wx.Frame):
             del dc
             self.x = int(dc_pos.x / self.zoomLevel)
             self.y = int(dc_pos.y / self.zoomLevel)
+            #===================================
+            # Debugging - trying to store the selected position
+            crosshair_pos = self.x, self.y
+            self.points.append(crosshair_pos)
+            #===================================
             self.clipOnBoundary()
             self.drawCrosshairs()
 
