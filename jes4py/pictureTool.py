@@ -311,6 +311,18 @@ class MainWindow(wx.Frame):
         pass
         # """Draw image with crosshairs to indicate selected position
         # """
+        self.smallbmp = wx.Bitmap(5,5)
+        dc = wx.MemoryDC()
+        dc.SelectObject(self.smallbmp)
+        brush = wx.Brush(wx.Colour(255,0,0)) # current image pixel color
+        dc.SetBrush(brush)
+        del dc
+        
+        dc = wx.ClientDC(self.imageCtrl)
+        self.imagePanel.DoPrepareDC(dc)
+        dc.DrawBitmap(self.smallbmp, self.x,self.y, False)
+        # dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), 1, wx.DOT))
+        # dc.CrossHair(x, y)
         # dc = wx.ClientDC(self.imageCtrl)
         # self.imagePanel.DoPrepareDC(dc)
         # origin = dc.GetDeviceOrigin()
