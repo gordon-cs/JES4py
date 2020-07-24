@@ -23,13 +23,14 @@ class MainWindow(wx.Frame):
     PaintChipSize = 24
     zoomLevels = [25, 50, 75, 100, 150, 200, 500]
     zoomLevel = float(zoomLevels[3]) / 100.0
+    cursorBitmap = None
     x = 0
     y = 0
 
     def __init__(self, filename, parent, title):
         # Load image and get image size
         self.image = wx.Image(filename, wx.BITMAP_TYPE_ANY)
-        self.bmp = wx.Bitmap(self.image, wx.BITMAP_TYPE_ANY)
+        self.bmp = wx.Bitmap(self.image)
 
         super(MainWindow, self).__init__(parent=parent, title=title, style=wx.DEFAULT_FRAME_STYLE)
 
@@ -310,54 +311,59 @@ class MainWindow(wx.Frame):
         self.bmp = wx.Bitmap(image, wx.BITMAP_TYPE_ANY)
         self.imageCtrl.SetBitmap(self.bmp)
 
+    def makeCursorBitmap(self):
+        dc = wx.MemoryDC()
+
+        # Draw the mask
+        self.cursorMask = wx.Bitmap(7, 7, depth=1)
+        dc.SelectObject(self.cursorMask, )
+        dc.SetPen(wx.Pen(wx.Colour(255, 255, 255), width=3))
+        dc.DrawLine(0, 3, 6, 3)
+        dc.DrawLine(3, 0, 3, 6)
+
+        # Draw the cursor
+        self.cursorBitmap = wx.Bitmap(7, 7)
+        dc.SelectObject(self.cursorBitmap)
+        dc.SetPen(wx.Pen(wx.Colour(255, 255, 0)))
+        dc.DrawLine(0, 3, 6, 3)
+        dc.DrawLine(3, 0, 3, 6)
+        self.cursorBitmap.SetMask(wx.Mask(self.cursorMask))
+
+        # done with dc
+        del dc
+
     def drawCrosshairs(self):
         """This feature works fine with Linux but not with Windows
         """
         # pass
         # """Draw image with crosshairs to indicate selected position
         # """
-        # self.buffer = wx.Bitmap(self.image)
-        self.smallbmp = wx.Bitmap(5,5)
-        dc = wx.MemoryDC()
-        dc.SelectObject(self.smallbmp)
-        brush = wx.Brush(wx.Colour(255,0,0)) # current image pixel color
-        dc.SetBrush(brush)
-        dc.DrawRectangle(0,0,5,5)
-        del dc
-        
-        # dc = wx.BufferedDC(wx.ClientDC(self.imageCtrl), self.buffer)
+        if self.cursorBitmap is None:
+            self.makeCursorBitmap()
+
         dc = wx.ClientDC(self.imageCtrl)
+
+        # Restore bitmap (if any) saved previous cursor event
         if self.savedBmp is not None:
             dc.DrawBitmap(self.savedBmp, self.savedBmpPos, False)
+
+        # Get cursor coordinates
         self.imagePanel.DoPrepareDC(dc)
         origin = dc.GetDeviceOrigin()
-        scrolledPosition = self.imagePanel.CalcUnscrolledPosition(origin)
-        x = int(self.x * self.zoomLevel) + scrolledPosition[0]
-        y = int(self.y * self.zoomLevel) + scrolledPosition[1]
-        # dc.Clear()
-        self.savedBmpPos = x-2, y-2
-        bmpsize = self.smallbmp.GetSize()
-        # print(bmpsize)
-        # dc.SetPen(wx.Pen(wx.Colour(255,0,0),2, wx.SOLID))
-        rect = wx.Rect(self.savedBmpPos, bmpsize)
-        print(rect)
-        self.savedBmp = self.bmp.GetSubBitmap(wx.Rect(x-2,y-2,5,5))
-        # self.savedBmp = wx.Bitmap(5,5)
+        sx, sy = self.imagePanel.CalcUnscrolledPosition(origin)
+        x = int(self.x * self.zoomLevel) + sx
+        y = int(self.y * self.zoomLevel) + sy
+        print(f"Cursor position: ({x},{y})")
 
+        # Save bitmap from new cursor location
+        cursorSize = self.cursorBitmap.GetSize()
+        self.savedBmpPos = x-int((cursorSize[0]-1)/2), y-int((cursorSize[1]-1)/2)
+        cursorRect = wx.Rect(self.savedBmpPos, cursorSize)
+        print(f"Cursor Rect: {cursorRect}")
+        self.savedBmp = self.bmp.GetSubBitmap(cursorRect)
 
-        dc.DrawBitmap(self.smallbmp, self.savedBmpPos, False)
-        
-            # print(self.points)
-            # self.points = []
-            # print(self.points)
-        # dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), 1, wx.DOT))
-        # dc.CrossHair(x, y)
-        
-        # print (origin, scrolledPosition)
-        # print (x, y)
-        # dc.DrawBitmap(self.bmp, scrolledPosition, False)
-        # dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), 1, wx.DOT))
-        # dc.CrossHair(x, y)
+        # Draw the cursor bitmap
+        dc.DrawBitmap(self.cursorBitmap, self.savedBmpPos, True)
 
 # ===========================================================================
 # Event handlers
