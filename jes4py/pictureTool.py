@@ -328,11 +328,13 @@ class MainWindow(wx.Frame):
             dc = wx.ClientDC(self.imageCtrl)
             dc.Clear()
             dc.SetPen(wx.Pen(wx.Colour(0,0,0),2, wx.SOLID))
-            # x1, y1 = self.points[0]
+            x1, y1 = self.points[0]
 
             self.imagePanel.DoPrepareDC(dc)
-            dc.DrawBitmap(self.smallbmp, self.points[0], False)
+            dc.DrawBitmap(self.smallbmp, x1-2, y1-2, False)
+            print(self.points)
             self.points = []
+            print(self.points)
         # dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), 1, wx.DOT))
         # dc.CrossHair(x, y)
         # dc = wx.ClientDC(self.imageCtrl)
