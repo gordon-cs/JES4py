@@ -44,8 +44,9 @@ class MainWindow(wx.Frame):
         w, h = self.image.GetSize()
 
         # Debugging purpose (for the crosshair function)
-        
         self.points = []
+        self.savedBmpPos = None
+        self.savedBmp = None
 
         # w = min(max(self.MinWindowWidth, w), wView)
         # h = min(max(self.MinWindowHeight, h + self.ColorPanelHeight), hView)
@@ -316,33 +317,42 @@ class MainWindow(wx.Frame):
         # """Draw image with crosshairs to indicate selected position
         # """
         # self.buffer = wx.Bitmap(self.image)
-        if len(self.points) == 1:
-            self.smallbmp = wx.Bitmap(5,5)
-            dc = wx.MemoryDC()
-            dc.SelectObject(self.smallbmp)
-            brush = wx.Brush(wx.Colour(255,0,0)) # current image pixel color
-            dc.SetBrush(brush)
-            del dc
-            
-            # dc = wx.BufferedDC(wx.ClientDC(self.imageCtrl), self.buffer)
-            dc = wx.ClientDC(self.imageCtrl)
-            dc.Clear()
-            dc.SetPen(wx.Pen(wx.Colour(0,0,0),2, wx.SOLID))
-            x1, y1 = self.points[0]
+        self.smallbmp = wx.Bitmap(5,5)
+        dc = wx.MemoryDC()
+        dc.SelectObject(self.smallbmp)
+        brush = wx.Brush(wx.Colour(255,0,0)) # current image pixel color
+        dc.SetBrush(brush)
+        dc.DrawRectangle(0,0,5,5)
+        del dc
+        
+        # dc = wx.BufferedDC(wx.ClientDC(self.imageCtrl), self.buffer)
+        dc = wx.ClientDC(self.imageCtrl)
+        if self.savedBmp is not None:
+            dc.DrawBitmap(self.savedBmp, self.savedBmpPos, False)
+        self.imagePanel.DoPrepareDC(dc)
+        origin = dc.GetDeviceOrigin()
+        scrolledPosition = self.imagePanel.CalcUnscrolledPosition(origin)
+        x = int(self.x * self.zoomLevel) + scrolledPosition[0]
+        y = int(self.y * self.zoomLevel) + scrolledPosition[1]
+        # dc.Clear()
+        self.savedBmpPos = x-2, y-2
+        bmpsize = self.smallbmp.GetSize()
+        # print(bmpsize)
+        # dc.SetPen(wx.Pen(wx.Colour(255,0,0),2, wx.SOLID))
+        rect = wx.Rect(self.savedBmpPos, bmpsize)
+        print(rect)
+        self.savedBmp = self.bmp.GetSubBitmap(wx.Rect(x-2,y-2,5,5))
+        # self.savedBmp = wx.Bitmap(5,5)
 
-            self.imagePanel.DoPrepareDC(dc)
-            dc.DrawBitmap(self.smallbmp, x1-2, y1-2, False)
-            print(self.points)
-            self.points = []
-            print(self.points)
+
+        dc.DrawBitmap(self.smallbmp, self.savedBmpPos, False)
+        
+            # print(self.points)
+            # self.points = []
+            # print(self.points)
         # dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), 1, wx.DOT))
         # dc.CrossHair(x, y)
-        # dc = wx.ClientDC(self.imageCtrl)
-        # self.imagePanel.DoPrepareDC(dc)
-        # origin = dc.GetDeviceOrigin()
-        # scrolledPosition = self.imagePanel.CalcUnscrolledPosition(origin)
-        # x = int(self.x * self.zoomLevel) + scrolledPosition[0]
-        # y = int(self.y * self.zoomLevel) + scrolledPosition[1]
+        
         # print (origin, scrolledPosition)
         # print (x, y)
         # dc.DrawBitmap(self.bmp, scrolledPosition, False)
