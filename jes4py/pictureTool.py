@@ -87,23 +87,6 @@ class MainWindow(wx.Frame):
             zoomID = zoomMenu.Append(wx.ID_ANY, item, helpString)
             self.Bind(wx.EVT_MENU, self.onZoom, zoomID)
 
-        # menuZoom25 = zoomMenu.Append(wx.ID_ANY, "25%","Zoom by 25%")
-        # menuZoom50 = zoomMenu.Append(wx.ID_ANY, "50%","Zoom by 50%")
-        # menuZoom75 = zoomMenu.Append(wx.ID_ANY, "75%","Zoom by 75%")
-        # menuZoom100 = zoomMenu.Append(wx.ID_ANY, "100%","Zoom by 100%")
-        # menuZoom150 = zoomMenu.Append(wx.ID_ANY, "150%","Zoom by 150%")
-        # menuZoom200 = zoomMenu.Append(wx.ID_ANY, "200%","Zoom by 200%")
-        # menuZoom500 = zoomMenu.Append(wx.ID_ANY, "500%","Zoom by 500%")
-
-        # # Set menu events
-        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom25)
-        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom50)
-        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom75)
-        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom100)
-        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom150)
-        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom200)
-        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom500)
-        
         # Creating the menubar.
         menuBar = wx.MenuBar()
         menuBar.Append(zoomMenu, "&Zoom") # Adds the "zoomMenu" to the MenuBar
@@ -304,12 +287,16 @@ class MainWindow(wx.Frame):
     def updateView(self):
         """Scale image according to the zoom factor and (re)display it
         """
+        
         imageSize = self.image.GetSize()
         w = int(imageSize[0] * self.zoomLevel)
         h = int(imageSize[1] * self.zoomLevel)
         image = self.image.Scale(w, h)
-        self.bmp = wx.Bitmap(image, wx.BITMAP_TYPE_ANY)
+        self.bmp = wx.Bitmap(image)
         self.imageCtrl.SetBitmap(self.bmp)
+        if self.bmp is not None:
+            self.savedBmp = None
+
 
     def makeCursorBitmap(self):
         dc = wx.MemoryDC()
@@ -345,14 +332,18 @@ class MainWindow(wx.Frame):
 
         # Restore bitmap (if any) saved previous cursor event
         if self.savedBmp is not None:
-            dc.DrawBitmap(self.savedBmp, self.savedBmpPos, False)
+            self.undrawCursor()
 
         # Get cursor coordinates
-        self.imagePanel.DoPrepareDC(dc)
-        origin = dc.GetDeviceOrigin()
-        sx, sy = self.imagePanel.CalcUnscrolledPosition(origin)
+        # self.imagePanel.DoPrepareDC(dc)
+        # origin = dc.GetDeviceOrigin()
+        sx, sy= dc.GetDeviceOrigin()
+        # sx, sy = self.imagePanel.CalcScrolledPosition(origin)
+
         x = int(self.x * self.zoomLevel) + sx
         y = int(self.y * self.zoomLevel) + sy
+        print(sx, sy)
+        print(self.x, self.y)
         print(f"Cursor position: ({x},{y})")
 
         # Save bitmap from new cursor location
@@ -363,7 +354,17 @@ class MainWindow(wx.Frame):
         self.savedBmp = self.bmp.GetSubBitmap(cursorRect)
 
         # Draw the cursor bitmap
+        self.drawCursor()
+    
+    def drawCursor(self):
+        dc = wx.ClientDC(self.imageCtrl)
         dc.DrawBitmap(self.cursorBitmap, self.savedBmpPos, True)
+        self.imagePanel.DoPrepareDC(dc)
+
+    def undrawCursor(self):
+        dc = wx.ClientDC(self.imageCtrl)
+        dc.DrawBitmap(self.savedBmp, self.savedBmpPos, False)
+        self.imagePanel.DoPrepareDC(dc)
 
 # ===========================================================================
 # Event handlers
