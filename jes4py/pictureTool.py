@@ -1,11 +1,38 @@
 #!/usr/bin/env python3
 
 """
-Simple picture tool to replace JES picture tool
-CS Summer Practicum 2020
-Author: Gahngnin Kim
-Developed under the guidance of Dr. Jonathan Senning
-Modified by:
+pictureTool.py - script program to implement the "explore" functionality
+                 in JES for the JES4py package
+
+Written: 2020-07-24 Gahngnin Kim <gahngnin.kim@gordon.edu>
+
+The "explore()" function in JES will open a new window and display the image
+imported from the given file path. The window provides an interactive picture
+tool for the user. It allows users to zoom in and out of the image and pick
+a pixel to examine its RGB values with the color preview. When a pixel is
+selected from the image, a crosshair will appear in that selected position.
+Unlike, "show()" function, it cannot be repainted with "repaint()" method.
+
+The JES4py's implementation of "explore()" function provides a nearly identical
+experience with an improvement compared to JES's. Display and image size
+detection code is added to ensure that the window size doesn't go beyond the
+display resolution even if the image is larger. The image panel will set
+scrollbars when a high-resolution image is imported will set the scrollbar to
+fit the image in the window. The program can also work standalone.
+
+The crosshair feature is currently disabled due to incomplete implementation.
+To continue the implementation, check the "s20-crosshair-scrolledpanel" branch.
+
+This program was first developed during the Gordon College Computer Science
+Summer 2020 Practicum as a part of the JES4py project, under the guidance of
+Dr. Jonathan Senning.
+
+Summer 2020 JES4py Team: Dr. Jonathan Senning
+                         Nick Noormand
+                         Gahngnin Kim
+
+Author: Gahngnin Kim (Last modified: 2020-07-24)
+
 """
 
 import os
