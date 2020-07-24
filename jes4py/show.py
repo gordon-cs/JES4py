@@ -106,9 +106,7 @@ class MainWindow(wx.Frame):
         self.showImage(filename, title)
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.panel, 0, wx.ALIGN_LEFT|wx.ALIGN_TOP|wx.ALL, 0)
-        #self.sizer.Add(self.bitmap, 0, wx.ALIGN_LEFT|wx.ALIGN_TOP|wx.ALL, 0)
         self.SetSizerAndFit(self.sizer)
-        #self.sizer.Fit(self.panel)
 
     def OnMessage(self, event):
         """Handle received message
@@ -137,14 +135,9 @@ class MainWindow(wx.Frame):
             the title string for the window
 
         """
-        print("FILE: {}, TITLE: {}".format(filename, title))
         image = wx.Image(filename, wx.BITMAP_TYPE_ANY)
-        #x = 75
-        #y = 75
-        #r, g, b = image.GetRed(x,y), image.GetGreen(x,y), image.GetBlue(x,y)
-        #print(f"Color at ({x},{y}) = ({r},{g},{b})")
         imageSize = image.GetSize()
-        bmp = wx.Bitmap(image)
+        bmp = wx.Bitmap(image, wx.BITMAP_TYPE_ANY)
         self.SetTitle(title)
         self.bitmap = wx.StaticBitmap(parent=self.panel, size=imageSize, bitmap=bmp)
         self.SetClientSize(imageSize)
