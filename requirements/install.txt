@@ -1,0 +1,8 @@
+#
+# Runtime dependencies needed when using wxPython Phoenix
+python_version <= '3.0'
+wxPython
+wave
+simpleaudio
+Pillow
+#

@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: jes4py
-Version: 0.0.1
+Version: 0.0.3
 Summary: A python package implementing part of JES's media functionality
 Home-page: https://github.com/gordon-cs/JES-emulator
 Author: Jonathan Senning

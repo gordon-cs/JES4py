@@ -15,4 +15,5 @@ jes4py/show.py
 jes4py.egg-info/PKG-INFO
 jes4py.egg-info/SOURCES.txt
 jes4py.egg-info/dependency_links.txt
+jes4py.egg-info/requires.txt
 jes4py.egg-info/top_level.txt
