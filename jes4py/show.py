@@ -37,7 +37,6 @@ first example at https://wiki.wxpython.org/LongRunningTasks.
 import wx
 import sys
 import os
-import time
 from threading import *
 
 class MessageEvent(wx.PyEvent):
@@ -102,7 +101,12 @@ class MainWindow(wx.Frame):
         super(MainWindow, self).__init__(parent=parent, title=title)
         self.Connect(-1, -1, wx.ID_ANY, self.OnMessage)
         self.worker = Listener(self)
+
+        self.panel = wx.Panel(parent=self)
         self.showImage(filename, title)
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+        self.sizer.Add(self.panel, 0, wx.ALIGN_LEFT|wx.ALIGN_TOP|wx.ALL, 0)
+        self.SetSizerAndFit(self.sizer)
 
     def OnMessage(self, event):
         """Handle received message
@@ -133,10 +137,11 @@ class MainWindow(wx.Frame):
         """
         image = wx.Image(filename, wx.BITMAP_TYPE_ANY)
         imageSize = image.GetSize()
-        bmp = wx.Bitmap(image)
+        bmp = wx.Bitmap(image, wx.BITMAP_TYPE_ANY)
         self.SetTitle(title)
-        self.imageCtrl = wx.StaticBitmap(parent=self, size=imageSize, bitmap=bmp)
+        self.bitmap = wx.StaticBitmap(parent=self.panel, size=imageSize, bitmap=bmp)
         self.SetClientSize(imageSize)
+        self.Refresh()
 
 # ===========================================================================
 # Main program
