@@ -15,10 +15,11 @@ The **jes4py** implements a subset of JES features that can be used in Python 3.
 
 ## Installation of Dependencies
 
-Several dependencies need to be installed before you can use jes4py:
+By pip installing jes4py the following dependancies are automatically installed:
 * PIL (the Python Image Library) or Pillow (an updated fork of PIL)
 * wxPython (GUI toolkit for the Python language)
 * Simpleaudio (Audio toolkit for Python 3)
+* wave (audio file toolkit for python3)
 
 Instructions to do this are OS-dependent:
 
