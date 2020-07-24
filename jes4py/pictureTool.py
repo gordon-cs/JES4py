@@ -31,8 +31,6 @@ Summer 2020 JES4py Team: Dr. Jonathan Senning
                          Nick Noormand
                          Gahngnin Kim
 
-Author: Gahngnin Kim (Last modified: 2020-07-24)
-
 """
 
 import os
