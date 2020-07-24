@@ -1,0 +1,9 @@
+#
+####### JES4py-requirements.txt #######
+#
+###### Requirements without Version Specifiers ######
+wxPython
+wave
+simpleaudio
+Pillow
+#
