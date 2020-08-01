@@ -15,6 +15,7 @@ class Picture:
     extension = ".jpg"
     _PictureIndexOffset = 0
     tmpfilename = None
+    process = None
     subprocessList = []
 
     def __init__(self, *args, **kwargs):
@@ -807,6 +808,7 @@ class Picture:
             atexit.register(self._stopAllSubprocesses)
 
         # Record the process and return
+
         self.subprocessList.append(proc)
         return proc
 
@@ -820,31 +822,48 @@ class Picture:
                 proc.stdin.close()
                 proc.terminate()
                 proc.wait(timeout=0.2)
-            except BrokenPipeError:
+            except: # BrokenPipeError, OSError:
                 pass
 
     def show(self):
         """Show a picture using stand-alone Python script
         """
-        if not self.tmpfilename is None:
-            self.repaint()
-        else:
+        if self.process is None:
+            # no show process for this picture, start one
             self.tmpfilename = self.__saveInTempFile()
             self.process = self.__runScript('show.py', self.tmpfilename, self.title)
+        elif self.process.poll() is not None:
+            # there was a show process, but it's not running, start a new one
+            if self.tmpfilename is None or not os.path.isfile(self.tmpfilename):
+                # temporary image file does not exist, make one
+                self.tmpfilename = self.__saveInTempFile()
+            self.process = self.__runScript('show.py', self.tmpfilename, self.title)
+        else:
+            # show process already running, repaint the picture
+            # NOTE: this is different than JES.  JES raises the picture
+            # to the top so it is visible.
+            self.repaint()
 
     def repaint(self):
         """Reshow a picture using stand-alone Python script
         """
-        if self.tmpfilename is None:
-            self.show()
-        else:
+        if (self.process is not None) and self.process.poll() is None:
+            # subprocess seems to be running, ask it to update image
             try:
-                self.write(self.tmpfilename)
+                self.write(self.tmpfilename) # update temp image file
                 msg = self.tmpfilename + ' ' + self.title + '\n'
                 self.process.stdin.write(msg.encode('utf8'))
                 self.process.stdin.flush()
-            except BrokenPipeError:
+            except: # BrokenPipeError:
+                # something went wrong, reset and call show
+                self.process = None
+                self.tmpfilename = None
                 self.show()
+        else:
+            # subprocess is not running, start a new one
+            self.process = None
+            self.tmpfilename = None
+            self.show()
 
     def pictureTool(self):
         """Explore a picture using a stand-alone Python script
