@@ -14,7 +14,7 @@ that any changes to the displayed Picture (the image itself or the picture's
 title) are displayed.  Thus, repaint() can be used to produce simple
 animations.
 
-The jes4pi.Picture module defines the Picture class, which has show() and
+The jes4py.Picture module defines the Picture class, which has show() and
 repaint() methods.  The show() method saves the Picture object's image to a
 temporary JPEG file and starts a subprocess to run this program.  It passes
 the name of the temporary file and the Picture object's title to the script
