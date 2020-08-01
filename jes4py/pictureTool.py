@@ -17,11 +17,16 @@ import wx.lib.scrolledpanel
 class Cursor:
     width = 7
     height = 7
+    centerX = 3
+    centerY = 3
+    prevX = 0
+    prevY = 0
 
-    def __init__(self, size=7):
-        self.width = self.height = size
-        xc = int((self.width - 1)/2)
-        yc = int((self.height - 1)/2)
+    def __init__(self, width=7, height=7):
+        self.width = width
+        self.height = height
+        self.centerX = int((self.width - 1)/2)
+        self.centerY = int((self.height - 1)/2)
 
         dc = wx.MemoryDC()
 
@@ -29,15 +34,15 @@ class Cursor:
         self.cursorMask = wx.Bitmap(self.width, self.height, depth=1)
         dc.SelectObject(self.cursorMask)
         dc.SetPen(wx.Pen(wx.Colour(255, 255, 255), width=3))
-        dc.DrawLine(0, yc, self.width-1, yc)
-        dc.DrawLine(xc, 0, xc, self.height-1)
+        dc.DrawLine(0, self.centerY, self.width-1, self.centerY)
+        dc.DrawLine(self.centerX, 0, self.centerX, self.height-1)
 
         # Draw the cursor
         self.cursorBitmap = wx.Bitmap(self.width, self.height)
         dc.SelectObject(self.cursorBitmap)
         dc.SetPen(wx.Pen(wx.Colour(255, 255, 0)))
-        dc.DrawLine(0, yc, self.width-1, yc)
-        dc.DrawLine(xc, 0, xc, self.height-1)
+        dc.DrawLine(0, self.centerY, self.width-1, self.centerY)
+        dc.DrawLine(self.centerX, 0, self.centerX, self.height-1)
         self.cursorBitmap.SetMask(wx.Mask(self.cursorMask))
 
         # done with dc
@@ -48,12 +53,22 @@ class Cursor:
 
     def getCursorWidth(self):
         return self.width
-    
+
     def getCursorHeight(self):
         return self.height
     
     def getCursorSize(self):
         return (self.width, self.height)
+
+    def setWindow(self, x0, y0, x1, y1):
+        self.x0, self.y0 = x0, y0
+        self.x1, self.y1 = x1, y1
+
+    def draw(self, x, y):
+        x0 = max(0, self.x0 + self.centerX - x)
+        y0 = max(0, self.y0 + self.centerY - y)
+        #WORKING HERE
+        x1 = min(self.width - 1, self.width - 1 + x - (self.x1 - self.centerX))
 
 class MainWindow(wx.Frame):
 
@@ -64,6 +79,7 @@ class MainWindow(wx.Frame):
     zoomLevels = [25, 50, 75, 100, 150, 200, 500]
     zoomLevel = float(zoomLevels[3]) / 100.0
     cursorBitmap = None
+    crosshair = None
     x = 0
     y = 0
 
@@ -74,6 +90,7 @@ class MainWindow(wx.Frame):
 
         super(MainWindow, self).__init__(parent=parent, title=title, style=wx.DEFAULT_FRAME_STYLE)
 
+        #self.crosshair = Cursor(7, 7)
         self.InitUI()
         self.Center()
         self.clipOnBoundary()
@@ -188,9 +205,9 @@ class MainWindow(wx.Frame):
 
         # Textboxes to display X and Y coordinates on click
         self.pixelTxtX = wx.TextCtrl(self.colorInfoPanel, wx.ALIGN_CENTER, \
-            style=wx.TE_PROCESS_ENTER, size=(50,-1))
+            style=wx.TE_PROCESS_ENTER, size=(50, -1))
         self.pixelTxtY = wx.TextCtrl(self.colorInfoPanel, wx.ALIGN_CENTER, \
-            style=wx.TE_PROCESS_ENTER, size=(50,-1))
+            style=wx.TE_PROCESS_ENTER, size=(50, -1))
         self.pixelTxtX.Bind(wx.EVT_TEXT_ENTER, self.ImageCtrl_OnEnter)
         self.pixelTxtY.Bind(wx.EVT_TEXT_ENTER, self.ImageCtrl_OnEnter)
 
@@ -298,20 +315,15 @@ class MainWindow(wx.Frame):
         self.pixelTxtX, self.pixelTxtY : wx.TextCtrl
             the textboxes displaying the pixel coordinates
         """
-        imageSize = self.image.GetSize()
-        #print('image size: ', imageSize)
+        width, height = self.image.GetSize()
         if self.x < 0:
             self.x = 0
-            #self.y = 0
-        elif self.x >= imageSize[0]:
-            self.x = imageSize[0] - 1
-            #self.y = imageSize[1] - 1
+        elif self.x >= width:
+            self.x = width - 1
         if self.y < 0:
-            #self.x = 0
             self.y = 0
-        elif self.y >= imageSize[1]:
-            self.y = imageSize[1] - 1
-            #self.x = imageSize[0] - 1
+        elif self.y >= height:
+            self.y = height - 1
         self.pixelTxtX.SetValue(str(self.x))
         self.pixelTxtY.SetValue(str(self.y))
         self.updateColorInfo()
@@ -344,9 +356,9 @@ class MainWindow(wx.Frame):
     def updateView(self):
         """Scale image according to the zoom factor and (re)display it
         """
-        imageSize = self.image.GetSize()
-        w = int(imageSize[0] * self.zoomLevel)
-        h = int(imageSize[1] * self.zoomLevel)
+        width, height = self.image.GetSize()
+        w = int(width * self.zoomLevel)
+        h = int(height * self.zoomLevel)
         image = self.image.Scale(w, h)
         self.bmp = wx.Bitmap(image, wx.BITMAP_TYPE_ANY)
         self.imageCtrl.SetBitmap(self.bmp)
@@ -358,28 +370,28 @@ class MainWindow(wx.Frame):
 
         #self.drawBitmap()
 
-    def makeCursor(self):
-        """Create the bitmap (w/mask) for the crosshair cursor
-        """
-        dc = wx.MemoryDC()
+    # def makeCursor(self):
+    #     """Create the bitmap (w/mask) for the crosshair cursor
+    #     """
+    #     dc = wx.MemoryDC()
 
-        # Draw the mask
-        self.cursorMask = wx.Bitmap(7, 7, depth=1)
-        dc.SelectObject(self.cursorMask, )
-        dc.SetPen(wx.Pen(wx.Colour(255, 255, 255), width=3))
-        dc.DrawLine(0, 3, 6, 3)
-        dc.DrawLine(3, 0, 3, 6)
+    #     # Draw the mask
+    #     self.cursorMask = wx.Bitmap(7, 7, depth=1)
+    #     dc.SelectObject(self.cursorMask, )
+    #     dc.SetPen(wx.Pen(wx.Colour(255, 255, 255), width=3))
+    #     dc.DrawLine(0, 3, 6, 3)
+    #     dc.DrawLine(3, 0, 3, 6)
 
-        # Draw the cursor
-        self.cursorBitmap = wx.Bitmap(7, 7)
-        dc.SelectObject(self.cursorBitmap)
-        dc.SetPen(wx.Pen(wx.Colour(255, 255, 0)))
-        dc.DrawLine(0, 3, 6, 3)
-        dc.DrawLine(3, 0, 3, 6)
-        self.cursorBitmap.SetMask(wx.Mask(self.cursorMask))
+    #     # Draw the cursor
+    #     self.cursorBitmap = wx.Bitmap(7, 7)
+    #     dc.SelectObject(self.cursorBitmap)
+    #     dc.SetPen(wx.Pen(wx.Colour(255, 255, 0)))
+    #     dc.DrawLine(0, 3, 6, 3)
+    #     dc.DrawLine(3, 0, 3, 6)
+    #     self.cursorBitmap.SetMask(wx.Mask(self.cursorMask))
 
-        # done with dc
-        del dc
+    #     # done with dc
+    #     del dc
 
     def computeCursorPosition(self):
         # Get cursor coordinates
@@ -425,6 +437,7 @@ class MainWindow(wx.Frame):
 
         # Save bitmap from new cursor location
         cursorSize = self.cursorBitmap.GetSize()
+        print(f"Cursor size: {cursorSize}")
         self.savedBmpPos = x-int((cursorSize[0]-1)/2), y-int((cursorSize[1]-1)/2)
         self.savedBmpPos2 = x2-int((cursorSize[0]-1)/2), y2-int((cursorSize[1]-1)/2)
         cursorRect = wx.Rect(self.savedBmpPos2, cursorSize)
@@ -441,8 +454,9 @@ class MainWindow(wx.Frame):
         # pass
         # """Draw image with crosshairs to indicate selected position
         # """
-        if self.cursorBitmap is None:
-            self.makeCursor()
+        if self.crosshair is None:
+            self.crosshair = Cursor()
+        self.cursorBitmap = self.crosshair.getCursorBitmap()
 
         # Restore bitmap (if any) saved previous cursor event
         self.undrawCursor()
