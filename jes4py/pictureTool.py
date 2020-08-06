@@ -68,7 +68,9 @@ class Cursor:
         dc.SetPen(wx.Pen(wx.Colour(255, 255, 0)))
         dc.DrawLine(0, self.centerY, self.width-1, self.centerY)
         dc.DrawLine(self.centerX, 0, self.centerX, self.height-1)
-        self.cursorBitmap.SetMask(wx.Mask(self.cursorMask))
+        if wx.Platform != "__WXMAC__":
+            # CLEAN THIS UP - Macs can't really use bitmap cursors at all
+            self.cursorBitmap.SetMask(wx.Mask(self.cursorMask))
 
         # done with dc
         del dc
@@ -118,7 +120,6 @@ class MainWindow(wx.Frame):
 
         super(MainWindow, self).__init__(parent=parent, title=title, style=wx.DEFAULT_FRAME_STYLE)
 
-        #self.crosshair = Cursor(7, 7)
         self.InitUI()
         self.Center()
         self.clipOnBoundary()
@@ -399,27 +400,53 @@ class MainWindow(wx.Frame):
         """Restore bitmap (if any) saved previous cursor event
         """
         if self.savedBmp is not None:
-            dc = wx.ClientDC(self.imageCtrl)
+            dc = wx.ClientDC(self.imagePanel)
             self.imagePanel.DoPrepareDC(dc)
             dc.DrawBitmap(self.savedBmp, self.savedBmpPos, False)
             del dc
 
     def drawCursor(self):
-        x, y = self.cursorPosition
-
-        dc = wx.ClientDC(self.imageCtrl)
-        self.imagePanel.DoPrepareDC(dc)
+        # Get coordinates of current cursor location
+        x = int(int(self.pixelTxtX.GetValue())*self.zoomLevel)
+        y = int(int(self.pixelTxtY.GetValue())*self.zoomLevel)
+        #x, y = self.cursorPosition
+        #xn = int(self.pixelTxtX.GetValue())
+        #yn = int(self.pixelTxtY.GetValue())
+        #print(f"({x},{y}), ({xn*self.zoomLevel},{yn*self.zoomLevel})")
 
         # Save bitmap from new cursor location
-        cursorSize = self.cursorBitmap.GetSize()
+        cursorSize = self.cursorBitmap.GetSize() #nobitmap
+        #nobitmap cursorSize = (15,15) #(7, 7)
+        width, height = self.image.GetSize()
+        W, H = int(width * self.zoomLevel), int(height * self.zoomLevel)
         w, h = cursorSize
-        self.savedBmpPos = x-int((w-1)/2), y-int((h-1)/2)
-        cursorRect = wx.Rect(self.savedBmpPos, cursorSize)
+        dx, dy = int((w-1)/2), int((h-1)/2)
+        self.savedBmpPos = x-dx, y-dy
+        x0 = max(0, x-dx)
+        y0 = max(0, y-dy)
+        w0 = dx + min(dx+1, W-x)
+        h0 = dy + min(dy+1, H-y)
+
+        cursorRect = wx.Rect(x0, y0, w0, h0)
+        #cursorRect = wx.Rect(self.savedBmpPos, cursorSize)
         self.savedBmp = self.bmp.GetSubBitmap(cursorRect)
         # print(f"Cursor size: {cursorSize}, Cursor Rect: {cursorRect}")
 
         # Draw the cursor bitmap
-        dc.DrawBitmap(self.cursorBitmap, self.savedBmpPos, True)
+        dc = wx.ClientDC(self.imagePanel)
+        self.imagePanel.DoPrepareDC(dc)
+        dc.SetClippingRegion(0, 0, W, H)
+        if wx.Platform == "__WXMAC__": #nobitmap
+        #nobitmap if True:
+            dx, dy = int((w-1)/2)-1, int((h-1)/2)-1
+            dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), width=3))
+            dc.DrawLine(x-dx, y, x+dx, y)
+            dc.DrawLine(x, y-dy, x, y+dy)
+            dc.SetPen(wx.Pen(wx.Colour(255, 255, 0), width=1))
+            dc.DrawLine(x-dx, y, x+dx, y)
+            dc.DrawLine(x, y-dy, x, y+dy)
+        else: #nobitmap
+            dc.DrawBitmap(self.cursorBitmap, self.savedBmpPos, True) #nobitmap
         del dc
 
     def drawCrosshairs(self):
@@ -428,15 +455,12 @@ class MainWindow(wx.Frame):
         # pass
         # """Draw image with crosshairs to indicate selected position
         # """
-        if self.crosshair is None:
-            self.crosshair = Cursor()
-        self.cursorBitmap = self.crosshair.getCursorBitmap()
+        if self.crosshair is None: #nobitmap
+            self.crosshair = Cursor() #nobitmap
+        self.cursorBitmap = self.crosshair.getCursorBitmap() #nobitmap
 
-        # Restore bitmap (if any) saved previous cursor event
+        # Restore bitmap (if any) saved from previous cursor event
         self.undrawCursor()
-
-        # Get cursor coordinates
-        #self.computeCursorPosition()
 
         # draw the cursor bitmap
         self.drawCursor()
@@ -495,15 +519,15 @@ class MainWindow(wx.Frame):
         if event.LeftIsDown():
             event.Skip()
             if wx.Platform == "__WXMSW__":
-                self.cursorPosition = event.GetPosition()
+                cursorPosition = event.GetPosition()
             elif wx.Platform == "__WXGTK__" or wx.Platform == "__WXMAC__":
                 dc = wx.ClientDC(self)
                 self.imagePanel.DoPrepareDC(dc)
-                self.cursorPosition = event.GetLogicalPosition(dc)
+                cursorPosition = event.GetLogicalPosition(dc)
                 del dc
-                           
-            self.x = int(self.cursorPosition.x / self.zoomLevel)
-            self.y = int(self.cursorPosition.y / self.zoomLevel)
+
+            self.x = int(cursorPosition.x / self.zoomLevel)
+            self.y = int(cursorPosition.y / self.zoomLevel)
             # print(f"\x1b[1mcursorPosition = {self.cursorPosition}\x1b[0m")
 
             self.clipOnBoundary()
