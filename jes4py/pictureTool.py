@@ -40,14 +40,14 @@ import wx.lib.scrolledpanel
 # import wx.lib.inspection
 
 class Cursor:
-    width = 15#7
-    height = 15#7
+    width = 7
+    height = 7
     centerX = int((width - 1)/2)
     centerY = int((height - 1)/2)
     prevX = 0
     prevY = 0
 
-    def __init__(self, width=15, height=15):
+    def __init__(self, width=7, height=7):
         self.width = width
         self.height = height
         self.centerX = int((self.width - 1)/2)
@@ -394,25 +394,6 @@ class MainWindow(wx.Frame):
         # Redraw crosshair cursor (if any)
         if self.savedBmp is not None:
             self.savedBmp = None
-            #self.computeCursorPosition()
-
-        #self.drawBitmap()
-
-    # def computeCursorPosition(self):
-    #     # Get cursor coordinates
-    #     dc = wx.ClientDC(self.imageCtrl)
-    #     self.imagePanel.DoPrepareDC(dc)
-    #     sx, sy = dc.GetDeviceOrigin()
-    #     sx = int(sx / self.zoomLevel)
-    #     sy = int(sy / self.zoomLevel)
-    #     #origin = dc.GetDeviceOrigin()
-    #     #sx, sy = self.imagePanel.CalcUnscrolledPosition(origin)
-    #     #sx, sy = self.imagePanel.CalcScrolledPosition(origin)
-    #     del dc
-    #     x = int(self.x * self.zoomLevel)
-    #     y = int(self.y * self.zoomLevel)
-    #     self.cursorPos = x + sx, y + sy
-    #     print(f"\x1B[31m({self.x},{self.y})\x1B[0m; \x1b[32m{self.cursorPos}\x1b[0m; \x1b[34m({sx},{sy})\x1b[0m")
 
     def undrawCursor(self):
         """Restore bitmap (if any) saved previous cursor event
@@ -519,16 +500,11 @@ class MainWindow(wx.Frame):
                 dc = wx.ClientDC(self)
                 self.imagePanel.DoPrepareDC(dc)
                 self.cursorPosition = event.GetLogicalPosition(dc)
-                # sx, sy = dc.GetDeviceOrigin()
-                # print(f"sx={sx}, sy={sy}")
-                # self.cursorPosition = event.GetPosition()
-                # self.cursorPosition.x -= sx
-                # self.cursorPosition.y -= sy
                 del dc
                            
             self.x = int(self.cursorPosition.x / self.zoomLevel)
             self.y = int(self.cursorPosition.y / self.zoomLevel)
-            print(f"\x1b[1mcursorPosition = {self.cursorPosition}\x1b[0m")
+            # print(f"\x1b[1mcursorPosition = {self.cursorPosition}\x1b[0m")
 
             self.clipOnBoundary()
             self.drawCrosshairs()
