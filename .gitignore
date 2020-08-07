@@ -1,6 +1,10 @@
+*.pyc
 __pycache__/
 JES-projects-for-testing*
-Sandbox/
 jes-6.0-linux*
+Sandbox/
 mediasources-4ed/
-*.pyc
+build/
+dist/
+jes4py*.egg-info/
+
