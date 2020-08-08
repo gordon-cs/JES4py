@@ -78,27 +78,27 @@ class Cursor:
     def getCursorBitmap(self):
         return self.cursorBitmap
 
-    def getCursorWidth(self):
-        return self.width
+    # def getCursorWidth(self):
+    #     return self.width
 
-    def getCursorHeight(self):
-        return self.height
+    # def getCursorHeight(self):
+    #     return self.height
     
-    def getCursorSize(self):
-        return (self.width, self.height)
+    # def getCursorSize(self):
+    #     return (self.width, self.height)
     
-    def getCursorCenter(self):
-        return(self.centerX, self.centerY)
+    # def getCursorCenter(self):
+    #     return(self.centerX, self.centerY)
 
-    def setWindow(self, x0, y0, x1, y1):
-        self.x0, self.y0 = x0, y0
-        self.x1, self.y1 = x1, y1
+    # def setWindow(self, x0, y0, x1, y1):
+    #     self.x0, self.y0 = x0, y0
+    #     self.x1, self.y1 = x1, y1
 
-    def draw(self, x, y):
-        x0 = max(0, self.x0 + self.centerX - x)
-        y0 = max(0, self.y0 + self.centerY - y)
-        #WORKING HERE
-        x1 = min(self.width - 1, self.width - 1 + x - (self.x1 - self.centerX))
+    # def draw(self, x, y):
+    #     x0 = max(0, self.x0 + self.centerX - x)
+    #     y0 = max(0, self.y0 + self.centerY - y)
+    #     #WORKING HERE
+    #     x1 = min(self.width - 1, self.width - 1 + x - (self.x1 - self.centerX))
 
 class MainWindow(wx.Frame):
 
@@ -155,12 +155,8 @@ class MainWindow(wx.Frame):
         self.mainSizer.Add(self.imagePanel, 0, wx.EXPAND|wx.ALL, 0)
 
         self.SetSizer(self.mainSizer)
-        # self.SetSize((w, h))
         self.Fit()
-        #self.imagePanel.SetupScrolling(scrollToTop=True)
 
-        # w, h = self.image.GetSize()
-        # h = h + self.ColorPanelHeight
         self.SetSize((w, h))
         self.SetClientSize((w,h))
 
@@ -278,9 +274,6 @@ class MainWindow(wx.Frame):
         mainSizer.Add((-1, 5))
 
         self.colorInfoPanel.SetSizer(mainSizer)
-        #mainSizer.Fit(panel)
-        #panel.Layout()
-        #self.Show()
 
     def setupImageDisplay(self):
         """Set up image display panel
@@ -299,20 +292,15 @@ class MainWindow(wx.Frame):
         if wx.Platform == "__WXMSW__" or wx.Platform == "__WXGTK__":
             self.imageCtrl.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
             self.imageCtrl.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick)
-            #self.imageCtrl.Bind(wx.EVT_LEFT_UP, self.OnPaint)
         elif wx.Platform == "__WXMAC__":
             self.imagePanel.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
             self.imagePanel.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick) 
-            #self.imagePanel.Bind(wx.EVT_LEFT_UP, self.OnPaint)
-        #panel.SetFocus()
-        #panel.Bind(wx.EVT_LEFT_DOWN, self.onFocus)
 
         mainSizer = wx.BoxSizer(wx.VERTICAL)
         mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_LEFT|wx.ALIGN_TOP|wx.ALL, 0)
         self.imagePanel.SetSizer(mainSizer)
         self.mainSizer.Fit(self.imagePanel)
         self.imagePanel.SetupScrolling(scrollToTop=True)
-        #return panel
 
     def clipOnBoundary(self):
         """Clips x and y to be valid pixel coordinates
@@ -383,11 +371,11 @@ class MainWindow(wx.Frame):
         """Restore bitmap (if any) saved previous cursor event
         """
         if self.savedBmp is not None:
-            if wx.Platform != "__WXMSW__":
+            if wx.Platform == "__WXMSW__":
+                dc = wx.ClientDC(self.imageCtrl)
+            else:
                 dc = wx.ClientDC(self.imagePanel)
                 self.imagePanel.DoPrepareDC(dc)
-            else:
-                dc = wx.ClientDC(self.imageCtrl)
             dc.DrawBitmap(self.savedBmp, self.savedBmpPos, False)
             del dc
             
@@ -397,8 +385,7 @@ class MainWindow(wx.Frame):
         y = int(int(self.pixelTxtY.GetValue())*self.zoomLevel)
 
         # Save bitmap from new cursor location
-        cursorSize = self.cursorBitmap.GetSize() #nobitmap
-        #nobitmap cursorSize = (15,15) #(7, 7)
+        cursorSize = self.cursorBitmap.GetSize()
         width, height = self.image.GetSize()
         W, H = int(width * self.zoomLevel), int(height * self.zoomLevel)
         w, h = cursorSize
@@ -410,16 +397,15 @@ class MainWindow(wx.Frame):
         h0 = dy + min(dy+1, H-y)
 
         cursorRect = wx.Rect(x0, y0, w0, h0)
-        #cursorRect = wx.Rect(self.savedBmpPos, cursorSize)
         self.savedBmp = self.bmp.GetSubBitmap(cursorRect)
         # print(f"Cursor size: {cursorSize}, Cursor Rect: {cursorRect}")
 
         # Draw the cursor bitmap
-        if wx.Platform != "__WXMSW__":
+        if wx.Platform == "__WXMSW__":
+            dc = wx.ClientDC(self.imageCtrl)
+        else:
             dc = wx.ClientDC(self.imagePanel)
             self.imagePanel.DoPrepareDC(dc)
-        else:
-            dc = wx.ClientDC(self.imageCtrl)
         dc.SetClippingRegion(0, 0, W, H)
         if wx.Platform == "__WXMAC__":
             dx, dy = int((w-1)/2)-1, int((h-1)/2)-1
@@ -434,11 +420,8 @@ class MainWindow(wx.Frame):
         del dc
 
     def drawCrosshairs(self):
-        """This feature works fine with Linux but not with Windows
-        """
-        # pass
-        # """Draw image with crosshairs to indicate selected position
-        # """       
+        """Draw image with crosshairs to indicate selected position
+        """       
         if self.crosshair is None:
             self.crosshair = Cursor()
         self.cursorBitmap = self.crosshair.getCursorBitmap()
