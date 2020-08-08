@@ -5,6 +5,8 @@ pictureTool.py - script program to implement the "explore" functionality
                  in JES for the JES4py package
 
 Written: 2020-07-24 Gahngnin Kim <gahngnin.kim@gordon.edu>
+Modified: 2020-08-08 Jonathan Senning <jonathan.senning@gordon.edu>
+- Completed work for crosshair cursor to work on Mac, Windows, and Linux (GTK)
 
 The "explore()" function in JES will open a new window and display the image
 imported from the given file path. The window provides an interactive picture
@@ -20,9 +22,6 @@ display resolution even if the image is larger. The image panel will set
 scrollbars when a high-resolution image is imported will set the scrollbar to
 fit the image in the window. The program can also work standalone.
 
-The crosshair feature is currently disabled due to incomplete implementation.
-To continue the implementation, check the "s20-crosshair-scrolledpanel" branch.
-
 This program was first developed during the Gordon College Computer Science
 Summer 2020 Practicum as a part of the JES4py project, under the guidance of
 Dr. Jonathan Senning.
@@ -32,73 +31,11 @@ Summer 2020 JES4py Team: Dr. Jonathan Senning
                          Gahngnin Kim
 
 """
-
 import os
 import sys
 import wx
 import wx.lib.scrolledpanel
 # import wx.lib.inspection
-
-class Cursor:
-    width = 7
-    height = 7
-    centerX = int((width - 1)/2)
-    centerY = int((height - 1)/2)
-    prevX = 0
-    prevY = 0
-
-    def __init__(self, width=7, height=7):
-        self.width = width
-        self.height = height
-        self.centerX = int((self.width - 1)/2)
-        self.centerY = int((self.height - 1)/2)
-
-        dc = wx.MemoryDC()
-
-        # Draw the mask
-        self.cursorMask = wx.Bitmap(self.width, self.height, depth=1)
-        dc.SelectObject(self.cursorMask)
-        dc.SetPen(wx.Pen(wx.Colour(255, 255, 255), width=3))
-        dc.DrawLine(0, self.centerY, self.width-1, self.centerY)
-        dc.DrawLine(self.centerX, 0, self.centerX, self.height-1)
-
-        # Draw the cursor
-        self.cursorBitmap = wx.Bitmap(self.width, self.height)
-        dc.SelectObject(self.cursorBitmap)
-        dc.SetPen(wx.Pen(wx.Colour(255, 255, 0)))
-        dc.DrawLine(0, self.centerY, self.width-1, self.centerY)
-        dc.DrawLine(self.centerX, 0, self.centerX, self.height-1)
-        if wx.Platform != "__WXMAC__":
-            # CLEAN THIS UP - Macs can't really use bitmap cursors at all
-            self.cursorBitmap.SetMask(wx.Mask(self.cursorMask))
-
-        # done with dc
-        del dc
-
-    def getCursorBitmap(self):
-        return self.cursorBitmap
-
-    # def getCursorWidth(self):
-    #     return self.width
-
-    # def getCursorHeight(self):
-    #     return self.height
-    
-    # def getCursorSize(self):
-    #     return (self.width, self.height)
-    
-    # def getCursorCenter(self):
-    #     return(self.centerX, self.centerY)
-
-    # def setWindow(self, x0, y0, x1, y1):
-    #     self.x0, self.y0 = x0, y0
-    #     self.x1, self.y1 = x1, y1
-
-    # def draw(self, x, y):
-    #     x0 = max(0, self.x0 + self.centerX - x)
-    #     y0 = max(0, self.y0 + self.centerY - y)
-    #     #WORKING HERE
-    #     x1 = min(self.width - 1, self.width - 1 + x - (self.x1 - self.centerX))
 
 class MainWindow(wx.Frame):
 
@@ -107,9 +44,9 @@ class MainWindow(wx.Frame):
     ColorPanelHeight = 70
     PaintChipSize = 24
     zoomLevels = [25, 50, 75, 100, 150, 200, 500]
-    zoomLevel = float(zoomLevels[3]) / 100.0
+    zoomFactor = float(zoomLevels[3]) / 100.0
+    cursorSize = (7, 7)
     cursorBitmap = None
-    crosshair = None
     x = 0
     y = 0
 
@@ -117,7 +54,6 @@ class MainWindow(wx.Frame):
         # Load image and get image size
         self.image = wx.Image(filename, wx.BITMAP_TYPE_ANY)
         self.bmp = wx.Bitmap(self.image)
-
         super(MainWindow, self).__init__(parent=parent, title=title, style=wx.DEFAULT_FRAME_STYLE)
 
         self.InitUI()
@@ -130,13 +66,9 @@ class MainWindow(wx.Frame):
         wView, hView = int(wScr * 0.95), int(hScr * 0.85)
         w, h = self.image.GetSize()
 
-        # Debugging purpose (for the crosshair function)
-        self.points = []
-        self.savedBmpPos = None
-        self.savedBmp = None
+        self.savedCursorPosition = None
+        self.cursorBackupBitmap = None
 
-        # w = min(max(self.MinWindowWidth, w), wView)
-        # h = min(max(self.MinWindowHeight, h + self.ColorPanelHeight), hView)
         w = min(max(self.MinWindowWidth, w), wView)
         h = min(max(self.MinWindowHeight, h + self.ColorPanelHeight), hView)
 
@@ -356,51 +288,54 @@ class MainWindow(wx.Frame):
     def updateView(self):
         """Scale image according to the zoom factor and (re)display it
         """
-        width, height = self.image.GetSize()
-        w = int(width * self.zoomLevel)
-        h = int(height * self.zoomLevel)
+        w, h = self.image.GetSize()
+        w, h = int(w * self.zoomFactor), int(h * self.zoomFactor)
         image = self.image.Scale(w, h)
         self.bmp = wx.Bitmap(image)
         self.imageCtrl.SetBitmap(self.bmp)
 
-        # Redraw crosshair cursor (if any)
-        if self.savedBmp is not None:
-            self.savedBmp = None
+        # event = wx.PyCommandEvent(wx.EVT_TEXT_ENTER.typeId, self.GetId())
+        # wx.PostEvent(self.GetEventHandler(), event)
+            
+        # Forget any saved bitmap buffer
+        if self.cursorBackupBitmap is not None:
+            self.cursorBackupBitmap = None
 
     def undrawCursor(self):
         """Restore bitmap (if any) saved previous cursor event
         """
-        if self.savedBmp is not None:
+        if self.cursorBackupBitmap is not None:
             if wx.Platform == "__WXMSW__":
                 dc = wx.ClientDC(self.imageCtrl)
             else:
                 dc = wx.ClientDC(self.imagePanel)
                 self.imagePanel.DoPrepareDC(dc)
-            dc.DrawBitmap(self.savedBmp, self.savedBmpPos, False)
+            dc.DrawBitmap(self.cursorBackupBitmap, self.savedCursorPosition, False)
             del dc
             
     def drawCursor(self):
        # Get coordinates of current cursor location
-        x = int(int(self.pixelTxtX.GetValue())*self.zoomLevel)
-        y = int(int(self.pixelTxtY.GetValue())*self.zoomLevel)
+        x = int(int(self.pixelTxtX.GetValue()) * self.zoomFactor)
+        y = int(int(self.pixelTxtY.GetValue()) * self.zoomFactor)
 
-        # Save bitmap from new cursor location
-        cursorSize = self.cursorBitmap.GetSize()
-        width, height = self.image.GetSize()
-        W, H = int(width * self.zoomLevel), int(height * self.zoomLevel)
-        w, h = cursorSize
+        # Get scaled image size
+        W, H = self.image.GetSize()
+        W, H = int(W * self.zoomFactor), int(H * self.zoomFactor)
+
+        # Compute size and position of cursor and save corresponding portion
+        # of the image 
+        w, h = self.cursorSize
         dx, dy = int((w-1)/2), int((h-1)/2)
-        self.savedBmpPos = x-dx, y-dy
         x0 = max(0, x-dx)
         y0 = max(0, y-dy)
         w0 = dx + min(dx+1, W-x)
         h0 = dy + min(dy+1, H-y)
-
         cursorRect = wx.Rect(x0, y0, w0, h0)
-        self.savedBmp = self.bmp.GetSubBitmap(cursorRect)
-        # print(f"Cursor size: {cursorSize}, Cursor Rect: {cursorRect}")
+        cursorPosition = x-dx, y-dy
+        self.savedCursorPosition = x0, y0
+        self.cursorBackupBitmap = self.bmp.GetSubBitmap(cursorRect)
 
-        # Draw the cursor bitmap
+        # Draw the cursor - use bitmap on Windows and GTK, DC Draw on Mac
         if wx.Platform == "__WXMSW__":
             dc = wx.ClientDC(self.imageCtrl)
         else:
@@ -416,15 +351,37 @@ class MainWindow(wx.Frame):
             dc.DrawLine(x-dx, y, x+dx, y)
             dc.DrawLine(x, y-dy, x, y+dy)
         else:
-            dc.DrawBitmap(self.cursorBitmap, self.savedBmpPos, True)
+            dc.DrawBitmap(self.cursorBitmap, cursorPosition, True)
         del dc
-
+        
     def drawCrosshairs(self):
         """Draw image with crosshairs to indicate selected position
-        """       
-        if self.crosshair is None:
-            self.crosshair = Cursor()
-        self.cursorBitmap = self.crosshair.getCursorBitmap()
+        """
+        # Create a bitmap for the cursor if we're not on Mac and it hasen't
+        # already been done
+        if wx.Platform != "__WXMAC__" and self.cursorBitmap is None:
+            dc = wx.MemoryDC()
+
+            w, h = self.cursorSize
+            x, y = int((w-1)/2), int((h-1)/2)
+
+            # Draw the cursor
+            self.cursorBitmap = wx.Bitmap(w, h)
+            dc.SelectObject(self.cursorBitmap)
+            dc.SetPen(wx.Pen(wx.Colour(255, 255, 0)))
+            dc.DrawLine(0, y, w-1, y)
+            dc.DrawLine(x, 0, x, h-1)
+
+            # Draw the mask
+            cursorMask = wx.Bitmap(w, h, depth=1)
+            dc.SelectObject(cursorMask)
+            dc.SetPen(wx.Pen(wx.Colour(255, 255, 255), width=3))
+            dc.DrawLine(0, y, w-1, y)
+            dc.DrawLine(x, 0, x, h-1)
+            self.cursorBitmap.SetMask(wx.Mask(cursorMask))
+
+            # Done with dc
+            del dc
 
         # Restore bitmap (if any) saved from previous cursor event
         self.undrawCursor()
@@ -441,17 +398,14 @@ class MainWindow(wx.Frame):
 
     def onZoom(self, event):
         """Sets desired zoom level and updates image display
-
-        (Zoom event handler)
         """
         id_selected = event.GetId() # Gets the event id of the selected menu item
         obj = event.GetEventObject() # Gets the event object
         menuItem = obj.GetLabelText(id_selected) # Gets the label text of the menu item
-        self.zoomLevel = float(menuItem.replace('%','')) / 100.0
+        self.zoomFactor = float(menuItem.replace('%','')) / 100.0
 
         # Reset position of panel
-        self.x = self.y = 0
-        self.imagePanel.Scroll(self.x, self.y) # "non-scrolled" position
+        self.imagePanel.Scroll(0, 0) # "non-scrolled" position
 
         self.PostSizeEvent()
         self.clipOnBoundary()
@@ -493,8 +447,8 @@ class MainWindow(wx.Frame):
                 cursorPosition = event.GetLogicalPosition(dc)
                 del dc
 
-            self.x = int(cursorPosition.x / self.zoomLevel)
-            self.y = int(cursorPosition.y / self.zoomLevel)
+            self.x = int(cursorPosition.x / self.zoomFactor)
+            self.y = int(cursorPosition.y / self.zoomFactor)
             # print(f"\x1b[1mcursorPosition = {self.cursorPosition}\x1b[0m")
 
             self.clipOnBoundary()
