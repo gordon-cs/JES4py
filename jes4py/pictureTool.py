@@ -173,23 +173,6 @@ class MainWindow(wx.Frame):
             zoomID = zoomMenu.Append(wx.ID_ANY, item, helpString)
             self.Bind(wx.EVT_MENU, self.onZoom, zoomID)
 
-        # menuZoom25 = zoomMenu.Append(wx.ID_ANY, "25%","Zoom by 25%")
-        # menuZoom50 = zoomMenu.Append(wx.ID_ANY, "50%","Zoom by 50%")
-        # menuZoom75 = zoomMenu.Append(wx.ID_ANY, "75%","Zoom by 75%")
-        # menuZoom100 = zoomMenu.Append(wx.ID_ANY, "100%","Zoom by 100%")
-        # menuZoom150 = zoomMenu.Append(wx.ID_ANY, "150%","Zoom by 150%")
-        # menuZoom200 = zoomMenu.Append(wx.ID_ANY, "200%","Zoom by 200%")
-        # menuZoom500 = zoomMenu.Append(wx.ID_ANY, "500%","Zoom by 500%")
-
-        # # Set menu events
-        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom25)
-        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom50)
-        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom75)
-        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom100)
-        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom150)
-        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom200)
-        # self.Bind(wx.EVT_MENU, self.onZoom, menuZoom500)
-        
         # Creating the menubar.
         menuBar = wx.MenuBar()
         menuBar.Append(zoomMenu, "&Zoom") # Adds the "zoomMenu" to the MenuBar
@@ -389,7 +372,7 @@ class MainWindow(wx.Frame):
         w = int(width * self.zoomLevel)
         h = int(height * self.zoomLevel)
         image = self.image.Scale(w, h)
-        self.bmp = wx.Bitmap(image, wx.BITMAP_TYPE_ANY)
+        self.bmp = wx.Bitmap(image)
         self.imageCtrl.SetBitmap(self.bmp)
 
         # Redraw crosshair cursor (if any)
@@ -400,19 +383,18 @@ class MainWindow(wx.Frame):
         """Restore bitmap (if any) saved previous cursor event
         """
         if self.savedBmp is not None:
-            dc = wx.ClientDC(self.imagePanel)
-            self.imagePanel.DoPrepareDC(dc)
+            if wx.Platform != "__WXMSW__":
+                dc = wx.ClientDC(self.imagePanel)
+                self.imagePanel.DoPrepareDC(dc)
+            else:
+                dc = wx.ClientDC(self.imageCtrl)
             dc.DrawBitmap(self.savedBmp, self.savedBmpPos, False)
             del dc
-
+            
     def drawCursor(self):
-        # Get coordinates of current cursor location
+       # Get coordinates of current cursor location
         x = int(int(self.pixelTxtX.GetValue())*self.zoomLevel)
         y = int(int(self.pixelTxtY.GetValue())*self.zoomLevel)
-        #x, y = self.cursorPosition
-        #xn = int(self.pixelTxtX.GetValue())
-        #yn = int(self.pixelTxtY.GetValue())
-        #print(f"({x},{y}), ({xn*self.zoomLevel},{yn*self.zoomLevel})")
 
         # Save bitmap from new cursor location
         cursorSize = self.cursorBitmap.GetSize() #nobitmap
@@ -433,11 +415,13 @@ class MainWindow(wx.Frame):
         # print(f"Cursor size: {cursorSize}, Cursor Rect: {cursorRect}")
 
         # Draw the cursor bitmap
-        dc = wx.ClientDC(self.imagePanel)
-        self.imagePanel.DoPrepareDC(dc)
+        if wx.Platform != "__WXMSW__":
+            dc = wx.ClientDC(self.imagePanel)
+            self.imagePanel.DoPrepareDC(dc)
+        else:
+            dc = wx.ClientDC(self.imageCtrl)
         dc.SetClippingRegion(0, 0, W, H)
-        if wx.Platform == "__WXMAC__": #nobitmap
-        #nobitmap if True:
+        if wx.Platform == "__WXMAC__":
             dx, dy = int((w-1)/2)-1, int((h-1)/2)-1
             dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), width=3))
             dc.DrawLine(x-dx, y, x+dx, y)
@@ -445,8 +429,8 @@ class MainWindow(wx.Frame):
             dc.SetPen(wx.Pen(wx.Colour(255, 255, 0), width=1))
             dc.DrawLine(x-dx, y, x+dx, y)
             dc.DrawLine(x, y-dy, x, y+dy)
-        else: #nobitmap
-            dc.DrawBitmap(self.cursorBitmap, self.savedBmpPos, True) #nobitmap
+        else:
+            dc.DrawBitmap(self.cursorBitmap, self.savedBmpPos, True)
         del dc
 
     def drawCrosshairs(self):
@@ -454,15 +438,15 @@ class MainWindow(wx.Frame):
         """
         # pass
         # """Draw image with crosshairs to indicate selected position
-        # """
-        if self.crosshair is None: #nobitmap
-            self.crosshair = Cursor() #nobitmap
-        self.cursorBitmap = self.crosshair.getCursorBitmap() #nobitmap
+        # """       
+        if self.crosshair is None:
+            self.crosshair = Cursor()
+        self.cursorBitmap = self.crosshair.getCursorBitmap()
 
         # Restore bitmap (if any) saved from previous cursor event
         self.undrawCursor()
 
-        # draw the cursor bitmap
+        # Draw the cursor bitmap
         self.drawCursor()
 
 # ===========================================================================
@@ -484,8 +468,8 @@ class MainWindow(wx.Frame):
 
         # Reset position of panel
         self.x = self.y = 0
-        self.imagePanel.Scroll(self.x, self.y) # "non-scrolled" position      
-        
+        self.imagePanel.Scroll(self.x, self.y) # "non-scrolled" position
+
         self.PostSizeEvent()
         self.clipOnBoundary()
         self.updateView()
