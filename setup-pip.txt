@@ -1,0 +1,5 @@
+The following pages give instructions on distributing via pip:
+
+https://packaging.python.org/tutorials/packaging-projects/
+https://dzone.com/articles/executable-package-pip-install
+
