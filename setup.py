@@ -11,7 +11,7 @@ setuptools.setup(
     description="Python 3.x package providing a subset of JES's media functionality",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/gordon-cs/JES-emulator",
+    url="https://github.com/gordon-cs/JES4py",
     packages=['jes4py'],
     classifiers=[
         "Programming Language :: Python :: 3",
