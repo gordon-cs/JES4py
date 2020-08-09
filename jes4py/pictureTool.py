@@ -31,11 +31,121 @@ Summer 2020 JES4py Team: Dr. Jonathan Senning
                          Gahngnin Kim
 
 """
+
 import os
 import sys
 import wx
 import wx.lib.scrolledpanel
 # import wx.lib.inspection
+
+class Cursor:
+    width  = 7
+    height = 7
+    centerX = int((width - 1)/2)
+    centerY = int((height - 1)/2)
+    cursorBitmap = None
+    savedCursorPosition = None
+    cursorBackupBitmap = None
+
+    def __init__(self, width=7, height=7):
+        self.width = width
+        self.height = height
+        self.centerX = int((self.width - 1)/2)
+        self.centerY = int((self.height - 1)/2)
+
+        if wx.Platform != "__WXMAC__":
+            # WX on some macs does not support monochrome bitmaps which
+            # are necessary for bitmap masks.  Thus we don't need to do
+            # anything here
+            dc = wx.MemoryDC()
+
+            # Create the mask bitmap
+            cursorMask = wx.Bitmap(self.width, self.height, depth=1)
+            dc.SelectObject(cursorMask)
+            dc.SetPen(wx.Pen(wx.Colour(255, 255, 255), width=3))
+            dc.DrawLine(0, self.centerY, self.width-1, self.centerY)
+            dc.DrawLine(self.centerX, 0, self.centerX, self.height-1)
+
+            # Create the cursor bitmap
+            self.cursorBitmap = wx.Bitmap(self.width, self.height)
+            dc.SelectObject(self.cursorBitmap)
+            dc.SetPen(wx.Pen(wx.Colour(255, 255, 0)))
+            dc.DrawLine(0, self.centerY, self.width-1, self.centerY)
+            dc.DrawLine(self.centerX, 0, self.centerX, self.height-1)
+            self.cursorBitmap.SetMask(wx.Mask(cursorMask))
+
+            # done with dc
+            del dc
+
+    def drawCursor(self, canvas, x, y):
+        # Get scaled image size
+        W, H = canvas.image.GetSize()
+        W, H = int(W * canvas.zoomFactor), int(H * canvas.zoomFactor)
+
+        # Compute size and position of cursor and save corresponding portion
+        # of the image 
+        w, h = self.width, self.height
+        dx, dy = self.centerX, self.centerY
+        x0 = max(0, x-dx)
+        y0 = max(0, y-dy)
+        w0 = dx + min(dx+1, W-x)
+        h0 = dy + min(dy+1, H-y)
+        cursorRect = wx.Rect(x0, y0, w0, h0)
+        cursorPosition = x-dx, y-dy
+        self.savedCursorPosition = x0, y0
+        self.cursorBackupBitmap = canvas.bmp.GetSubBitmap(cursorRect)
+        # print(f"Cursor size: {self.cursorSize}, Cursor Rect: {cursorRect}")
+
+        # Draw the cursor - use bitmap on Windows and GTK, DC Draw on Mac
+        if wx.Platform == "__WXMSW__":
+            dc = wx.ClientDC(canvas.imageCtrl)
+        else:
+            dc = wx.ClientDC(canvas.imagePanel)
+            canvas.imagePanel.DoPrepareDC(dc)
+        dc.SetClippingRegion(0, 0, W, H)
+        if self.cursorBitmap is None:
+            # We need to manually draw the cursor
+            dx, dy = self.centerX-1, self.centerY-1
+            dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), width=3))
+            dc.DrawLine(x-dx, y, x+dx, y)
+            dc.DrawLine(x, y-dy, x, y+dy)
+            dc.SetPen(wx.Pen(wx.Colour(255, 255, 0), width=1))
+            dc.DrawLine(x-dx, y, x+dx, y)
+            dc.DrawLine(x, y-dy, x, y+dy)
+        else:
+            # Display cursor bitmap
+            dc.DrawBitmap(self.cursorBitmap, cursorPosition, True)
+        del dc
+
+    def undrawPreviousCursor(self, canvas):
+        """Restore bitmap (if any) saved from previous cursor event
+        """
+        if self.cursorBackupBitmap is not None:
+            if wx.Platform == "__WXMSW__":
+                dc = wx.ClientDC(canvas.imageCtrl)
+            else:
+                dc = wx.ClientDC(canvas.imagePanel)
+                canvas.imagePanel.DoPrepareDC(dc)
+            dc.DrawBitmap(self.cursorBackupBitmap, self.savedCursorPosition, False)
+            del dc
+
+    def drawCrosshairs(self, canvas):
+        """Draw image with crosshairs to indicate selected position
+        """
+        # Get coordinates of current cursor location
+        x = int(int(canvas.pixelTxtX.GetValue()) * canvas.zoomFactor)
+        y = int(int(canvas.pixelTxtY.GetValue()) * canvas.zoomFactor)
+
+        # Restore bitmap (if any) saved from previous cursor event
+        # and draw new cursor
+        self.undrawPreviousCursor(canvas)
+        self.drawCursor(canvas, x, y)
+
+    def clearBackupBitmap(self):
+        """Forget saved bitmap buffer
+        """
+        if self.cursorBackupBitmap is not None:
+            self.cursorBackupBitmap = None
 
 class MainWindow(wx.Frame):
 
@@ -62,33 +172,33 @@ class MainWindow(wx.Frame):
         # wx.lib.inspection.InspectionTool().Show() # Inspection tool for debugging
 
     def InitUI(self):
-        wScr, hScr = wx.DisplaySize()
-        wView, hView = int(wScr * 0.95), int(hScr * 0.85)
+        # Get display size and reduce width and height by small percentage
+        wView, hView = wx.DisplaySize()
+        wView, hView = int(wView * 0.95), int(hView * 0.85)
+
+        # Get image dimensions and adjust window size to hold as much of the image
+        # as possible but stil be within display
         w, h = self.image.GetSize()
-
-        self.savedCursorPosition = None
-        self.cursorBackupBitmap = None
-
         w = min(max(self.MinWindowWidth, w), wView)
         h = min(max(self.MinWindowHeight, h + self.ColorPanelHeight), hView)
 
-        # setup the zoom menu
+        # Setup the zoom menu
         self.setupZoomMenu()
 
-        # create main sizer
+        # Create main sizer
         self.mainSizer = wx.BoxSizer(wx.VERTICAL)
 
-        # setup the color information panel
+        # Setup the color information panel
         self.setupColorInfoDisplay()
         self.mainSizer.Add(self.colorInfoPanel, 0, wx.EXPAND|wx.ALL, 0)
 
-        # set up the image display panel
+        # Set up the image display panel
         self.setupImageDisplay()
         self.mainSizer.Add(self.imagePanel, 0, wx.EXPAND|wx.ALL, 0)
-
         self.SetSizer(self.mainSizer)
         self.Fit()
 
+        # Set window sizes
         self.SetSize((w, h))
         self.SetClientSize((w,h))
 
@@ -101,7 +211,7 @@ class MainWindow(wx.Frame):
             zoomID = zoomMenu.Append(wx.ID_ANY, item, helpString)
             self.Bind(wx.EVT_MENU, self.onZoom, zoomID)
 
-        # Creating the menubar.
+        # Create the menubar
         menuBar = wx.MenuBar()
         menuBar.Append(zoomMenu, "&Zoom") # Adds the "zoomMenu" to the MenuBar
         self.SetMenuBar(menuBar) # Adds the MenuBar to the Frame content.
@@ -152,17 +262,12 @@ class MainWindow(wx.Frame):
         self.pixelTxtY.Bind(wx.EVT_TEXT_ENTER, self.ImageCtrl_OnEnter)
 
         # Add first row components to sizer
-        # X coordinate display
-        sizer1.Add(lblX, 0, flag=wx.CENTER, border=0)
+        sizer1.Add(lblX, 0, flag=wx.CENTER, border=0) # X coordinate display
         sizer1.Add(buttonX_L, 0, border=0)
         sizer1.Add(self.pixelTxtX, 0, flag=wx.CENTER, border=5) # Text Control Box
         sizer1.Add(buttonX_R, 0, border=0)
-
-        # Horizonal spacer
-        sizer1.Add((5, -1))
-
-        # Y coordinate display
-        sizer1.Add(lblY, 0, flag=wx.CENTER, border=0)
+        sizer1.Add((5, -1)) # Horizonal spacer
+        sizer1.Add(lblY, 0, flag=wx.CENTER, border=0) # Y coordinate display
         sizer1.Add(buttonY_L, 0, border=0)
         sizer1.Add(self.pixelTxtY, 0, flag=wx.CENTER, border=5) # Text Control Box
         sizer1.Add(buttonY_R, 0, border=0)
@@ -170,9 +275,7 @@ class MainWindow(wx.Frame):
         # Add first row sizer to the main sizer
         mainSizer.Add(sizer1, 0, flag=wx.LEFT|wx.RIGHT|
                     wx.TOP|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
-
-        # Vertical spacer
-        mainSizer.Add((-1, 5))
+        mainSizer.Add((-1, 5)) # Vertical spacer
 
         # ---- Second row ----
 
@@ -192,18 +295,14 @@ class MainWindow(wx.Frame):
 
         # Add items to the second sizer (sizer2)
         sizer2.Add(self.rgbValue, 0, flag=wx.ALIGN_CENTER, border=5)
-
-        # Horizontal spacer
-        sizer2.Add((10, -1), 0)
+        sizer2.Add((10, -1), 0) # Horizontal spacer
 
         # Small image that shows the color at the selected pixel
         sizer2.Add(self.colorPreview, 0, flag=wx.ALIGN_CENTER, border=5) 
 
         # Add sizer2 to the main sizer
         mainSizer.Add(sizer2, 0, flag=wx.ALIGN_CENTER_HORIZONTAL|wx.ALL, border=1)
-
-        # Vertical spacer
-        mainSizer.Add((-1, 5))
+        mainSizer.Add((-1, 5)) # Vertical spacer
 
         self.colorInfoPanel.SetSizer(mainSizer)
 
@@ -228,11 +327,15 @@ class MainWindow(wx.Frame):
             self.imagePanel.Bind(wx.EVT_LEFT_DOWN, self.ImageCtrl_OnMouseClick)
             self.imagePanel.Bind(wx.EVT_MOTION, self.ImageCtrl_OnMouseClick) 
 
+        # Add image control to image panel
         mainSizer = wx.BoxSizer(wx.VERTICAL)
         mainSizer.Add(self.imageCtrl, 0, wx.ALIGN_LEFT|wx.ALIGN_TOP|wx.ALL, 0)
         self.imagePanel.SetSizer(mainSizer)
         self.mainSizer.Fit(self.imagePanel)
         self.imagePanel.SetupScrolling(scrollToTop=True)
+
+        # Create cursor
+        self.crosshair = Cursor()
 
     def clipOnBoundary(self):
         """Clips x and y to be valid pixel coordinates
@@ -276,10 +379,8 @@ class MainWindow(wx.Frame):
         bmp = wx.Bitmap(self.PaintChipSize, self.PaintChipSize)
         dc = wx.MemoryDC()
         dc.SelectObject(bmp)
-        pen = wx.Pen(wx.Colour(0,0,0)) # black for outline
-        dc.SetPen(pen)
-        brush = wx.Brush(wx.Colour(r,g,b)) # current image pixel color
-        dc.SetBrush(brush)
+        dc.SetPen(wx.Pen(wx.Colour(0,0,0))) # black for outline
+        dc.SetBrush(wx.Brush(wx.Colour(r,g,b))) # current image pixel color
         dc.DrawRectangle(0, 0, self.PaintChipSize, self.PaintChipSize)
         del dc
         self.colorPreview.SetBitmap(bmp) # Replace the bitmap with the new one
@@ -296,98 +397,14 @@ class MainWindow(wx.Frame):
 
         # event = wx.PyCommandEvent(wx.EVT_TEXT_ENTER.typeId, self.GetId())
         # wx.PostEvent(self.GetEventHandler(), event)
-            
+
         # Forget any saved bitmap buffer
-        if self.cursorBackupBitmap is not None:
-            self.cursorBackupBitmap = None
-
-    def undrawCursor(self):
-        """Restore bitmap (if any) saved previous cursor event
-        """
-        if self.cursorBackupBitmap is not None:
-            if wx.Platform == "__WXMSW__":
-                dc = wx.ClientDC(self.imageCtrl)
-            else:
-                dc = wx.ClientDC(self.imagePanel)
-                self.imagePanel.DoPrepareDC(dc)
-            dc.DrawBitmap(self.cursorBackupBitmap, self.savedCursorPosition, False)
-            del dc
-            
-    def drawCursor(self):
-       # Get coordinates of current cursor location
-        x = int(int(self.pixelTxtX.GetValue()) * self.zoomFactor)
-        y = int(int(self.pixelTxtY.GetValue()) * self.zoomFactor)
-
-        # Get scaled image size
-        W, H = self.image.GetSize()
-        W, H = int(W * self.zoomFactor), int(H * self.zoomFactor)
-
-        # Compute size and position of cursor and save corresponding portion
-        # of the image 
-        w, h = self.cursorSize
-        dx, dy = int((w-1)/2), int((h-1)/2)
-        x0 = max(0, x-dx)
-        y0 = max(0, y-dy)
-        w0 = dx + min(dx+1, W-x)
-        h0 = dy + min(dy+1, H-y)
-        cursorRect = wx.Rect(x0, y0, w0, h0)
-        cursorPosition = x-dx, y-dy
-        self.savedCursorPosition = x0, y0
-        self.cursorBackupBitmap = self.bmp.GetSubBitmap(cursorRect)
-
-        # Draw the cursor - use bitmap on Windows and GTK, DC Draw on Mac
-        if wx.Platform == "__WXMSW__":
-            dc = wx.ClientDC(self.imageCtrl)
-        else:
-            dc = wx.ClientDC(self.imagePanel)
-            self.imagePanel.DoPrepareDC(dc)
-        dc.SetClippingRegion(0, 0, W, H)
-        if wx.Platform == "__WXMAC__":
-            dx, dy = int((w-1)/2)-1, int((h-1)/2)-1
-            dc.SetPen(wx.Pen(wx.Colour(0, 0, 0), width=3))
-            dc.DrawLine(x-dx, y, x+dx, y)
-            dc.DrawLine(x, y-dy, x, y+dy)
-            dc.SetPen(wx.Pen(wx.Colour(255, 255, 0), width=1))
-            dc.DrawLine(x-dx, y, x+dx, y)
-            dc.DrawLine(x, y-dy, x, y+dy)
-        else:
-            dc.DrawBitmap(self.cursorBitmap, cursorPosition, True)
-        del dc
+        self.crosshair.clearBackupBitmap()
         
     def drawCrosshairs(self):
         """Draw image with crosshairs to indicate selected position
         """
-        # Create a bitmap for the cursor if we're not on Mac and it hasen't
-        # already been done
-        if wx.Platform != "__WXMAC__" and self.cursorBitmap is None:
-            dc = wx.MemoryDC()
-
-            w, h = self.cursorSize
-            x, y = int((w-1)/2), int((h-1)/2)
-
-            # Draw the cursor
-            self.cursorBitmap = wx.Bitmap(w, h)
-            dc.SelectObject(self.cursorBitmap)
-            dc.SetPen(wx.Pen(wx.Colour(255, 255, 0)))
-            dc.DrawLine(0, y, w-1, y)
-            dc.DrawLine(x, 0, x, h-1)
-
-            # Draw the mask
-            cursorMask = wx.Bitmap(w, h, depth=1)
-            dc.SelectObject(cursorMask)
-            dc.SetPen(wx.Pen(wx.Colour(255, 255, 255), width=3))
-            dc.DrawLine(0, y, w-1, y)
-            dc.DrawLine(x, 0, x, h-1)
-            self.cursorBitmap.SetMask(wx.Mask(cursorMask))
-
-            # Done with dc
-            del dc
-
-        # Restore bitmap (if any) saved from previous cursor event
-        self.undrawCursor()
-
-        # Draw the cursor bitmap
-        self.drawCursor()
+        self.crosshair.drawCrosshairs(self)
 
 # ===========================================================================
 # Event handlers
