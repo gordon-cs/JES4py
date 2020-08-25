@@ -24,7 +24,7 @@ def pickAFile():
     openFileDialog = wx.FileDialog(frame, "Pick A File", directory, "", "", 
         wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
     if openFileDialog.ShowModal() == wx.ID_CANCEL:
-        return ""
+        return None
     else:
         path = openFileDialog.GetPath()
         Config.setConfigVal('CONFIG_SESSION_PATH',os.path.dirname(path))
@@ -47,7 +47,7 @@ def pickADirectory():
     openDirDialog = wx.DirDialog(frame, "Pick A Folder", directory,
         wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
     if openDirDialog.ShowModal() == wx.ID_CANCEL:
-        return ""
+        return None
     else:
         path = openDirDialog.GetPath()
         openDirDialog.Destroy()
