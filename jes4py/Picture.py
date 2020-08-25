@@ -865,6 +865,31 @@ class Picture:
             self.tmpfilename = None
             self.show()
 
+    def repaint2(self):
+        """Reshow a picture using stand-alone Python script
+        """
+        if (self.process is not None) and self.process.poll() is None:
+            # subprocess seems to be running, ask it to update image
+            try:
+                import pickle
+                payload = pickle.dumps(Picture(self))
+                self.process.stdin.write(payload)
+                self.process.stdin.flush()
+                # self.write(self.tmpfilename) # update temp image file
+                # msg = self.tmpfilename + ' ' + self.title + '\n'
+                # self.process.stdin.write(msg.encode('utf8'))
+                # self.process.stdin.flush()
+            except: # BrokenPipeError:
+                # something went wrong, reset and call show
+                self.process = None
+                self.tmpfilename = None
+                self.show()
+        else:
+            # subprocess is not running, start a new one
+            self.process = None
+            self.tmpfilename = None
+            self.show()
+
     def pictureTool(self):
         """Explore a picture using a stand-alone Python script
         """

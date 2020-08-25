@@ -72,7 +72,9 @@ class Listener(Thread):
         """Run Listener thread"""
         while True:
             #message = input().rstrip() # receive string on stdin
-            message = sys.stdin.readline().rstrip()
+            #message = sys.stdin.readline().rstrip()
+            message = sys.stdin.readline()
+            print('got something')
             if  message == 'exit':
                 wx.PostEvent(self.notifyWindow, MessageEvent(None))
                 return
@@ -120,9 +122,22 @@ class MainWindow(wx.Frame):
             # all done
             self.Close()
         else:
-            # get filename and title and update window
-            filename, title = event.data.split(' ', 1)
-            self.showImage(filename, title)
+            import pickle
+            print('unpickling')
+            p = pickle.loads(event.data)
+            self.showPicture(p)
+            # # get filename and title and update window
+            # filename, title = event.data.split(' ', 1)
+            # self.showImage(filename, title)
+
+    def showPicture(self, p):
+        image = p.getWxImage()
+        imageSize = image.GetSize()
+        bmp = wx.Bitmap(image, wx.BITMAP_TYPE_ANY)
+        self.SetTitle(p.getTitle())
+        self.bitmap = wx.StaticBitmap(parent=self.panel, size=imageSize, bitmap=bmp)
+        self.SetClientSize(imageSize)
+        self.Refresh()
 
     def showImage(self, filename, title):
         """Display (or redisplay) the contents of an image file
