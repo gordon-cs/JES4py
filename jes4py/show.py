@@ -126,17 +126,24 @@ class MainWindow(wx.Frame):
             picture = pickle.loads(event.data)
             if self.panel is None:
                 self.panel = wx.Panel(parent=self)
-                self.showPicture(picture)
+                self.updateBitmap(picture)
                 self.sizer = wx.BoxSizer(wx.VERTICAL)
                 self.sizer.Add(self.panel, 0, wx.ALIGN_LEFT|wx.ALIGN_TOP|wx.ALL, 0)
                 self.SetSizerAndFit(self.sizer)
                 #imageSize = (picture.getWidth(), picture.getHeight())
                 #self.SetClientSize(imageSize)
-                self.Refresh()
             else:
-                self.showPicture(picture)
+                self.updateBitmap(picture)
+            self.Refresh()
 
-    def showPicture(self, picture):
+    def updateBitmap(self, picture):
+        """Set or update bitmap of displayed image
+
+        Parameters
+        ----------
+        picture : Picture object
+            picture to display
+        """
         image = picture.getWxImage()
         imageSize = image.GetSize()
         #print(f'Showing {picture.getTitle()} with size {imageSize}')
