@@ -31,13 +31,16 @@ redisplays the contents of the image file.
 This program will terminate if it is sent the single line message "exit".
 
 Implementation note: The thread portion of this program is based on the
-first example at https://wiki.wxpython.org/LongRunningTasks.
+first example at https://wiki.wxpython.org/LongRunningTasks.  The pickling
+method is based on that shown in
+https://www.imagetracking.org.uk/2018/03/piping-numpy-arrays-to-other-processes-in-python/
 """
 
 import wx
-import sys
-import os
+import sys, os
+import pickle
 from threading import *
+from jes4py import *
 
 class MessageEvent(wx.PyEvent):
     """Simple event to carry arbitrary result data"""
@@ -71,24 +74,27 @@ class Listener(Thread):
     def run(self):
         """Run Listener thread"""
         while True:
-            #message = input().rstrip() # receive string on stdin
-            #message = sys.stdin.readline().rstrip()
-            message = sys.stdin.readline()
-            print('got something')
-            if  message == 'exit':
+            data = sys.stdin.buffer.read(1)
+            if data == Picture.show_control_exit:
                 wx.PostEvent(self.notifyWindow, MessageEvent(None))
                 return
-            else:
+            elif data == Picture.show_control_data:
                 try:
-                    wx.PostEvent(self.notifyWindow, MessageEvent(message))
+                    data = sys.stdin.buffer.read(8)
+                    dataLen = int.from_bytes(data, byteorder='big')
+                    pkg = sys.stdin.buffer.read(dataLen)
+                    wx.PostEvent(self.notifyWindow, MessageEvent(pkg))
                 except RuntimeError:
                     return
+            else:
+                # unrecognised control code
+                return
 
 class MainWindow(wx.Frame):
     """Window class for show program
     """
 
-    def __init__(self, parent, filename, title):
+    def __init__(self, parent):
         """Initializer for MainWindow
 
         Parameters
@@ -100,15 +106,10 @@ class MainWindow(wx.Frame):
         title : str
             the title string for the window
         """
-        super(MainWindow, self).__init__(parent=parent, title=title)
+        super(MainWindow, self).__init__(parent=parent)
         self.Connect(-1, -1, wx.ID_ANY, self.OnMessage)
         self.worker = Listener(self)
-
-        self.panel = wx.Panel(parent=self)
-        self.showImage(filename, title)
-        self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.sizer.Add(self.panel, 0, wx.ALIGN_LEFT|wx.ALIGN_TOP|wx.ALL, 0)
-        self.SetSizerAndFit(self.sizer)
+        self.panel = None
 
     def OnMessage(self, event):
         """Handle received message
@@ -122,38 +123,25 @@ class MainWindow(wx.Frame):
             # all done
             self.Close()
         else:
-            import pickle
-            print('unpickling')
-            p = pickle.loads(event.data)
-            self.showPicture(p)
-            # # get filename and title and update window
-            # filename, title = event.data.split(' ', 1)
-            # self.showImage(filename, title)
+            picture = pickle.loads(event.data)
+            if self.panel is None:
+                self.panel = wx.Panel(parent=self)
+                self.showPicture(picture)
+                self.sizer = wx.BoxSizer(wx.VERTICAL)
+                self.sizer.Add(self.panel, 0, wx.ALIGN_LEFT|wx.ALIGN_TOP|wx.ALL, 0)
+                self.SetSizerAndFit(self.sizer)
+                #imageSize = (picture.getWidth(), picture.getHeight())
+                #self.SetClientSize(imageSize)
+                self.Refresh()
+            else:
+                self.showPicture(picture)
 
-    def showPicture(self, p):
-        image = p.getWxImage()
+    def showPicture(self, picture):
+        image = picture.getWxImage()
         imageSize = image.GetSize()
+        #print(f'Showing {picture.getTitle()} with size {imageSize}')
         bmp = wx.Bitmap(image, wx.BITMAP_TYPE_ANY)
-        self.SetTitle(p.getTitle())
-        self.bitmap = wx.StaticBitmap(parent=self.panel, size=imageSize, bitmap=bmp)
-        self.SetClientSize(imageSize)
-        self.Refresh()
-
-    def showImage(self, filename, title):
-        """Display (or redisplay) the contents of an image file
-
-        Parameters
-        ----------
-        filename : str
-            the name of an image file containing the image to display
-        title : str
-            the title string for the window
-
-        """
-        image = wx.Image(filename, wx.BITMAP_TYPE_ANY)
-        imageSize = image.GetSize()
-        bmp = wx.Bitmap(image, wx.BITMAP_TYPE_ANY)
-        self.SetTitle(title)
+        self.SetTitle(picture.getTitle())
         self.bitmap = wx.StaticBitmap(parent=self.panel, size=imageSize, bitmap=bmp)
         self.SetClientSize(imageSize)
         self.Refresh()
@@ -163,24 +151,8 @@ class MainWindow(wx.Frame):
 # ===========================================================================
 
 def main(argv):
-    usage = "usage: {} file [title]".format(argv[0])
-    # Get image file name and optional image title from command line
-    if len(argv) == 2:
-        filename = title = argv[1]
-    elif len(argv) == 3:
-        filename = argv[1]
-        title = argv[2]
-    else:
-        print(usage)
-        exit(1)
-
-    if not os.path.isfile(filename):
-        print("{} does not exist or is not a file".format(filename))
-        print(usage)
-        exit(1)
-
     app = wx.App(False)
-    frame = MainWindow(parent=None, filename=filename, title=title)
+    frame = MainWindow(parent=None)
     frame.Show()
     app.MainLoop()
 
