@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="jes4py",
-    version="0.1.1",
+    version="0.1.2",
     author="Jonathan Senning",
     author_email="jonathan.senning@gordon.edu",
     description="Python 3.x package providing a subset of JES's media functionality",
