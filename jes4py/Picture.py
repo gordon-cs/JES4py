@@ -1,7 +1,7 @@
 import os, sys
 import wx
 import atexit
-import subprocess, tempfile
+import subprocess, tempfile, pickle
 from subprocess import PIPE
 import PIL.ImageDraw, PIL.Image
 from jes4py import Config
@@ -17,6 +17,8 @@ class Picture:
     tmpfilename = None
     process = None
     subprocessList = []
+    show_control_exit = bytes([0])
+    show_control_data = bytes([1])
 
     def __init__(self, *args, **kwargs):
         """Initializer for Picture class
@@ -784,7 +786,6 @@ class Picture:
         self.write(filename)
         return filename
 
-        # Run show script
     def __runScript(self, script, *argv):
         """Run a Python script in a subprocess
 
@@ -805,44 +806,44 @@ class Picture:
 
         # Register atexit handler if this is the first subprocess
         if len(self.subprocessList) == 0:
-            atexit.register(self._stopAllSubprocesses)
+            atexit.register(self.__stopAllSubprocesses)
 
         # Record the process and return
 
         self.subprocessList.append(proc)
         return proc
 
-    def _stopAllSubprocesses(self):
+    def __stopAllSubprocesses(self):
         """Close windows (i.e. terminate subprocess)
         """
         for proc in self.subprocessList:
             try:
-                proc.stdin.write(b'exit\n')
-                proc.stdin.flush()
-                proc.stdin.close()
+                self.process.stdin.write(self.show_control_exit)
+                self.process.stdin.flush()
+                self.process.stdin.close()
                 proc.terminate()
                 proc.wait(timeout=0.2)
             except: # BrokenPipeError, OSError:
                 pass
 
+    def __sendPickledPicture(self):
+        """Send pickled self object to "show" process
+        """
+        pic = Picture(self)
+        pkg = pickle.dumps(pic)
+        pkgSize = len(pkg).to_bytes(8, byteorder='big')
+        self.process.stdin.write(self.show_control_data)
+        self.process.stdin.write(pkgSize)
+        self.process.stdin.write(pkg)
+        self.process.stdin.flush()
+
     def show(self):
         """Show a picture using stand-alone Python script
         """
-        if self.process is None:
-            # no show process for this picture, start one
-            self.tmpfilename = self.__saveInTempFile()
-            self.process = self.__runScript('show.py', self.tmpfilename, self.title)
-        elif self.process.poll() is not None:
-            # there was a show process, but it's not running, start a new one
-            if self.tmpfilename is None or not os.path.isfile(self.tmpfilename):
-                # temporary image file does not exist, make one
-                self.tmpfilename = self.__saveInTempFile()
-            self.process = self.__runScript('show.py', self.tmpfilename, self.title)
-        else:
-            # show process already running, repaint the picture
-            # NOTE: this is different than JES.  JES raises the picture
-            # to the top so it is visible.
-            self.repaint()
+        if self.process is None or self.process.poll() is not None:
+            # a show process for this pic is not running, start a new one
+            self.process = self.__runScript('show.py')
+        self.__sendPickledPicture()
 
     def repaint(self):
         """Reshow a picture using stand-alone Python script
@@ -850,19 +851,14 @@ class Picture:
         if (self.process is not None) and self.process.poll() is None:
             # subprocess seems to be running, ask it to update image
             try:
-                self.write(self.tmpfilename) # update temp image file
-                msg = self.tmpfilename + ' ' + self.title + '\n'
-                self.process.stdin.write(msg.encode('utf8'))
-                self.process.stdin.flush()
+                self.__sendPickledPicture()
             except: # BrokenPipeError:
                 # something went wrong, reset and call show
                 self.process = None
-                self.tmpfilename = None
                 self.show()
         else:
             # subprocess is not running, start a new one
             self.process = None
-            self.tmpfilename = None
             self.show()
 
     def pictureTool(self):

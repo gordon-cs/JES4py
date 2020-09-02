@@ -5,6 +5,8 @@ show.py - script program to implement the "show" and "repaint" functionality
             in JES for the JES4py package
 
 Written: 2020-07-22 Jonathan Senning <jonathan.senning@gordon.edu>
+Revised: 2020-09-02 Jonathan Senning <jonathan.senning@gordon.edu>
+- received pickled picture objects rather than filename, no need to read files
 
 The "show()" function in JES will open a new window and display the image
 associated with the given Picture object in the window.  The window is
@@ -15,29 +17,25 @@ title) are displayed.  Thus, repaint() can be used to produce simple
 animations.
 
 The jes4py.Picture module defines the Picture class, which has show() and
-repaint() methods.  The show() method saves the Picture object's image to a
-temporary JPEG file and starts a subprocess to run this program.  It passes
-the name of the temporary file and the Picture object's title to the script
-on the command line.  This program then opens a window, displays the
-image, and waits for input on stdin (standard input).
+repaint() methods.  The show() method causes this script to be run in a
+subprocess and uses a pipe to send a pickled picture object to the subprocess.
+The repaint() method checks to make sure a subprocess for this picture object
+is currently running and then sends the pickled updated picture object.
 
-The repaint() method overwrites the temporary JPEG file with the current
-image associated with the Picture object and then writes a line to the
-subprocess' stdin consisting of the JPEG filename and the title string.
-
-Upon receving input from stdin, this program resets the window title and
-redisplays the contents of the image file.
-
-This program will terminate if it is sent the single line message "exit".
+This script expects the initial byte of data to be 0 (to exit) or 1
+(a pickled picture object follows).
 
 Implementation note: The thread portion of this program is based on the
-first example at https://wiki.wxpython.org/LongRunningTasks.
+first example at https://wiki.wxpython.org/LongRunningTasks.  The pickling
+method is based on that shown in
+https://www.imagetracking.org.uk/2018/03/piping-numpy-arrays-to-other-processes-in-python/
 """
 
 import wx
-import sys
-import os
+import sys, os
+import pickle
 from threading import *
+from jes4py import *
 
 class MessageEvent(wx.PyEvent):
     """Simple event to carry arbitrary result data"""
@@ -71,39 +69,45 @@ class Listener(Thread):
     def run(self):
         """Run Listener thread"""
         while True:
-            #message = input().rstrip() # receive string on stdin
-            message = sys.stdin.readline().rstrip()
-            if  message == 'exit':
+            # wait for control code
+            data = sys.stdin.buffer.read(1)
+            if data == Picture.show_control_exit:
+                # shutdown program
                 wx.PostEvent(self.notifyWindow, MessageEvent(None))
                 return
-            else:
+            elif data == Picture.show_control_data:
+                # read picture size and pickled picture data
                 try:
-                    wx.PostEvent(self.notifyWindow, MessageEvent(message))
+                    data = sys.stdin.buffer.read(8)
+                    dataLen = int.from_bytes(data, byteorder='big')
+                    pkg = sys.stdin.buffer.read(dataLen)
+                    wx.PostEvent(self.notifyWindow, MessageEvent(pkg))
                 except RuntimeError:
                     return
+            else:
+                # unrecognised control code
+                return
 
 class MainWindow(wx.Frame):
     """Window class for show program
     """
 
-    def __init__(self, parent, filename, title):
+    def __init__(self, parent):
         """Initializer for MainWindow
 
         Parameters
         ----------
         parent : wxFrame
             the parent frame
-        filename : str
-            the name of an image file containing the image to display
-        title : str
-            the title string for the window
         """
-        super(MainWindow, self).__init__(parent=parent, title=title)
+        super(MainWindow, self).__init__(parent=parent)
+
+        # Set up listener for data coming in over pipe
         self.Connect(-1, -1, wx.ID_ANY, self.OnMessage)
         self.worker = Listener(self)
 
+        # Create panel for displayed window
         self.panel = wx.Panel(parent=self)
-        self.showImage(filename, title)
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.panel, 0, wx.ALIGN_LEFT|wx.ALIGN_TOP|wx.ALL, 0)
         self.SetSizerAndFit(self.sizer)
@@ -115,31 +119,32 @@ class MainWindow(wx.Frame):
         ----------
         event : wx.Event
             the event object
+
+        event.data is either None (to indicate request to terminate program)
+        or a pickled Picture object
         """
         if event.data is None:
             # all done
             self.Close()
         else:
-            # get filename and title and update window
-            filename, title = event.data.split(' ', 1)
-            self.showImage(filename, title)
+            # unpickle data and update displayed image
+            picture = pickle.loads(event.data)
+            self.updateBitmap(picture)
 
-    def showImage(self, filename, title):
-        """Display (or redisplay) the contents of an image file
+    def updateBitmap(self, picture):
+        """Update bitmap of displayed image
 
         Parameters
         ----------
-        filename : str
-            the name of an image file containing the image to display
-        title : str
-            the title string for the window
-
+        picture : Picture object
+            picture to display
         """
-        image = wx.Image(filename, wx.BITMAP_TYPE_ANY)
+        image = picture.getWxImage()
         imageSize = image.GetSize()
         bmp = wx.Bitmap(image, wx.BITMAP_TYPE_ANY)
-        self.SetTitle(title)
-        self.bitmap = wx.StaticBitmap(parent=self.panel, size=imageSize, bitmap=bmp)
+        self.SetTitle(picture.getTitle())
+        self.bitmap = wx.StaticBitmap(parent=self.panel, size=imageSize, \
+                                        bitmap=bmp)
         self.SetClientSize(imageSize)
         self.Refresh()
 
@@ -148,24 +153,8 @@ class MainWindow(wx.Frame):
 # ===========================================================================
 
 def main(argv):
-    usage = "usage: {} file [title]".format(argv[0])
-    # Get image file name and optional image title from command line
-    if len(argv) == 2:
-        filename = title = argv[1]
-    elif len(argv) == 3:
-        filename = argv[1]
-        title = argv[2]
-    else:
-        print(usage)
-        exit(1)
-
-    if not os.path.isfile(filename):
-        print("{} does not exist or is not a file".format(filename))
-        print(usage)
-        exit(1)
-
     app = wx.App(False)
-    frame = MainWindow(parent=None, filename=filename, title=title)
+    frame = MainWindow(parent=None)
     frame.Show()
     app.MainLoop()
 
