@@ -11,3 +11,11 @@ Install on testpypi with
 
 Install on pypi with
  $ python3 -m twine upload dist/jes4py-<version>*
+
+--------------
+
+Install on local machine from testpypi:
+  $ pip3 install --index-url https://test.pypy.org/simple/ jes4py --extra-index-url https://pypi.org/simple/ jes4py
+
+Install on local machine from pypi:
+  $ pip3 install [--user] jes4py
