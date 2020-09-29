@@ -460,20 +460,37 @@ class Picture:
         dest : Picture
             the Picture that the current picture will be copied into
         upperLeftX : int
-            the x-coord of the upper-left corner in dest where the current picture will be copied
+            the x-coord of the upper-left corner in dest where the current
+            picture will be copied
         upperLeftY : int
-            the y-coord of the upper-left corner in dest where the current picture will be copied
+            the y-coord of the upper-left corner in dest where the current
+            picture will be copied
 
         Returns
         -------
         Picture
             the dest picture that has self copied into it
         """
-        for x in range(upperLeftX, self.getWidth()):
-            for y in range(upperLeftY, self.getHeight()):
-                smallPix = self.getPixel(x,y)
-                dest.getPixel(x,y).setColor(smallPix.getColor())
-
+        srcWidth = self.getWidth()
+        srcHeight = self.getHeight()
+        # # The next block of statments deal with cases where the self
+        # # picture would extend past the rigth or bottom border of the
+        # # destination picture. This is good, but an enhancement over
+        # # what JES does.  To make it useful we should also allow for
+        # # negative upperLeftX and upperLeftY values so the src picture
+        # # could extend past the left or top border.  Until this is done
+        # # we'll just leave this code disabled
+        # dstWidth = dest.getWidth()
+        # dstHeight = dest.getHeight()
+        # if upperLeftX + srcWidth >= dstWidth:
+        #     srcWidth = dstWidth - upperLeftX
+        # if upperLeftY + srcHeight >= dstHeight:
+        #     srcHeight = dstHeight - upperLeftY
+        for x in range(0, srcWidth):
+            for y in range(0, srcHeight):
+                srcPix = self.getPixel(x, y)
+                dstPix = dest.getPixel(x+upperLeftX, y+upperLeftY)
+                dstPix.setColor(srcPix.getColor())
         return dest
 
     def crop(self, upperLeftX, upperLeftY, width, height):
@@ -532,7 +549,8 @@ class Picture:
     def getPictureWithHeight(self, height):
         """Returns a scaled version of this picture
 
-        Scales the picture so that the height is equal to height while keeping the same ratio
+        Scales the picture so that the height is equal to height while keeping
+        the same ratio
 
         Parameters
         ----------
@@ -552,7 +570,8 @@ class Picture:
     def getPictureWithWidth(self, width):
         """Returns a scaled version of this picture
 
-        Scales the picture so that the width is equal to width while keeping the same ratio
+        Scales the picture so that the width is equal to width while keeping
+        the same ratio
 
         Parameters
         ----------
