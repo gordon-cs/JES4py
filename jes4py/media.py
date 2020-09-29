@@ -137,6 +137,7 @@ def makeSound(filename, maxIndex=100):
 
 
 def makeEmptySound(numSamples, samplingRate=Sound.SAMPLE_RATE):
+    numSamples = int(numSamples)
     if numSamples <= 0 or samplingRate <= 0:
         print("makeEmptySound(numSamples[, samplingRate]): numSamples and samplingRate must each be greater than 0")
         raise ValueError
