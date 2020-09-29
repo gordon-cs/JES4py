@@ -481,7 +481,8 @@ class Sound:
         """Sets the value of the sample found at the specified frame
         
         If this sound has more than one channel, then we default to setting
-        only the first (left) sample.
+        only the first (left) sample.  Values outside of the range
+        [MAX_NEG, MAX_POS] are silently clipped to be within that range.
     
         Parameters
         ----------
@@ -492,6 +493,7 @@ class Sound:
         """
         n = frameNum * self.sampleWidth * self.numChannels
         m = n + self.sampleWidth
+        value = max(min(value, self.MAX_POS), self.MAX_NEG)
         self.buffer[n:m] = value.to_bytes(self.sampleWidth,
                                           byteorder='little',
                                           signed=True)
@@ -514,6 +516,9 @@ class Sound:
     def setRightSample(self, frameNum, value):
         """Set the right sample value in a stereo sample
         
+        Values outside of the range [MAX_NEG, MAX_POS] are silently clipped
+        to be within that range.
+
         Parameters
         ----------
         frameNum : int
@@ -526,6 +531,7 @@ class Sound:
         else:
             n = frameNum * self.sampleWidth * self.numChannels + self.sampleWidth
             m = n + self.sampleWidth
+            value = max(min(value, self.MAX_POS), self.MAX_NEG)
             self.buffer[n:m] = value.to_bytes(self.sampleWidth,
                                               byteorder='little',
                                               signed=True)
