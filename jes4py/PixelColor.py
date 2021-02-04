@@ -1,6 +1,7 @@
 from jes4py import Config
 import math
-import wx
+import tkinter as tk
+import tkinter.colorchooser
 
 class Pixel:
     """Provides access to pixels within an PIL image
@@ -551,12 +552,10 @@ class Color:
 
     @classmethod
     def pickAColor(cls):
-        app = wx.App()
-        dlg = wx.ColourDialog(wx.GetApp().GetTopWindow())
-        color = None
-        if dlg.ShowModal() == wx.ID_OK:
-            red =  dlg.GetColourData().GetColour().Red()
-            green = dlg.GetColourData().GetColour().Green()
-            blue = dlg.GetColourData().GetColour().Blue()
-            color = Color(red,green,blue)
+        root = tk.Tk()
+        root.withdraw()
+        color, hexcolor = tk.colorchooser.askcolor(title="Pick A Color")
+        if color is not None:
+            color = Color(int(color[0]), int(color[1]), int(color[2]))
+        root.destroy()
         return color

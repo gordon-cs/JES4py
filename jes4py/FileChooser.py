@@ -4,7 +4,8 @@
 """
 
 import os
-import wx
+import tkinter as tk
+import tkinter.filedialog
 from jes4py import Config
 
 def pickAFile():
@@ -14,22 +15,16 @@ def pickAFile():
 
     Returns:
         the file file name of the picked file or None"""
-    app = wx.App()
-
-    frame = wx.Frame(None, -1, 'PickAFile')
-    frame.SetSize(0,0,200,50)
 
     # Create open file dialog
     directory = Config.getConfigVal('CONFIG_SESSION_PATH')
-    openFileDialog = wx.FileDialog(frame, "Pick A File", directory, "", "", 
-        wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
-    if openFileDialog.ShowModal() == wx.ID_CANCEL:
-        return None
-    else:
-        path = openFileDialog.GetPath()
+    path = tk.filedialog.askopenfilename(title="Pick A File",
+        initialdir=directory)
+    if path:
         Config.setConfigVal('CONFIG_SESSION_PATH',os.path.dirname(path))
-        openFileDialog.Destroy()
         return path
+    else:
+        return None
 
 def pickADirectory():
     """Method to let the user pick a directory and return the full
@@ -37,22 +32,16 @@ def pickADirectory():
 
     Returns:
         the full directory path"""
-    app = wx.App()
-
-    frame = wx.Frame(None, -1, 'pickADirectory')
-    frame.SetSize(0,0,200,50)
 
     # Create open file dialog
     directory = Config.getConfigVal('CONFIG_SESSION_PATH')
-    openDirDialog = wx.DirDialog(frame, "Pick A Folder", directory,
-        wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
-    if openDirDialog.ShowModal() == wx.ID_CANCEL:
-        return None
-    else:
-        path = openDirDialog.GetPath()
-        openDirDialog.Destroy()
+    path = tk.filedialog.askdirectory(title="Pick A Folder",
+        initialdir=directory)
+    if path:
         Config.setConfigVal('CONFIG_SESSION_PATH',path)
         return path
+    else:
+        return None
 
 def getMediaPath(fileName):
     """Method to get full path for the passed file name
