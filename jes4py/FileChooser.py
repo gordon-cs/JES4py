@@ -14,12 +14,19 @@ def pickAFile():
        will be None.
 
     Returns:
-        the file file name of the picked file or None"""
+        the file file name of the picked file or None
+    """
+
+    root = tk.Tk()
+    root.withdraw()
 
     # Create open file dialog
     directory = Config.getConfigVal('CONFIG_SESSION_PATH')
-    path = tk.filedialog.askopenfilename(title="Pick A File",
+    path = tk.filedialog.askopenfilename(title='Pick A File',
         initialdir=directory)
+
+    root.destroy()
+
     if path:
         Config.setConfigVal('CONFIG_SESSION_PATH',os.path.dirname(path))
         return path
@@ -31,12 +38,19 @@ def pickADirectory():
        path as a string.
 
     Returns:
-        the full directory path"""
+        the full directory path
+    """
+
+    root = tk.Tk()
+    root.withdraw()
 
     # Create open file dialog
     directory = Config.getConfigVal('CONFIG_SESSION_PATH')
-    path = tk.filedialog.askdirectory(title="Pick A Folder",
+    path = tk.filedialog.askdirectory(title='Pick A Folder',
         initialdir=directory)
+
+    root.destroy()
+
     if path:
         Config.setConfigVal('CONFIG_SESSION_PATH',path)
         return path
@@ -51,7 +65,7 @@ def getMediaPath(fileName):
     Returns:
         the full path for the file
     """
-    return os.path.join(Config.getConfigVal("CONFIG_MEDIA_PATH"), fileName)
+    return os.path.join(Config.getConfigVal('CONFIG_MEDIA_PATH'), fileName)
 
 def getMediaDirectory():
     """Method to get the directory for the media
@@ -59,7 +73,7 @@ def getMediaDirectory():
     Returns:
         the media directory
     """
-    return Config.getConfigVal("CONFIG_MEDIA_PATH")
+    return Config.getConfigVal('CONFIG_MEDIA_PATH')
 
 def setMediaPath(directory):
     """Method to set the media path by setting the directory to use
@@ -67,8 +81,8 @@ def setMediaPath(directory):
     Parameters:
         directory - the directory to use for the media path
     """
-    Config.setConfigVal("CONFIG_MEDIA_PATH", directory)
+    Config.setConfigVal('CONFIG_MEDIA_PATH', directory)
 
 def pickMediaPath():
     path = pickADirectory()
-    Config.setConfigVal("CONFIG_MEDIA_PATH", path)
+    Config.setConfigVal('CONFIG_MEDIA_PATH', path)

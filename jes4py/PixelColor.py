@@ -555,7 +555,7 @@ class Color:
         root = tk.Tk()
         root.withdraw()
         color, hexcolor = tk.colorchooser.askcolor(title="Pick A Color")
+        root.destroy()
         if color is not None:
             color = Color(int(color[0]), int(color[1]), int(color[2]))
-        root.destroy()
         return color
