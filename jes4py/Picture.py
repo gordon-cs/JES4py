@@ -801,8 +801,10 @@ class Picture:
         Popen instance
         """
         # Start subprocess using current Python intepreter to run a script
-        scriptpath = os.path.join(Config.getConfigVal("CONFIG_JES4PY_PATH"), script)
-        proc = subprocess.Popen([sys.executable, scriptpath] + list(argv), stdin=PIPE)
+        scriptpath = os.path.join(Config.getConfigVal("CONFIG_JES4PY_PATH"),
+                'scripts', script)
+        proc = subprocess.Popen([sys.executable, scriptpath] + list(argv),
+                stdin=PIPE)
 
         # Register atexit handler if this is the first subprocess
         if len(self.subprocessList) == 0:

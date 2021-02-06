@@ -19,8 +19,9 @@ def pickAFile():
     # Create open file dialog
     directory = Config.getConfigVal('CONFIG_SESSION_PATH')
     scriptpath = os.path.join(Config.getConfigVal("CONFIG_JES4PY_PATH"),
-            'filePicker.py')
-    path = subprocess.check_output([sys.executable, scriptpath, 'file', directory]).decode()
+            'scripts', 'filePicker.py')
+    path = subprocess.check_output([sys.executable, scriptpath, 'file',
+            directory]).decode()
     if path == '':
         return None
     else:
@@ -37,8 +38,9 @@ def pickADirectory():
     # Create open file dialog
     directory = Config.getConfigVal('CONFIG_SESSION_PATH')
     scriptpath = os.path.join(Config.getConfigVal("CONFIG_JES4PY_PATH"),
-            'filePicker.py')
-    path = subprocess.check_output([sys.executable, scriptpath, 'folder', directory]).decode()
+            'scripts', 'filePicker.py')
+    path = subprocess.check_output([sys.executable, scriptpath, 'folder',
+            directory]).decode()
     if path == '':
         return None
     else:
