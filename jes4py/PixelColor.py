@@ -1,6 +1,7 @@
 from jes4py import Config
 import math
 import wx
+import os, sys, subprocess
 
 class Pixel:
     """Provides access to pixels within an PIL image
@@ -549,14 +550,26 @@ class Color:
                 lighterColor = Color(c)
         return lighterColor
 
+    # @classmethod
+    # def pickAColor(cls):
+    #     app = wx.App()
+    #     dlg = wx.ColourDialog(wx.GetApp().GetTopWindow())
+    #     color = None
+    #     if dlg.ShowModal() == wx.ID_OK:
+    #         red =  dlg.GetColourData().GetColour().Red()
+    #         green = dlg.GetColourData().GetColour().Green()
+    #         blue = dlg.GetColourData().GetColour().Blue()
+    #         color = Color(red,green,blue)
+    #     return color
+
     @classmethod
     def pickAColor(cls):
-        app = wx.App()
-        dlg = wx.ColourDialog(wx.GetApp().GetTopWindow())
-        color = None
-        if dlg.ShowModal() == wx.ID_OK:
-            red =  dlg.GetColourData().GetColour().Red()
-            green = dlg.GetColourData().GetColour().Green()
-            blue = dlg.GetColourData().GetColour().Blue()
-            color = Color(red,green,blue)
+        # Start subprocess using current Python intepreter to run a script
+        scriptpath = os.path.join(Config.getConfigVal("CONFIG_JES4PY_PATH"),
+            'colorChooser.py')
+        color = subprocess.check_output([sys.executable, scriptpath]).decode()
+        if color == '':
+            color = None
+        else:
+            color = Color(color.split())
         return color
