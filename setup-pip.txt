@@ -3,13 +3,15 @@ The following pages give instructions on distributing via pip:
 https://packaging.python.org/tutorials/packaging-projects/
 https://dzone.com/articles/executable-package-pip-install
 
-Build package with 
+1. Edit setup.py and update version number
+
+2. Build package with 
  $ python3 setup.py sdist bdist_wheel
 
-Install on testpypi with
+3. Install on testpypi with
  $ python3 -m twine upload --repository testpypi dist/jes4py-<version>*
 
-Install on pypi with
+4. Install on pypi with
  $ python3 -m twine upload dist/jes4py-<version>*
 
 --------------
