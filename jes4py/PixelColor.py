@@ -566,7 +566,7 @@ class Color:
     def pickAColor(cls):
         # Start subprocess using current Python intepreter to run a script
         scriptpath = os.path.join(Config.getConfigVal("CONFIG_JES4PY_PATH"),
-            'scripts', 'colorPicker.py')
+            'colorPicker.py')
         color = subprocess.check_output([sys.executable, scriptpath]).decode()
         if color == '':
             color = None

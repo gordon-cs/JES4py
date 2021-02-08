@@ -802,7 +802,7 @@ class Picture:
         """
         # Start subprocess using current Python intepreter to run a script
         scriptpath = os.path.join(Config.getConfigVal("CONFIG_JES4PY_PATH"),
-                'scripts', script)
+                script)
         proc = subprocess.Popen([sys.executable, scriptpath] + list(argv),
                 stdin=PIPE)
 
