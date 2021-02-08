@@ -7,4 +7,5 @@ mediasources-4ed/
 build/
 dist/
 jes4py*.egg-info/
-
+ubuntu-20.04-install.txt
+.vscode/
