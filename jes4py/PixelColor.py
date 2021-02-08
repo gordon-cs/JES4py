@@ -571,5 +571,5 @@ class Color:
         if color == '':
             color = None
         else:
-            color = Color(color.split())
+            color = Color(list(map(int,color.split())))
         return color
