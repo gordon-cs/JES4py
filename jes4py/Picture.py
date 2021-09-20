@@ -644,6 +644,9 @@ class Picture:
             the name of the file to load the picture from
         """
         self.image = PIL.Image.open(fileName) #.convert('RGB')
+        # convert colormapped image to RGB
+        if self.image.getpalette() is not None:
+            self.image = self.image.convert("RGB")
         self.filename = self.title = fileName
 
 
