@@ -31,6 +31,8 @@ from jes4py.Samples import Samples
 from jes4py import FileChooser
 import random
 from jes4py import Config
+import sounddevice as sd
+import numpy as np
 
 # from jes.tools.framesequencer import FrameSequencerTool
 
@@ -942,11 +944,49 @@ def cropPicture(picture, upperLeftX, upperLeftY, width, height):
 
 
 ##
-# Java Music Interface
+# (Formally) Java Music Interface
 ##
-# def playNote(note, duration, intensity=64):
-#     JavaMusic.playNote(note, duration, intensity)
 
+def playNote(note, duration, intensity=64):
+    """Plays a note with the passed note, duration, and intensity.
+
+    Parameters
+    ----------
+    note : int
+        the MIDI note to play (0..127).
+    duration : int
+        the number of milliseconds the note should play.
+    intensity : int
+        the intensity of the note (0..127)
+
+    See https://www.inspiredacoustics.com/en/MIDI_note_numbers_and_center_frequencies 
+    for more information about MIDI.
+    """
+
+    # Compute sine wave for note to play
+    noteFrequency = 440 * 2**((note-69)/12.0)
+    sampleRate = int(sd.query_devices('default')['default_samplerate'])
+    numFrames = int(sampleRate * duration / 1000.0)
+    t = np.arange(numFrames).reshape(-1,1) / sampleRate
+    amplitude = min(intensity/127.0, 1.0)
+    soundArray = amplitude * np.sin(2*np.pi*noteFrequency*t)
+
+    # In an attempt to avoid clipping, we generate a smooth "on-ramp" of
+    # 2*nramp values increasing from 0 to 1 and then use an elementwise
+    # product of these values with those at the start of soundArray.  We
+    # then reverse the ramp values and multiply them elementwise with the
+    # values at the end of soundArray to create an off-ramp.
+    n = 2
+    nramp = 4000
+    a = 0.5*(1.0/nramp)**(2*n)
+    x = np.arange(nramp).T
+    y = a*x**(2*n)
+    rampup = np.concatenate((y, 1-np.flip(y)))
+    soundArray[:2*nramp,0] = rampup * soundArray[:2*nramp,0]
+    soundArray[-2*nramp:,0] = np.flip(rampup) * soundArray[-2*nramp:,0]
+
+    # Play the sound
+    sd.play(soundArray, samplerate=sampleRate, blocking=True)
 
 ##
 # General user tools

@@ -1,6 +1,7 @@
 #import os, sys
-import simpleaudio as sa
-# import numpy as np
+#import simpleaudio as sa
+import sounddevice as sd
+import numpy as np
 import wave
 from jes4py import Config
 from jes4py.SoundSample import SoundSample
@@ -69,7 +70,6 @@ class Sound:
             self.sampleWidth = sound.sampleWidth
             self.sampleRate = sound.sampleRate
             self.buffer = sound.buffer.copy()
-        self.playbacks = []
 
     def __str__(self):
         """Return string representation of this sound
@@ -132,15 +132,27 @@ class Sound:
         """
         return self.buffer
 
-    def getPlaybacks(self):
-        """Returns an array of all the current sound's playbacks
+    def asNumpyArray(self):
+        """Returns a numpy array represntation suitable for SoundDevice
 
         Returns
         -------
-        list
-            array of all the current sounds playbacks
+        soundArray
+            The sound buffer as a 1 or 2 column NumPy array with values
+            between -1.0 and 1.0.
         """
-        return self.playbacks
+        bf = self.buffer
+        sw = self.sampleWidth
+        nc = self.numChannels
+        nf = self.numFrames
+        stride = sw * nc
+        soundArray = np.zeros((nf, nc), dtype='float32')
+        for n in range(0, nc):
+            soundArray[:,n] = np.array(
+                [int.from_bytes(bf[k+n*sw:k+(n+1)*sw], 'little', signed=True)
+                        for k in range(0, nf*stride, stride)],
+                dtype='float32') / 32768.0
+        return soundArray
 
     def getChannels(self):
         """Return sounds number of channels
@@ -216,7 +228,7 @@ class Sound:
     
     def setSoundExplorer(self, soundExplorer):
         #self.soundExplorer = soundExplorer
-        print("The sound explorer tool is not yet properly implemented for jes4py")
+        print("The sound explorer tool is not yet implemented for jes4py")
 
     # ------------------------ methods ---------------------------------------
 
@@ -236,8 +248,8 @@ class Sound:
     def play(self):
         """Play a sound - nonblocking
         """
-        waveObject = sa.WaveObject(self.buffer, self.numChannels, self.sampleWidth, self.sampleRate)
-        self.playbacks.append(waveObject.play())
+        soundArray = self.asNumpyArray()
+        sd.play(soundArray, samplerate=self.sampleRate, blocking=False)
 
     def explore(self):
         """Open a sound explorer on a copy of this sound
@@ -265,27 +277,13 @@ class Sound:
     def blockingPlay(self):
         """Play a sound - blocking
         """
-        self.play()
-        self.playbacks[-1].wait_done()
+        soundArray = self.asNumpyArray()
+        sd.play(soundArray, samplerate=self.sampleRate, blocking=True)
 
     def stopPlaying(self):
         """Stop playback of all currently playing sounds
         """
-        while len(self.playbacks) > 0:
-            self.playbacks.pop().stop()
-
-    def removePlayback(self, playbackToRemove):
-        """Method to remove a playback from the list of playbacks
-        
-        Parameters
-        ----------
-        playbackToRemove : PlayObject
-            the playback that we want to remove
-
-        """
-        if (self.playbacks.contains(playbackToRemove)):
-            self.playbacks.remove(playbackToRemove)
-            playbackToRemove = None
+        sd.stop()
 
     def getLengthInFrames(self):
         """Obtains number of sample frames in the audio data
