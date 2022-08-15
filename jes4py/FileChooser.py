@@ -4,7 +4,6 @@
 """
 
 import os
-import wx
 import os, sys, subprocess
 from jes4py import Config
 

@@ -1,9 +1,11 @@
 import os, sys
 import wx
+import tkinter as tk
 import atexit
 import subprocess, tempfile, pickle
 from subprocess import PIPE
-import PIL.ImageDraw, PIL.Image
+from threading import Thread, Event
+import PIL.ImageDraw, PIL.Image, PIL.ImageTk
 from jes4py import Config
 from jes4py.PixelColor import Pixel, Color
 from jes4py import FileChooser
@@ -19,6 +21,8 @@ class Picture:
     subprocessList = []
     show_control_exit = bytes([0])
     show_control_data = bytes([1])
+    root = None
+    queue = None
 
     def __init__(self, *args, **kwargs):
         """Initializer for Picture class
@@ -789,6 +793,10 @@ class Picture:
                     wx_img.SetAlpha(i, j, alpha[i + j * orig_width])
         return wx_img
 
+#----------------------------------------------------------------------------
+# Show / Repaint using threading
+#----------------------------------------------------------------------------
+
     def __saveInTempFile(self):
         """Create temporary image file
 
@@ -858,12 +866,68 @@ class Picture:
         self.process.stdin.write(pkg)
         self.process.stdin.flush()
 
+    # -- (START) TRYING OUT NEW SHOW -----------------------------------------
+
+    def displayImages(self):
+        while not self.stopShowingEvent.is_set():
+            self.root.title(self.title)
+            self.canvas.config(width=self.image.width, height=self.image.height)
+            image = PIL.ImageTk.PhotoImage(self.image)
+            if self.imageID is None:
+                self.imageID = self.canvas.create_image(0, 0, anchor=tk.NW,
+                                                        image=image)
+            else:
+                self.canvas.itemconfig(self.imageID, image=image)
+            self.repaintEvent.wait()
+            self.repaintEvent.clear()
+
+    def startShow(self):
+        self.root = tk.Tk()
+        self.canvas = tk.Canvas(self.root)
+        self.canvas.pack()
+        self.displayThread = Thread(target=self.displayImages)
+        self.displayThread.start()
+        #atexit.register(self.stopShow)
+        self.root.protocol("WM_DELETE_WINDOW", self.onClosing)
+        self.root.mainloop()
+
+    #def stopShow(self):
+    #    self.root = None
+    #    self.imageID = None
+    #    self.stopShowingEvent.set()
+    #    self.repaintEvent.set()
+    #    #self.root.destroy()
+
+    def onClosing(self):
+        print(f"Closing: {self.displayThread.is_alive()}")
+        self.root.destroy()
+        self.root = None
+        self.imageID = None
+        self.stopShowingEvent.set()
+        self.repaintEvent.set()
+        print(f"Closed: {self.displayThread.is_alive()}")
+        
+    def newshow(self):
+        if self.root is not None:
+            print("picture is already being displayed")
+            return
+        self.imageID = None
+        self.stopShowingEvent = Event()
+        self.repaintEvent = Event()
+        t = Thread(target=self.startShow)
+        t.start()
+
+    def newrepaint(self):
+        self.repaintEvent.set()
+    
+    # -- (END) TRYING OUT NEW SHOW -------------------------------------------
+
     def show(self):
         """Show a picture using stand-alone Python script
         """
         if self.process is None or self.process.poll() is not None:
             # a show process for this pic is not running, start a new one
-            self.process = self.__runScript('show.py')
+            self.process = self.__runScript('tkshow.py')
         self.__sendPickledPicture()
 
     def repaint(self):
