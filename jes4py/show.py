@@ -1,162 +1,148 @@
 #!/usr/bin/env python3
 
-"""
-show.py - script program to implement the "show" and "repaint" functionality
-            in JES for the JES4py package
+import sys, pickle, atexit
+import socket
+import tkinter as tk
+from PIL import ImageTk
+from queue import Queue
+from threading import Thread, Event
 
-Written: 2020-07-22 Jonathan Senning <jonathan.senning@gordon.edu>
-Revised: 2020-09-02 Jonathan Senning <jonathan.senning@gordon.edu>
-- received pickled picture objects rather than filename, no need to read files
+def logger(s):
+    loggingEnabled = False
+    if loggingEnabled:
+        f = open('SOCKETTEST.log', 'a')
+        f.write(s + '\n')
+        f.close()
 
-The "show()" function in JES will open a new window and display the image
-associated with the given Picture object in the window.  The window is
-static and does not provide for user interaction.  When the "repaint()"
-function is called, however, the contents of the window are refreshed so
-that any changes to the displayed Picture (the image itself or the picture's
-title) are displayed.  Thus, repaint() can be used to produce simple
-animations.
+class App():
+    EXIT_CODE = b'\x00'
+    PICTURE_CODE = b'\x01'
+    ExitCode = 'exit'
 
-The jes4py.Picture module defines the Picture class, which has show() and
-repaint() methods.  The show() method causes this script to be run in a
-subprocess and uses a pipe to send a pickled picture object to the subprocess.
-The repaint() method checks to make sure a subprocess for this picture object
-is currently running and then sends the pickled updated picture object.
+    def __init__(self):
+        self.root = tk.Tk()
+        self.imageQueue = Queue()
+        stopEvent = Event()
+        self.showThread = Thread(target=self.showImages, args=(stopEvent,), daemon=True)
+        self.showThread.start()
+        self.listenThread = Thread(target=self.listener, args=(stopEvent,), daemon=True)
+        self.listenThread.start()
+        atexit.register(self.stopBackground, stopEvent, self.showThread)
+        atexit.register(self.stopBackground, stopEvent, self.listenThread)
+        self.root.protocol("WM_DELETE_WINDOW", self.windowClosed)
+        self.root.mainloop()
 
-This script expects the initial byte of data to be 0 (to exit) or 1
-(a pickled picture object follows).
+    def listener(self, event):
+        # Open socket on unused port 
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.bind(('', 0))
+        port = self.sock.getsockname()[1]
+        logger(f'Port will be {port}')
 
-Implementation note: The thread portion of this program is based on the
-first example at https://wiki.wxpython.org/LongRunningTasks.  The pickling
-method is based on that shown in
-https://www.imagetracking.org.uk/2018/03/piping-numpy-arrays-to-other-processes-in-python/
-"""
+        # Write port on stdout - should be read via pipes by parent process
+        logger('About to write port to stdout')
+        print(port)
+        sys.stdout.flush()
+        logger('finished writing port')
 
-import wx
-import sys, os
-import pickle
-from threading import *
-from jes4py import *
+        # Ready start work...  Listen for connections
+        backlog = 5
+        self.sock.listen()#backlog)
 
-class MessageEvent(wx.PyEvent):
-    """Simple event to carry arbitrary result data"""
-    def __init__(self, data):
-        """Initializer for MessageEvent class
-
-        Parameters
-        ----------
-        data : (can be any type, but will be a string in this program)
-            the message contents
-        """
-        wx.PyEvent.__init__(self)
-        self.SetEventType(wx.ID_ANY)
-        self.data = data
-
-# Thread class that executes processing
-class Listener(Thread):
-    """Listener Thread Class"""
-    def __init__(self, notifyWindow):
-        """Initializer for Listener Thread Class
-
-        Parameters
-        ----------
-        notifyWindow : wx.Frame
-            the window to notify when a message is received
-        """
-        Thread.__init__(self)
-        self.notifyWindow = notifyWindow
-        self.start()
-
-    def run(self):
-        """Run Listener thread"""
-        while True:
-            # wait for control code
-            data = sys.stdin.buffer.read(1)
-            if data == Picture.show_control_exit:
-                # shutdown program
-                wx.PostEvent(self.notifyWindow, MessageEvent(None))
+        logger('About to accept on socket')
+        self.client, address = self.sock.accept()
+        logger('About to start main loop')
+        while not event.is_set():
+            logger('Waiting to receive message...')
+            opCode = self.client.recv(1)
+            logger(f'Just read something: {opCode}')
+            if len(opCode) == 0 or opCode == self.EXIT_CODE:
+                logger('Exiting')
+                self.imageQueue.put('exit')
+                self.client.close()
                 return
-            elif data == Picture.show_control_data:
-                # read picture size and pickled picture data
-                try:
-                    data = sys.stdin.buffer.read(8)
-                    dataLen = int.from_bytes(data, byteorder='big')
-                    pkg = sys.stdin.buffer.read(dataLen)
-                    wx.PostEvent(self.notifyWindow, MessageEvent(pkg))
-                except RuntimeError:
-                    return
+                #exit()
+            elif opCode == self.PICTURE_CODE:
+                logger('Getting a picture')
+                data = sys.stdin.buffer.read(8)
+                dataLen = int.from_bytes(data, byteorder='big')
+                logger(f'I need to read {dataLen} bytes')
+                pkg = sys.stdin.buffer.read(dataLen)
+                logger(f'I just read {len(pkg)} bytes')
+                picture = pickle.loads(pkg)
+                self.imageQueue.put(picture)
+                logger('Image was put into queue')
             else:
-                # unrecognised control code
+                logger('Unknown opCode')
+
+    def showImages(self, event):
+        logger('Show thread has started')
+        self.canvas = tk.Canvas(self.root)
+        self.canvas.pack()
+        imageID = None
+        while not event.is_set():
+            picture = self.imageQueue.get()
+            logger('Possible image found on queue...')
+            logger(f'  Type: {type(picture)}')
+            logger(f'  Value: {picture}')
+            if isinstance(picture, str) and picture == self.ExitCode:
+                logger('not an image - exit code')
+                #self.root.destroy()
                 return
+            try:
+                logger('must be an image')
+                self.root.title(picture.getTitle())
+                image = ImageTk.PhotoImage(picture.getImage())
+                self.canvas.config(width=picture.getWidth(),
+                                   height=picture.getHeight())        
+                if imageID is None:
+                    logger('showing a new image')
+                    imageID = self.canvas.create_image(0, 0, anchor=tk.NW,
+                                                       image=image)
+                else:
+                    logger('repainting exisiting image')
+                    self.canvas.itemconfig(imageID, image=image)
+            except AttributeError:
+                logger('Attribute Error encountered')
+                #pass
 
-class MainWindow(wx.Frame):
-    """Window class for show program
-    """
-
-    def __init__(self, parent):
-        """Initializer for MainWindow
-
-        Parameters
-        ----------
-        parent : wxFrame
-            the parent frame
-        """
-        super(MainWindow, self).__init__(parent=parent)
-
-        # Set up listener for data coming in over pipe
-        self.Connect(-1, -1, wx.ID_ANY, self.OnMessage)
-        self.worker = Listener(self)
-
-        # Create panel for displayed window
-        self.panel = wx.Panel(parent=self)
-        self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.sizer.Add(self.panel, 0, wx.ALIGN_LEFT|wx.ALIGN_TOP|wx.ALL, 0)
-        self.SetSizerAndFit(self.sizer)
-
-    def OnMessage(self, event):
-        """Handle received message
-
-        Parameters
-        ----------
-        event : wx.Event
-            the event object
-
-        event.data is either None (to indicate request to terminate program)
-        or a pickled Picture object
-        """
-        if event.data is None:
-            # all done
-            self.Close()
-        else:
-            # unpickle data and update displayed image
-            picture = pickle.loads(event.data)
-            self.updateBitmap(picture)
-
-    def updateBitmap(self, picture):
-        """Update bitmap of displayed image
-
-        Parameters
-        ----------
-        picture : Picture object
-            picture to display
-        """
-        image = picture.getWxImage()
-        imageSize = image.GetSize()
-        bmp = wx.Bitmap(image, wx.BITMAP_TYPE_ANY)
-        self.SetTitle(picture.getTitle())
-        self.bitmap = wx.StaticBitmap(parent=self.panel, size=imageSize, \
-                                        bitmap=bmp)
-        self.SetClientSize(imageSize)
-        self.Refresh()
-
-# ===========================================================================
-# Main program
-# ===========================================================================
-
-def main(argv):
-    app = wx.App(False)
-    frame = MainWindow(parent=None)
-    frame.Show()
-    app.MainLoop()
+    def stopBackground(self, event, thread):
+        """Handle Python exiting"""
+        event.set()
+        self.imageQueue.put(self.ExitCode)
+        try:
+            self.client.close()
+        except:
+            pass
+        try:
+            self.sock.close()
+        except:
+            pass
+        #thread.join()
+        logger('stopBackground: Exit')
+        exit()
+    
+    def windowClosed(self):
+        """Handle GUI window close event"""
+        logger('windowClosed')
+        self.imageQueue.put(self.ExitCode)  # Signal stop to showImage thread
+        #self.listenThread.join()
+        #self.listenThread._stop()
+        try:
+            self.client.close()
+        except:
+            pass
+        try:
+            self.sock.close()
+        except:
+            pass
+        try:
+            self.root.destroy()
+            del self.root
+        except AttributeError:
+            pass
+        exit()
 
 if __name__ == '__main__':
-    main(sys.argv)
+    app = App()

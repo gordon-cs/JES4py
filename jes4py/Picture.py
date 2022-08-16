@@ -2,6 +2,7 @@ import os, sys
 import wx
 import tkinter as tk
 import atexit
+import socket #JRSSOCK
 import subprocess, tempfile, pickle
 from subprocess import PIPE
 from threading import Thread, Event
@@ -765,35 +766,6 @@ class Picture:
         self.addMessage(text, xPos, yPos)
 
 #----------------------------------------------------------------------------
-# WX specific methods
-#----------------------------------------------------------------------------
-
-    def getWxImage(self, copy_alpha=True):
-        """Return a wx.Image version of this image
-
-        Parameters
-        ----------
-        copy_alpha : bool
-            if True and image has alpha values, then convert them too
-
-        Returns
-        -------
-        wx.Image
-            the converted image
-        """
-        orig_width, orig_height = self.image.size
-        wx_img = wx.Image(orig_width, orig_height)
-        wx_img.SetData(self.image.convert('RGB').tobytes())
-
-        if copy_alpha and (self.image.mode[-1] == 'A'):
-            alpha = self.image.getchannel("A").tobytes()
-            wx_img.InitAlpha()
-            for i in range(orig_width):
-                for j in range(orig_height):
-                    wx_img.SetAlpha(i, j, alpha[i + j * orig_width])
-        return wx_img
-
-#----------------------------------------------------------------------------
 # Show / Repaint using threading
 #----------------------------------------------------------------------------
 
@@ -831,7 +803,7 @@ class Picture:
         scriptpath = os.path.join(Config.getConfigVal("CONFIG_JES4PY_PATH"),
                 script)
         proc = subprocess.Popen([sys.executable, scriptpath] + list(argv),
-                stdin=PIPE)
+                stdin=PIPE, stdout=PIPE) #JRSSOCK added stdout
 
         # Register atexit handler if this is the first subprocess
         if len(self.subprocessList) == 0:
@@ -847,9 +819,11 @@ class Picture:
         """
         for proc in self.subprocessList:
             try:
-                self.process.stdin.write(self.show_control_exit)
+                #self.process.stdin.write(self.show_control_exit)
+                self.sock.sendall(self.show_control_exit) #JRSSOCK
                 self.process.stdin.flush()
                 self.process.stdin.close()
+                self.sock.close()
                 proc.terminate()
                 proc.wait(timeout=0.2)
             except: # BrokenPipeError, OSError:
@@ -861,73 +835,44 @@ class Picture:
         pic = Picture(self)
         pkg = pickle.dumps(pic)
         pkgSize = len(pkg).to_bytes(8, byteorder='big')
-        self.process.stdin.write(self.show_control_data)
+        #self.process.stdin.write(self.show_control_data)
+        numtries = 0
+        dataSent = False
+        while not dataSent and numtries < 25:
+            try:
+                self.sock.sendall(self.show_control_data) #JRSSOCK
+                dataSent = True
+            except BrokenPipeError:
+                self.__establishConnection()
+                numtries = numtries + 1
+                datSent = False
+                #print(f'Data send attempt {numtries} fail')
         self.process.stdin.write(pkgSize)
         self.process.stdin.write(pkg)
         self.process.stdin.flush()
 
-    # -- (START) TRYING OUT NEW SHOW -----------------------------------------
-
-    def displayImages(self):
-        while not self.stopShowingEvent.is_set():
-            self.root.title(self.title)
-            self.canvas.config(width=self.image.width, height=self.image.height)
-            image = PIL.ImageTk.PhotoImage(self.image)
-            if self.imageID is None:
-                self.imageID = self.canvas.create_image(0, 0, anchor=tk.NW,
-                                                        image=image)
-            else:
-                self.canvas.itemconfig(self.imageID, image=image)
-            self.repaintEvent.wait()
-            self.repaintEvent.clear()
-
-    def startShow(self):
-        self.root = tk.Tk()
-        self.canvas = tk.Canvas(self.root)
-        self.canvas.pack()
-        self.displayThread = Thread(target=self.displayImages)
-        self.displayThread.start()
-        #atexit.register(self.stopShow)
-        self.root.protocol("WM_DELETE_WINDOW", self.onClosing)
-        self.root.mainloop()
-
-    #def stopShow(self):
-    #    self.root = None
-    #    self.imageID = None
-    #    self.stopShowingEvent.set()
-    #    self.repaintEvent.set()
-    #    #self.root.destroy()
-
-    def onClosing(self):
-        print(f"Closing: {self.displayThread.is_alive()}")
-        self.root.destroy()
-        self.root = None
-        self.imageID = None
-        self.stopShowingEvent.set()
-        self.repaintEvent.set()
-        print(f"Closed: {self.displayThread.is_alive()}")
-        
-    def newshow(self):
-        if self.root is not None:
-            print("picture is already being displayed")
-            return
-        self.imageID = None
-        self.stopShowingEvent = Event()
-        self.repaintEvent = Event()
-        t = Thread(target=self.startShow)
-        t.start()
-
-    def newrepaint(self):
-        self.repaintEvent.set()
-    
-    # -- (END) TRYING OUT NEW SHOW -------------------------------------------
+    def __establishConnection(self):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        connected = False
+        numtries = 0
+        while not connected and numtries < 25:
+            try:
+                self.sock.connect(('localhost', self.port)) #JRSSOCK
+                connected = True
+            except ConnectionRefusedError:
+                numtries = numtries + 1
+                connected = False
+                #print(f'Connection attempt {numtries} failed')
 
     def show(self):
         """Show a picture using stand-alone Python script
         """
         if self.process is None or self.process.poll() is not None:
             # a show process for this pic is not running, start a new one
-            self.process = self.__runScript('tkshow.py')
+            self.process = self.__runScript('show.py') #JRSSOCK
+            self.port = int(self.process.stdout.readline().decode()) #JRSSOCK
+            self.__establishConnection()
         self.__sendPickledPicture()
 
     def repaint(self):
