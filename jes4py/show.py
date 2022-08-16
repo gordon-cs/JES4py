@@ -7,11 +7,10 @@ from PIL import ImageTk
 from queue import Queue
 from threading import Thread, Event
 
-def logger(s):
-    loggingEnabled = False
-    if loggingEnabled:
+def logger(message, logging=False):
+    if logging:
         f = open('SOCKETTEST.log', 'a')
-        f.write(s + '\n')
+        f.write(message + '\n')
         f.close()
 
 class App():

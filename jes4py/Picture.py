@@ -1,5 +1,4 @@
 import os, sys
-import wx
 import tkinter as tk
 import atexit
 import socket #JRSSOCK

@@ -1,6 +1,5 @@
 from jes4py import Config
 import math
-import wx
 import os, sys, subprocess
 
 class Pixel:
@@ -549,18 +548,6 @@ class Color:
                         c[i] += 2
                 lighterColor = Color(c)
         return lighterColor
-
-    # @classmethod
-    # def pickAColor(cls):
-    #     app = wx.App()
-    #     dlg = wx.ColourDialog(wx.GetApp().GetTopWindow())
-    #     color = None
-    #     if dlg.ShowModal() == wx.ID_OK:
-    #         red =  dlg.GetColourData().GetColour().Red()
-    #         green = dlg.GetColourData().GetColour().Green()
-    #         blue = dlg.GetColourData().GetColour().Blue()
-    #         color = Color(red,green,blue)
-    #     return color
 
     @classmethod
     def pickAColor(cls):
