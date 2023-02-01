@@ -141,7 +141,7 @@ class MainWindow(wx.Frame):
         """
         image = picture.getWxImage()
         imageSize = image.GetSize()
-        bmp = wx.Bitmap(image, wx.BITMAP_TYPE_ANY)
+        bmp = wx.Bitmap(image)
         self.SetTitle(picture.getTitle())
         self.bitmap = wx.StaticBitmap(parent=self.panel, size=imageSize, \
                                         bitmap=bmp)
