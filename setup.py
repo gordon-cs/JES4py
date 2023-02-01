@@ -18,7 +18,7 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.0.0',install_requires=[
+    python_requires='>=3.6.0',install_requires=[
         'wave',
         'wxPython',
         'simpleaudio'

@@ -2,6 +2,8 @@
 __pycache__/
 JES-projects-for-testing*
 jes-6.0-linux*
+*,[0-9][0-9]
+OrigJES/
 Sandbox/
 mediasources-4ed/
 build/
