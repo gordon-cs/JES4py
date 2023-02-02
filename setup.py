@@ -5,10 +5,10 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="jes4py",
-    version="0.1.4",
+    version="0.1.6",
     author="Jonathan Senning",
     author_email="jonathan.senning@gordon.edu",
-    description="Python 3.x package providing a subset of JES's media functionality",
+    description="Python 3 package providing a subset of JES's media functionality",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/gordon-cs/JES4py",
