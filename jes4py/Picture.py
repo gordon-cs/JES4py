@@ -790,7 +790,7 @@ class Picture:
         return wx_img
 
     def __saveInTempFile(self):
-        """Create temporary image file
+        """Create temporary image file using lossless image format
 
         Returns
         -------
@@ -798,10 +798,7 @@ class Picture:
             path to temporary image file
         """
         filename = os.path.join(tempfile.gettempdir(),
-            "jes4py_" + next(tempfile._get_candidate_names()) + self.extension)
-        #tempdir = tempfile.mkdtemp()
-        #filename = os.path.join(tempdir, "showimage" + self.extension)
-        #os.mkdir(tempdir)
+            "jes4py_" + next(tempfile._get_candidate_names()) + ".png")
         self.write(filename)
         return filename
 

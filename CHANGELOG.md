@@ -1,5 +1,9 @@
 # Change History
 
+## Version 0.1.7
+
+Use lossless image format for temporary image files used for picture explorer
+
 ## Version 0.1.6
 
 Fixed `show()` and `repaint()` to improve performance on Windows machines.
